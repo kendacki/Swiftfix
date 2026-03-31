@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import {
@@ -11,6 +13,7 @@ import {
   X,
   FilePlus2,
 } from "lucide-react";
+import { usePrivy } from "@privy-io/react-auth";
 
 type SidebarProps = {
   mobileOpen: boolean;
@@ -37,14 +40,30 @@ function isActivePath(currentPath: string, href: string) {
 
 export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { ready, authenticated } = usePrivy();
 
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 bg-slate-950 text-white lg:flex lg:flex-col">
-        <div className="flex h-16 items-center px-5 text-sm font-semibold tracking-wide">
-          SwiftFix
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            if (ready && authenticated) router.push("/dashboard");
+          }}
+          className="flex h-16 items-center px-5"
+          aria-label="Go to dashboard"
+        >
+          <Image
+            src="/logo.png"
+            alt="SwiftFix"
+            width={120}
+            height={24}
+            className="h-6 w-auto"
+            priority
+          />
+        </button>
         <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
           {navItems.map((item) => {
             const active = isActivePath(pathname, item.href);
@@ -76,7 +95,24 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
 
         <aside className="fixed left-0 top-0 z-50 flex h-full w-72 flex-col bg-slate-950 text-white shadow-xl">
           <div className="flex h-16 items-center justify-between px-5">
-            <div className="text-sm font-semibold tracking-wide">SwiftFix</div>
+            <button
+              type="button"
+              onClick={() => {
+                if (ready && authenticated) router.push("/dashboard");
+                onMobileClose();
+              }}
+              className="flex items-center"
+              aria-label="Go to dashboard"
+            >
+              <Image
+                src="/logo.png"
+                alt="SwiftFix"
+                width={120}
+                height={24}
+                className="h-6 w-auto"
+                priority
+              />
+            </button>
             <button
               type="button"
               onClick={onMobileClose}
