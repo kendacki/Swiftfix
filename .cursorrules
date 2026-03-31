@@ -1,0 +1,29 @@
+# SwiftFix Production Rules
+
+## Tech Stack
+* Framework: Next.js (App Router, TypeScript)
+* UI/Styling: Tailwind CSS, Google Stitch/MCP generated components, Lucide-react Icons
+* Backend/API: Next.js Route Handlers (Serverless API)
+* Database: PostgreSQL via Prisma ORM
+* Core APIs: Gemini API (AI requests), Privy (Auth/Wallet), TinyFish (Web Scraper), Paystack API (Fiat Withdrawals & Account Resolution)
+
+## UI & Layout Standards
+* Global Layout: Dark sidebar navigation on the left, white/light main content area on the right.
+* Responsiveness: Must be fully mobile-responsive. Sidebar must collapse into a hamburger menu on small screens.
+* Components: Use modular, reusable UI components. Never write inline CSS. Use Tailwind classes.
+
+## Coding Standards & Architecture
+* Always write fully typed TypeScript code. Do not use 'any'.
+* Keep React components small. Separate business logic (custom hooks) from UI components.
+* Server/Client boundaries: Clearly mark client components with "use client" at the top when using hooks or interactivity.
+* Use async/await for all asynchronous operations.
+
+## Financial & Edge Case Handling (CRITICAL)
+* Currency Swaps (USDT <-> NGN) and Withdrawals MUST be wrapped in a Prisma `$transaction` to prevent partial balance updates if the server crashes.
+* Always verify the user has sufficient balance before initiating a swap or withdrawal. Show a clear UI error if funds are insufficient.
+* For Paystack withdrawals, ALWAYS call the "Resolve Account Number" endpoint first. Do not allow the user to click "Withdraw" until the account name is verified and displayed on the screen.
+* External API Failures: If Gemini, TinyFish, or Paystack APIs time out or fail, catch the error gracefully and return a user-friendly message (e.g., "Our search network is currently busy, please try again"). Do not let the app crash.
+
+## Security & State
+* Never hardcode API keys or secrets. Always read from process.env.
+* Assume the user's base currency toggle defaults to NGN (Naira), with USDT as the secondary option.
