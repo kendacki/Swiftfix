@@ -95,9 +95,6 @@ export default function SettingsPage() {
           </div>
 
           <div className="rounded-xl bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
-            <div className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-              Signed in as
-            </div>
             <div className="font-semibold">{authenticated ? displayIdentifier : "Guest"}</div>
           </div>
         </div>
