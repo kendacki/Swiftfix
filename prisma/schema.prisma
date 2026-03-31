@@ -1,0 +1,56 @@
+// prisma/schema.prisma
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String        @id @default(uuid())
+  privyId       String        @unique // Connects to their Privy Auth
+  phoneNumber   String?       @unique
+  email         String?       @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  wallet        Wallet?
+  bankAccounts  BankAccount[]
+  transactions  Transaction[]
+}
+
+model Wallet {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  ngnBalance    Decimal  @default(0.00)
+  usdtBalance   Decimal  @default(0.00)
+  updatedAt     DateTime @updatedAt
+}
+
+model BankAccount {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  bankName      String   // e.g., "GTBank", "Moniepoint"
+  accountNumber String
+  accountName   String   // Verified via Paystack API
+  isVerified    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  type          String   // "DEPOSIT", "WITHDRAWAL", "SWAP", "PAYMENT"
+  amount        Decimal
+  currency      String   // "NGN" or "USDT"
+  status        String   // "PENDING", "COMPLETED", "FAILED"
+  reference     String?  @unique
+  description   String?
+  createdAt     DateTime @default(now())
+}
