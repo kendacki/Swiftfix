@@ -93,9 +93,7 @@ export default function WalletPage() {
             </div>
           </div>
 
-          <div className="mt-4 text-xs text-zinc-500">
-            Placeholder UI — connect Paystack account resolution in Sprint 3.
-          </div>
+
         </div>
 
         {/* Recent wallet activities placeholder can be wired to real data later */}
