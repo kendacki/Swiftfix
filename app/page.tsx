@@ -195,39 +195,39 @@ export default function Page() {
       {/* Top nav */}
       <header className="sticky top-0 z-20">
         <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6">
-          <div className="flex items-center justify-between rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 backdrop-blur-xl sm:px-5">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="SwiftFix"
-              width={120}
-              height={24}
-              priority
-              className="h-6 w-auto opacity-90"
-            />
-          </div>
+          <div className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 backdrop-blur-xl sm:px-5 md:grid-cols-3">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo.png"
+                alt="SwiftFix"
+                width={120}
+                height={24}
+                priority
+                className="h-6 w-auto opacity-90"
+              />
+            </div>
 
-          <nav className="hidden items-center gap-8 text-sm text-white/60 md:flex">
-            <a href="#features" className="transition hover:text-white">
-              Features
-            </a>
-            <a href="#trust" className="transition hover:text-white">
-              Trust
-            </a>
-            <a href="#faq" className="transition hover:text-white">
-              FAQ
-            </a>
-          </nav>
+            <nav className="hidden items-center justify-center gap-10 text-sm text-white/60 md:flex">
+              <a href="#features" className="transition hover:text-white">
+                Features
+              </a>
+              <a href="#trust" className="transition hover:text-white">
+                Trust
+              </a>
+              <a href="#faq" className="transition hover:text-white">
+                FAQ
+              </a>
+            </nav>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => login()}
-              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition hover:bg-white/90"
-            >
-              Sign In
-            </button>
-          </div>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => login()}
+                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition hover:bg-white/90"
+              >
+                Sign In
+              </button>
+            </div>
           </div>
         </div>
       </header>
