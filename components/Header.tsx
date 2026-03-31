@@ -47,10 +47,6 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
         <div className="flex items-center gap-3">
           {ready && authenticated ? (
             <>
-              <div className="max-w-[10rem] truncate text-sm font-medium text-zinc-700 sm:max-w-none">
-                Welcome, {displayIdentifier}
-              </div>
-
               <button
                 type="button"
                 onClick={() => {
