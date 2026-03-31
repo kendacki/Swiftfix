@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
@@ -81,7 +82,15 @@ export default function DashboardPage() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-sm text-zinc-500">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
+          <div className="relative h-12 w-12 animate-pulse">
+            <Image
+              src="/logo.png"
+              alt="SwiftFix"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
           <span>Preparing your dashboard...</span>
         </div>
       </div>

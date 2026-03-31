@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
@@ -43,7 +44,18 @@ export function AuthGuard({ children }: AuthGuardProps) {
   if (!ready || !authenticated || !isSynced) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-        <div className="text-sm text-zinc-500">Preparing your dashboard...</div>
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative h-12 w-12 animate-pulse">
+            <Image
+              src="/logo.png"
+              alt="SwiftFix"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+          <div className="text-sm text-zinc-500">Preparing your dashboard...</div>
+        </div>
       </div>
     );
   }
