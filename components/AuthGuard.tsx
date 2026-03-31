@@ -47,7 +47,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
         <div className="flex flex-col items-center gap-3">
           <div className="relative h-14 w-14 animate-pulse">
             <Image
-              src="/logo.png"
+              src="/logo-loader.png"
               alt="SwiftFix"
               fill
               className="object-contain"
