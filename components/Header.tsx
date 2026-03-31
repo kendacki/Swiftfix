@@ -3,6 +3,9 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { CircleUser, LogIn, LogOut, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
+import ProfileAvatarUpload from "@/components/ProfileAvatarUpload";
 
 type HeaderProps = {
   onOpenMobileSidebar: () => void;
@@ -11,9 +14,41 @@ type HeaderProps = {
 export function Header({ onOpenMobileSidebar }: HeaderProps) {
   const { ready, authenticated, user, login, logout } = usePrivy();
   const pathname = usePathname();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement | null>(null);
 
   const displayIdentifier =
     user?.phone?.number ?? user?.email?.address ?? "User";
+
+  const avatarUrl = useMemo(() => {
+    const meta = (user as unknown as { customMetadata?: Record<string, unknown> })
+      ?.customMetadata;
+    const v = meta?.avatarUrl;
+    return typeof v === "string" && v.length > 0 ? v : null;
+  }, [user]);
+
+  useEffect(() => {
+    if (!profileOpen) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setProfileOpen(false);
+    };
+
+    const onPointerDown = (e: MouseEvent | PointerEvent) => {
+      const el = profileRef.current;
+      if (!el) return;
+      if (e.target instanceof Node && !el.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [profileOpen]);
 
   const pageTitle = (() => {
     if (pathname === "/dashboard" || pathname.startsWith("/dashboard/"))
@@ -71,13 +106,41 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
             </button>
           )}
 
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-full p-2 text-zinc-700 hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-300"
-            aria-label="Profile"
-          >
-            <CircleUser className="h-6 w-6" />
-          </button>
+          <div className="relative" ref={profileRef}>
+            <button
+              type="button"
+              onClick={() => setProfileOpen((v) => !v)}
+              className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300"
+              aria-label="Profile"
+            >
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt="Profile avatar"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <CircleUser className="h-6 w-6" />
+              )}
+            </button>
+
+            {profileOpen && ready && authenticated ? (
+              <div className="absolute right-0 top-12 z-50 w-[320px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg">
+                <div className="border-b border-zinc-200 px-4 py-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                    Profile
+                  </div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">
+                    {displayIdentifier}
+                  </div>
+                </div>
+                <div className="p-4">
+                  <ProfileAvatarUpload />
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </header>

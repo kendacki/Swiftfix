@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { Camera } from "lucide-react";
+import { uploadAvatar } from "@/actions/avatarActions";
 
 type PrivyUpdateUserFn = (updates: { customMetadata?: Record<string, unknown> }) => Promise<unknown>;
 
@@ -50,9 +51,6 @@ export function ProfileAvatarUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
   const onPick = () => {
     if (isUploading) return;
     fileInputRef.current?.click();
@@ -66,10 +64,6 @@ export function ProfileAvatarUpload() {
       setError("Please sign in to upload an avatar.");
       return;
     }
-    if (!cloudName || !uploadPreset) {
-      setError("Missing Cloudinary configuration.");
-      return;
-    }
     if (!updateUser) {
       setError("Profile update is unavailable. Please try again.");
       return;
@@ -80,42 +74,16 @@ export function ProfileAvatarUpload() {
     try {
       const form = new FormData();
       form.append("file", file);
-      form.append("upload_preset", uploadPreset);
 
-      // Auto-magic crop + optimize: 200x200 thumb, face gravity
-      form.append("eager", "c_thumb,g_face,w_200,h_200/f_auto,q_auto");
-
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: form,
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Upload failed. Please try again.");
-      }
-
-      const data = (await res.json()) as {
-        secure_url?: string;
-        eager?: Array<{ secure_url?: string }>;
-      };
-
-      const optimizedUrl =
-        data.eager?.[0]?.secure_url ?? data.secure_url ?? null;
-
-      if (!optimizedUrl) {
-        throw new Error("Upload succeeded but no URL was returned.");
-      }
+      const { publicUrl } = await uploadAvatar(user?.id ?? "", form);
 
       await updateUser({
         customMetadata: {
-          avatarUrl: optimizedUrl,
+          avatarUrl: publicUrl,
         },
       });
 
-      setAvatarUrl(optimizedUrl);
+      setAvatarUrl(publicUrl);
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Upload failed. Please try again.";
