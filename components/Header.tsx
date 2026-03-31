@@ -2,6 +2,7 @@
 
 import { usePrivy } from "@privy-io/react-auth";
 import { CircleUser, LogIn, LogOut, Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 type HeaderProps = {
   onOpenMobileSidebar: () => void;
@@ -9,9 +10,21 @@ type HeaderProps = {
 
 export function Header({ onOpenMobileSidebar }: HeaderProps) {
   const { ready, authenticated, user, login, logout } = usePrivy();
+  const pathname = usePathname();
 
   const displayIdentifier =
     user?.phone?.number ?? user?.email?.address ?? "User";
+
+  const pageTitle = (() => {
+    if (pathname === "/dashboard" || pathname.startsWith("/dashboard/"))
+      return "Dashboard";
+    if (pathname === "/wallet" || pathname.startsWith("/wallet/")) return "Wallet";
+    if (pathname === "/transactions" || pathname.startsWith("/transactions/"))
+      return "Transactions";
+    if (pathname === "/request" || pathname.startsWith("/request/")) return "Request";
+    if (pathname === "/settings" || pathname.startsWith("/settings/")) return "Settings";
+    return "Dashboard";
+  })();
 
   return (
     <header className="sticky top-0 z-30 w-full border-b border-zinc-200 bg-white">
@@ -27,7 +40,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
           </button>
 
           <div className="text-sm font-semibold text-zinc-900 sm:text-base">
-            Dashboard
+            {pageTitle}
           </div>
         </div>
 

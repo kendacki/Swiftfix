@@ -104,23 +104,6 @@ export default function DashboardPage() {
               Here&apos;s a snapshot of your SwiftFix capital today.
             </p>
           </div>
-
-          <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-                Total balance (NGN)
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-zinc-800">
-                USDT
-                <span className="rounded-full bg-zinc-900 px-2 py-0.5 text-[10px] font-semibold text-white">
-                  {formatTxAmount("USDT", totalUsdt)}
-                </span>
-              </span>
-            </div>
-            <div className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900">
-              {formatTxAmount("NGN", totalNgn)}
-            </div>
-          </div>
         </div>
 
         <div className="mt-5">
