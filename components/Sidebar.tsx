@@ -64,7 +64,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             priority
           />
         </button>
-        <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
+        <nav className="flex flex-1 flex-col gap-2 px-3 py-5">
           {navItems.map((item) => {
             const active = isActivePath(pathname, item.href);
             return (
@@ -72,7 +72,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={[
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",
                   active ? "bg-slate-800 text-white" : "text-slate-200 hover:bg-slate-900",
                 ].join(" ")}
               >
@@ -123,7 +123,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             </button>
           </div>
 
-          <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
+          <nav className="flex flex-1 flex-col gap-2 px-3 py-5">
             {navItems.map((item) => {
               const active = isActivePath(pathname, item.href);
               return (
@@ -132,7 +132,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                   href={item.href}
                   onClick={onMobileClose}
                   className={[
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                    "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",
                     active ? "bg-slate-800 text-white" : "text-slate-200 hover:bg-slate-900",
                   ].join(" ")}
                 >
