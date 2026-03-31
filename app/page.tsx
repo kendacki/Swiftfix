@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
+import PartnersSection from "@/components/PartnersSection";
 import {
   ArrowLeftRight,
   BadgeCheck,
@@ -391,38 +392,9 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Showcase collaborations */}
-      <section className="relative z-10">
-        <div className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur">
-            <div className="text-center">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#A1A1A1]">
-                Showcase Collaborations
-              </div>
-              <div className="mt-3 text-balance text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                Trusted by teams building the future.
-              </div>
-              <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#A1A1A1]">
-                We partner with technology providers and communities to deliver
-                safe, seamless financial flows.
-              </p>
-            </div>
-
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {["Partner", "Partner", "Partner", "Partner", "Partner", "Partner"].map(
-                (p, i) => (
-                  <div
-                    key={`${p}-${i}`}
-                    className="flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.02] py-4 text-xs font-semibold tracking-wide text-white/80"
-                  >
-                    {p}
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+      <div className="relative z-10">
+        <PartnersSection />
+      </div>
 
       {/* Footer */}
       <footer className="relative z-10">
