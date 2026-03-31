@@ -45,7 +45,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50">
         <div className="flex flex-col items-center gap-3">
-          <div className="relative h-12 w-12 animate-pulse">
+          <div className="relative h-14 w-14 animate-pulse">
             <Image
               src="/logo.png"
               alt="SwiftFix"
@@ -54,7 +54,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
               priority
             />
           </div>
-          <div className="text-sm text-zinc-500">Preparing your dashboard...</div>
         </div>
       </div>
     );
