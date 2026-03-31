@@ -137,7 +137,6 @@ export default function TransactionsPage() {
                       <span className="font-semibold text-gray-900">
                         {formatTxAmount(
                           tx.currency,
-                          // @ts-expect-error Decimal serialization handled on server
                           tx.amount?.toString?.() ?? tx.amount
                         )}
                       </span>
