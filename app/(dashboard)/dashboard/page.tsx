@@ -253,7 +253,6 @@ export default function DashboardPage() {
                     <td className="px-4 py-3 text-zinc-700">
                       {formatTxAmount(
                         tx.currency,
-                        // @ts-expect-error Decimal serialization handled on server
                         tx.amount?.toString?.() ?? tx.amount
                       )}
                     </td>
