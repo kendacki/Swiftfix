@@ -234,6 +234,18 @@ export default function Page() {
 
       {/* Hero */}
       <section className="relative z-10">
+        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
+          <Image
+            src="/hero-bg.png"
+            alt=""
+            fill
+            priority
+            className="object-cover opacity-80"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.15),rgba(0,0,0,0.75)_60%,rgba(0,0,0,0.95)_100%)]" />
+          <div className="absolute inset-0 bg-black/35" />
+        </div>
+
         <div className="mx-auto w-full max-w-6xl px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl">
