@@ -531,15 +531,12 @@ export default function Page() {
       </section>
 
       <motion.div
-        className="min-h-[100svh] py-8"
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
         variants={fadeUp}
       >
-        <div className="flex min-h-[100svh] items-center">
-          <PartnersSection />
-        </div>
+        <PartnersSection />
       </motion.div>
 
       {/* Footer */}
