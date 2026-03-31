@@ -110,7 +110,7 @@ export default function DashboardPage() {
               Welcome back, {displayName}
             </div>
             <p className="mt-1 text-sm text-zinc-600">
-              Here&apos;s a snapshot of your SwiftFix capital today.
+              Here&apos;s a Summary of your Portfolio.
             </p>
           </div>
         </div>
