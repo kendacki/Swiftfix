@@ -252,7 +252,7 @@ export default function Page() {
               Control Your Capital.
               <span className="block">The Smart Way.</span>
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-balance text-sm leading-6 text-white/60 sm:text-base">
+            <p className="mx-auto mt-5 max-w-3xl text-balance text-sm leading-6 text-white/60 sm:text-base">
               Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to
               your local bank.
             </p>
@@ -272,7 +272,7 @@ export default function Page() {
             {/* trust row (icons) */}
             <div
               id="trust"
-              className="mx-auto mt-10 flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-white/60"
+              className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-white/60"
             >
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-white/80" />
