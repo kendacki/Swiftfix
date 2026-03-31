@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import PartnersSection from "@/components/PartnersSection";
@@ -21,6 +22,23 @@ import {
 type FaqItem = {
   q: string;
   a: string;
+};
+
+const easeInOut = [0.22, 1, 0.36, 1] as const;
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 14, filter: "blur(6px)" },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.65, ease: easeInOut },
+  },
+};
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.08 } },
 };
 
 function Glow() {
@@ -53,12 +71,15 @@ function PillRow() {
   return (
     <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
       {items.map((t) => (
-        <div
+        <motion.div
           key={t}
           className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-[#A1A1A1] backdrop-blur"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: easeInOut }}
         >
           {t}
-        </div>
+        </motion.div>
       ))}
     </div>
   );
@@ -72,7 +93,11 @@ type FeatureCardProps = {
 
 function FeatureCard({ title, description, icon }: FeatureCardProps) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 backdrop-blur-xl transition hover:bg-white/[0.03]">
+    <motion.div
+      variants={fadeUp}
+      whileHover={{ y: -2, transition: { duration: 0.25, ease: easeInOut } }}
+      className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 backdrop-blur-xl transition hover:bg-white/[0.03]"
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.08),transparent_40%)] opacity-70"
@@ -90,7 +115,7 @@ function FeatureCard({ title, description, icon }: FeatureCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -103,7 +128,9 @@ type BentoCardProps = {
 
 function BentoCard({ title, description, icon, className }: BentoCardProps) {
   return (
-    <div
+    <motion.div
+      variants={fadeUp}
+      whileHover={{ y: -2, transition: { duration: 0.25, ease: easeInOut } }}
       className={[
         "relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 backdrop-blur-xl",
         "before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.08),transparent_45%)] before:opacity-70",
@@ -129,7 +156,7 @@ function BentoCard({ title, description, icon, className }: BentoCardProps) {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-[-40px] h-24 bg-white/10 blur-[70px]"
       />
-    </div>
+    </motion.div>
   );
 }
 
@@ -143,7 +170,13 @@ function SectionHeading({
   subtitle?: string;
 }) {
   return (
-    <div className="mx-auto max-w-2xl text-center">
+    <motion.div
+      className="mx-auto max-w-2xl text-center"
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
+    >
       {kicker ? (
         <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
           {kicker}
@@ -157,7 +190,7 @@ function SectionHeading({
           {subtitle}
         </p>
       ) : null}
-    </div>
+    </motion.div>
   );
 }
 
@@ -195,7 +228,12 @@ export default function Page() {
       {/* Top nav */}
       <header className="sticky top-0 z-20">
         <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6">
-          <div className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 backdrop-blur-xl sm:px-5 md:grid-cols-3">
+          <motion.div
+            className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 backdrop-blur-xl sm:px-5 md:grid-cols-3"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: easeInOut }}
+          >
             <div className="flex items-center gap-3">
               <Image
                 src="/logo.png"
@@ -220,15 +258,18 @@ export default function Page() {
             </nav>
 
             <div className="flex items-center justify-end gap-3">
-              <button
+              <motion.button
                 type="button"
                 onClick={() => login()}
                 className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition hover:bg-white/90"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2, ease: easeInOut }}
               >
                 Sign In
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </header>
 
@@ -247,32 +288,52 @@ export default function Page() {
         </div>
 
         <div className="mx-auto w-full max-w-6xl px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl">
+          <motion.div
+            className="mx-auto max-w-3xl text-center"
+            variants={stagger}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.h1
+              className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl"
+              variants={fadeUp}
+            >
               Control Your Capital.
               <span className="block">The Smart Way.</span>
-            </h1>
-            <p className="mx-auto mt-5 max-w-3xl text-balance text-sm leading-6 text-white/60 sm:text-base">
+            </motion.h1>
+            <motion.p
+              className="mx-auto mt-5 max-w-3xl text-balance text-sm leading-6 text-white/60 sm:text-base"
+              variants={fadeUp}
+            >
               Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to
               your local bank.
-            </p>
+            </motion.p>
 
-            <div className="mt-7 flex items-center justify-center">
-              <button
+            <motion.div
+              className="mt-7 flex items-center justify-center"
+              variants={fadeUp}
+            >
+              <motion.button
                 type="button"
                 onClick={() => login()}
                 className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.12)] transition hover:bg-white/90"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2, ease: easeInOut }}
               >
                 Get Started
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
-            <PillRow />
+            <motion.div variants={fadeUp}>
+              <PillRow />
+            </motion.div>
 
             {/* trust row (icons) */}
-            <div
+            <motion.div
               id="trust"
               className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-white/60"
+              variants={fadeUp}
             >
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-white/80" />
@@ -290,8 +351,8 @@ export default function Page() {
                 <Gem className="h-4 w-4 text-white/80" />
                 Premium experience
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -299,7 +360,13 @@ export default function Page() {
       <section id="features" className="relative z-10">
         <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
-            <div className="lg:pt-6">
+            <motion.div
+              className="lg:pt-6"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
+              variants={fadeUp}
+            >
               <div className="text-sm font-semibold text-white/90">
                 The strategic choice.
               </div>
@@ -307,9 +374,15 @@ export default function Page() {
                 Built for people moving real value—swaps, payments, and
                 withdrawals in one clean flow.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <motion.div
+              className="grid gap-3 sm:grid-cols-2"
+              variants={stagger}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
+            >
               <FeatureCard
                 title="Swap & Pay"
                 description="Instantly move between USDT and NGN, then pay in one step."
@@ -330,7 +403,7 @@ export default function Page() {
                 description="Designed to meet regulatory expectations without friction."
                 icon={<ShieldCheck className="h-5 w-5" />}
               />
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -343,7 +416,13 @@ export default function Page() {
             subtitle="A premium toolkit for swaps, payments, and withdrawals—built for speed and confidence."
           />
 
-          <div className="mt-10 grid gap-3 lg:grid-cols-12">
+          <motion.div
+            className="mt-10 grid gap-3 lg:grid-cols-12"
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
+          >
             <BentoCard
               className="lg:col-span-5"
               title="Unified Wallet"
@@ -368,7 +447,7 @@ export default function Page() {
               description="Modern auth, secure sessions, and safeguards designed for financial UX."
               icon={<LockKeyhole className="h-5 w-5" />}
             />
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -377,13 +456,20 @@ export default function Page() {
         <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
           <SectionHeading title="FAQ" subtitle="Quick answers to common questions." />
 
-          <div className="mt-10 space-y-3">
+          <motion.div
+            className="mt-10 space-y-3"
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
+          >
             {faqs.map((item, idx) => {
               const open = openFaqIndex === idx;
               return (
-                <div
+                <motion.div
                   key={item.q}
                   className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl"
+                  variants={fadeUp}
                 >
                   <button
                     type="button"
@@ -401,22 +487,40 @@ export default function Page() {
                     />
                   </button>
                   {open ? (
-                    <div className="px-5 pb-5 text-sm leading-6 text-white/60">
+                    <motion.div
+                      className="px-5 pb-5 text-sm leading-6 text-white/60"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      transition={{ duration: 0.35, ease: easeInOut }}
+                    >
                       {item.a}
-                    </div>
+                    </motion.div>
                   ) : null}
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <PartnersSection />
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
+        variants={fadeUp}
+      >
+        <PartnersSection />
+      </motion.div>
 
       {/* Footer */}
       <footer className="relative z-10">
-        <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-10 sm:px-6">
+        <motion.div
+          className="mx-auto w-full max-w-6xl px-4 pb-12 pt-10 sm:px-6"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
+          variants={fadeUp}
+        >
           <div className="grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <Image
@@ -496,7 +600,7 @@ export default function Page() {
               </a>
             </div>
           </div>
-        </div>
+        </motion.div>
       </footer>
     </div>
   );
