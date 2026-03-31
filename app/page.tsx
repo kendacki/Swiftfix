@@ -26,14 +26,16 @@ type FaqItem = {
 function Glow() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Hero glow */}
-      <div className="absolute left-1/2 top-[-220px] h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-white/10 blur-[90px]" />
-      <div className="absolute left-1/2 top-[120px] h-[380px] w-[780px] -translate-x-1/2 rounded-full bg-white/7 blur-[90px]" />
+      {/* Hero flare */}
+      <div className="absolute left-1/2 top-[-260px] h-[720px] w-[720px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.22),transparent_60%)] blur-[90px]" />
+      <div className="absolute left-1/2 top-[80px] h-[520px] w-[980px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_65%)] blur-[110px]" />
 
-      {/* Section glows */}
-      <div className="absolute left-[-180px] top-[780px] h-[420px] w-[420px] rounded-full bg-white/7 blur-[110px]" />
-      <div className="absolute right-[-200px] top-[1120px] h-[520px] w-[520px] rounded-full bg-white/8 blur-[120px]" />
-      <div className="absolute left-1/2 top-[2140px] h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-white/7 blur-[120px]" />
+      {/* Mid-page atmospherics */}
+      <div className="absolute left-[-260px] top-[860px] h-[620px] w-[620px] rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10),transparent_65%)] blur-[120px]" />
+      <div className="absolute right-[-280px] top-[1280px] h-[720px] w-[720px] rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_68%)] blur-[130px]" />
+
+      {/* Footer flare */}
+      <div className="absolute left-1/2 bottom-[-420px] h-[900px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.16),transparent_65%)] blur-[140px]" />
     </div>
   );
 }
@@ -70,7 +72,11 @@ type FeatureCardProps = {
 
 function FeatureCard({ title, description, icon }: FeatureCardProps) {
   return (
-    <div className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur transition hover:bg-white/[0.05]">
+    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 backdrop-blur-xl transition hover:bg-white/[0.03]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.08),transparent_40%)] opacity-70"
+      />
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white">
           {icon}
@@ -79,7 +85,7 @@ function FeatureCard({ title, description, icon }: FeatureCardProps) {
           <div className="text-sm font-semibold tracking-tight text-white">
             {title}
           </div>
-          <div className="mt-1 text-sm leading-6 text-[#A1A1A1]">
+          <div className="mt-1 text-sm leading-6 text-white/60">
             {description}
           </div>
         </div>
@@ -99,8 +105,8 @@ function BentoCard({ title, description, icon, className }: BentoCardProps) {
   return (
     <div
       className={[
-        "relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur",
-        "before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(900px_400px_at_20%_0%,rgba(255,255,255,0.09),transparent_55%)]",
+        "relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 backdrop-blur-xl",
+        "before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.08),transparent_45%)] before:opacity-70",
         className ?? "",
       ].join(" ")}
     >
@@ -112,7 +118,7 @@ function BentoCard({ title, description, icon, className }: BentoCardProps) {
           <div className="text-sm font-semibold tracking-tight text-white">
             {title}
           </div>
-          <div className="mt-1 text-sm leading-6 text-[#A1A1A1]">
+          <div className="mt-1 text-sm leading-6 text-white/60">
             {description}
           </div>
         </div>
@@ -121,7 +127,7 @@ function BentoCard({ title, description, icon, className }: BentoCardProps) {
       {/* subtle bottom shine */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-[-40px] h-24 bg-white/10 blur-[60px]"
+        className="pointer-events-none absolute inset-x-0 bottom-[-40px] h-24 bg-white/10 blur-[70px]"
       />
     </div>
   );
@@ -139,7 +145,7 @@ function SectionHeading({
   return (
     <div className="mx-auto max-w-2xl text-center">
       {kicker ? (
-        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#A1A1A1]">
+        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
           {kicker}
         </div>
       ) : null}
@@ -147,7 +153,7 @@ function SectionHeading({
         {title}
       </h2>
       {subtitle ? (
-        <p className="mt-3 text-balance text-sm leading-6 text-[#A1A1A1] sm:text-base">
+        <p className="mt-3 text-balance text-sm leading-6 text-white/60 sm:text-base">
           {subtitle}
         </p>
       ) : null}
@@ -183,12 +189,13 @@ export default function Page() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   return (
-    <div className="relative min-h-screen bg-[#101010] text-white">
+    <div className="relative min-h-screen bg-black text-white">
       <Glow />
 
       {/* Top nav */}
-      <header className="relative z-10">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 pt-6 sm:px-6">
+      <header className="sticky top-0 z-20">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6">
+          <div className="flex items-center justify-between rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 backdrop-blur-xl sm:px-5">
           <div className="flex items-center gap-3">
             <Image
               src="/logo.png"
@@ -196,18 +203,18 @@ export default function Page() {
               width={120}
               height={24}
               priority
-              className="h-6 w-auto"
+              className="h-6 w-auto opacity-90"
             />
           </div>
 
-          <nav className="hidden items-center gap-8 text-sm text-[#A1A1A1] md:flex">
-            <a href="#features" className="hover:text-white">
+          <nav className="hidden items-center gap-8 text-sm text-white/60 md:flex">
+            <a href="#features" className="transition hover:text-white">
               Features
             </a>
-            <a href="#trust" className="hover:text-white">
+            <a href="#trust" className="transition hover:text-white">
               Trust
             </a>
-            <a href="#faq" className="hover:text-white">
+            <a href="#faq" className="transition hover:text-white">
               FAQ
             </a>
           </nav>
@@ -216,23 +223,24 @@ export default function Page() {
             <button
               type="button"
               onClick={() => login()}
-              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_10px_30px_rgba(255,255,255,0.06)] transition hover:bg-white/90"
+              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition hover:bg-white/90"
             >
               Sign In
             </button>
+          </div>
           </div>
         </div>
       </header>
 
       {/* Hero */}
       <section className="relative z-10">
-        <div className="mx-auto w-full max-w-6xl px-4 pb-10 pt-14 sm:px-6 sm:pb-14 sm:pt-20">
+        <div className="mx-auto w-full max-w-6xl px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl">
               Control Your Capital.
               <span className="block">The Smart Way.</span>
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-balance text-sm leading-6 text-[#A1A1A1] sm:text-base">
+            <p className="mx-auto mt-5 max-w-2xl text-balance text-sm leading-6 text-white/60 sm:text-base">
               Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to
               your local bank.
             </p>
@@ -241,7 +249,7 @@ export default function Page() {
               <button
                 type="button"
                 onClick={() => login()}
-                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.08)] transition hover:bg-white/90"
+                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.12)] transition hover:bg-white/90"
               >
                 Get Started
               </button>
@@ -252,7 +260,7 @@ export default function Page() {
             {/* trust row (icons) */}
             <div
               id="trust"
-              className="mx-auto mt-10 flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-[#A1A1A1]"
+              className="mx-auto mt-10 flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-white/60"
             >
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-white/80" />
@@ -283,7 +291,7 @@ export default function Page() {
               <div className="text-sm font-semibold text-white/90">
                 The strategic choice.
               </div>
-              <p className="mt-3 max-w-md text-sm leading-6 text-[#A1A1A1]">
+              <p className="mt-3 max-w-md text-sm leading-6 text-white/60">
                 Built for people moving real value—swaps, payments, and
                 withdrawals in one clean flow.
               </p>
@@ -363,7 +371,7 @@ export default function Page() {
               return (
                 <div
                   key={item.q}
-                  className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur"
+                  className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl"
                 >
                   <button
                     type="button"
@@ -375,13 +383,13 @@ export default function Page() {
                     </div>
                     <ChevronDown
                       className={[
-                        "h-4 w-4 shrink-0 text-[#A1A1A1] transition-transform",
+                        "h-4 w-4 shrink-0 text-white/60 transition-transform",
                         open ? "rotate-180" : "rotate-0",
                       ].join(" ")}
                     />
                   </button>
                   {open ? (
-                    <div className="px-5 pb-5 text-sm leading-6 text-[#A1A1A1]">
+                    <div className="px-5 pb-5 text-sm leading-6 text-white/60">
                       {item.a}
                     </div>
                   ) : null}
@@ -392,9 +400,7 @@ export default function Page() {
         </div>
       </section>
 
-      <div className="relative z-10">
-        <PartnersSection />
-      </div>
+      <PartnersSection />
 
       {/* Footer */}
       <footer className="relative z-10">

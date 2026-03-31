@@ -13,18 +13,18 @@ export default function PartnersSection() {
   ];
 
   return (
-    <section className="py-16 bg-white dark:bg-[#101010] border-y border-gray-100 dark:border-gray-900">
-      <div className="max-w-7xl mx-auto px-6">
-        <p className="text-center text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-8">
+    <section className="border-y border-white/10 bg-black py-16">
+      <div className="mx-auto max-w-7xl px-6">
+        <p className="mb-8 text-center text-sm font-semibold uppercase tracking-widest text-white/60">
           Powered By Industry Leaders
         </p>
 
         {/* The Grid: Changes from 2 columns on mobile, to 4 on tablet, to 7 on desktop */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-8 items-center justify-items-center opacity-80">
+        <div className="grid grid-cols-2 items-center justify-items-center gap-8 opacity-80 md:grid-cols-4 lg:grid-cols-7">
           {partners.map((partner, index) => (
             <div
               key={index}
-              className="relative w-28 h-12 grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100"
+              className="relative h-12 w-28 grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100"
             >
               <Image
                 src={partner.src}
