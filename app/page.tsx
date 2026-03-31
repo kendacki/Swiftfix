@@ -357,7 +357,19 @@ export default function Page() {
       </section>
 
       {/* Features grid */}
-      <section id="features" className="relative z-10">
+      <section id="features" className="relative z-10 overflow-hidden">
+        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
+          <Image
+            src="/features-bg.png"
+            alt=""
+            fill
+            className="object-cover opacity-90"
+            sizes="100vw"
+            priority={false}
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.10),rgba(0,0,0,0.78)_62%,rgba(0,0,0,0.95)_100%)]" />
+          <div className="absolute inset-0 bg-black/35" />
+        </div>
         <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
             <motion.div
