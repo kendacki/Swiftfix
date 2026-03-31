@@ -274,7 +274,7 @@ export default function Page() {
       </header>
 
       {/* Hero */}
-      <section className="relative z-10">
+      <section className="relative z-10 min-h-[100svh]">
         <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
           <Image
             src="/hero-bg.png"
@@ -287,7 +287,7 @@ export default function Page() {
           <div className="absolute inset-0 bg-black/35" />
         </div>
 
-        <div className="mx-auto w-full max-w-6xl px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
+        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
           <motion.div
             className="mx-auto max-w-3xl text-center"
             variants={stagger}
@@ -357,7 +357,7 @@ export default function Page() {
       </section>
 
       {/* Features grid */}
-      <section id="features" className="relative z-10 overflow-hidden">
+      <section id="features" className="relative z-10 min-h-[100svh] overflow-hidden">
         <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
           <Image
             src="/features-bg.png"
@@ -370,8 +370,8 @@ export default function Page() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.10),rgba(0,0,0,0.78)_62%,rgba(0,0,0,0.95)_100%)]" />
           <div className="absolute inset-0 bg-black/35" />
         </div>
-        <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
+        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 py-14 sm:px-6 sm:py-20">
+          <div className="grid w-full gap-8 lg:grid-cols-2 lg:items-start">
             <motion.div
               className="lg:pt-6"
               initial="hidden"
@@ -421,8 +421,9 @@ export default function Page() {
       </section>
 
       {/* Secondary features / bento */}
-      <section className="relative z-10">
-        <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-2 sm:px-6 sm:pb-24">
+      <section className="relative z-10 min-h-[100svh]">
+        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 pb-16 pt-2 sm:px-6 sm:pb-24">
+          <div className="w-full">
           <SectionHeading
             title="Future banking you need"
             subtitle="Payment now handled wth ease seamlessly"
@@ -460,11 +461,12 @@ export default function Page() {
               icon={<LockKeyhole className="h-5 w-5" />}
             />
           </motion.div>
+          </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="relative z-10 overflow-hidden">
+      <section id="faq" className="relative z-10 min-h-[100svh] overflow-hidden">
         <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
           <Image
             src="/faq-bg.png"
@@ -476,7 +478,8 @@ export default function Page() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.10),rgba(0,0,0,0.78)_62%,rgba(0,0,0,0.95)_100%)]" />
           <div className="absolute inset-0 bg-black/35" />
         </div>
-        <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="mx-auto flex min-h-[100svh] w-full max-w-3xl items-center px-4 py-16 sm:px-6 sm:py-24">
+          <div className="w-full">
           <SectionHeading title="FAQ" subtitle="Quick answers to common questions." />
 
           <motion.div
@@ -523,16 +526,20 @@ export default function Page() {
               );
             })}
           </motion.div>
+          </div>
         </div>
       </section>
 
       <motion.div
+        className="min-h-[100svh] py-8"
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
         variants={fadeUp}
       >
-        <PartnersSection />
+        <div className="flex min-h-[100svh] items-center">
+          <PartnersSection />
+        </div>
       </motion.div>
 
       {/* Footer */}
