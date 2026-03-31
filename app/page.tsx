@@ -464,7 +464,18 @@ export default function Page() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="relative z-10">
+      <section id="faq" className="relative z-10 overflow-hidden">
+        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
+          <Image
+            src="/faq-bg.png"
+            alt=""
+            fill
+            className="object-cover opacity-85"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.10),rgba(0,0,0,0.78)_62%,rgba(0,0,0,0.95)_100%)]" />
+          <div className="absolute inset-0 bg-black/35" />
+        </div>
         <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
           <SectionHeading title="FAQ" subtitle="Quick answers to common questions." />
 
