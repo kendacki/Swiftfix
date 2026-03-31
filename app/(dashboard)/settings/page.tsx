@@ -73,11 +73,8 @@ function SettingsCard({
 type ActiveSection = "profile" | "security" | "identity" | null;
 
 export default function SettingsPage() {
-  const { ready, authenticated, user, logout } = usePrivy();
+  const { ready, logout } = usePrivy();
   const [activeSection, setActiveSection] = useState<ActiveSection>(null);
-
-  const displayIdentifier =
-    user?.phone?.number ?? user?.email?.address ?? "User";
 
   const onLogout = async () => {
     await logout();
@@ -92,10 +89,6 @@ export default function SettingsPage() {
             <p className="mt-1 text-sm text-zinc-600">
               Manage your account, security, and identity.
             </p>
-          </div>
-
-          <div className="rounded-xl bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
-            <div className="font-semibold">{authenticated ? displayIdentifier : "Guest"}</div>
           </div>
         </div>
 
