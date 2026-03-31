@@ -413,7 +413,7 @@ export default function Page() {
         <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-2 sm:px-6 sm:pb-24">
           <SectionHeading
             title="Future banking you need"
-            subtitle="A premium toolkit for swaps, payments, and withdrawals—built for speed and confidence."
+            subtitle="Payment now handled wth ease seamlessly"
           />
 
           <motion.div
