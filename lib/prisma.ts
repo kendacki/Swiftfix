@@ -10,10 +10,17 @@ if (!connectionString) {
   throw new Error("Missing DATABASE_URL in environment variables");
 }
 
-const adapter = new PrismaNeon({ connectionString });
+const adapter = new PrismaNeon({
+  connectionString,
+  // Give Neon / WebSocket time during cold starts before failing the connection
+  connectionTimeoutMillis: 10_000,
+});
 
 const prismaClientSingleton = () => {
-  return new PrismaClient({ adapter });
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === "production" ? ["error"] : ["warn", "error"],
+  });
 };
 
 declare global {

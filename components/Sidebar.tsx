@@ -71,6 +71,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={false}
                 className={[
                   "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",
                   active ? "bg-slate-800 text-white" : "text-slate-200 hover:bg-slate-900",
@@ -130,6 +131,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={false}
                   onClick={onMobileClose}
                   className={[
                     "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",

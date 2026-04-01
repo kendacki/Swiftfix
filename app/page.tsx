@@ -581,10 +581,18 @@ export default function Page() {
             <div>
               <div className="text-sm font-semibold text-white">Company</div>
               <div className="mt-4 space-y-2 text-sm text-[#A1A1A1]">
-                <Link href="/dashboard" className="block hover:text-white">
+                <Link
+                  href="/dashboard"
+                  prefetch={false}
+                  className="block hover:text-white"
+                >
                   Dashboard
                 </Link>
-                <Link href="/settings" className="block hover:text-white">
+                <Link
+                  href="/settings"
+                  prefetch={false}
+                  className="block hover:text-white"
+                >
                   Settings
                 </Link>
                 <button
