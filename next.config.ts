@@ -22,6 +22,13 @@ const supabasePattern = supabaseImageRemotePattern();
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@privy-io/react-auth", "x402"],
+  webpack: (config, { isServer }) => {
+    config.resolve.fallback = { fs: false, net: false, tls: false, crypto: false };
+    if (isServer && Array.isArray(config.externals)) {
+      config.externals.push("pino-pretty", "lokijs", "encoding", "@solana/web3.js");
+    }
+    return config;
+  },
   images: {
     remotePatterns: supabasePattern ? [supabasePattern] : [],
   },
