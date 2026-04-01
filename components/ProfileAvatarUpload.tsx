@@ -148,9 +148,6 @@ export function ProfileAvatarUpload() {
           <div className="text-sm font-semibold text-zinc-900">
             Profile picture
           </div>
-          <div className="mt-0.5 text-xs text-zinc-600">
-            Stored in Supabase; saved to your profile until you upload again.
-          </div>
           <button
             type="button"
             onClick={onPick}
