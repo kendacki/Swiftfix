@@ -35,6 +35,7 @@ const nextConfig: NextConfig = {
       "@solana-program/compute-budget": false,
       "@solana-program/token": false,
       "@solana/kit": false,
+      "@farcaster/mini-app-solana": false,
     };
 
     if (isServer && Array.isArray(config.externals)) {

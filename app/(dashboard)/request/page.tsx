@@ -36,7 +36,7 @@ export type UserBooking = {
 /**
  * Mock bookings loader — replace with a real API when ready.
  */
-export async function fetchUserBookings(userId: string): Promise<UserBooking[]> {
+async function fetchUserBookings(userId: string): Promise<UserBooking[]> {
   await new Promise((r) => setTimeout(r, 450));
   if (!userId) return [];
   return [
