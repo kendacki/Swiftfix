@@ -24,9 +24,26 @@ const nextConfig: NextConfig = {
   turbopack: {},
   transpilePackages: ["@privy-io/react-auth", "x402"],
   webpack: (config, { isServer }) => {
-    config.resolve.fallback = { fs: false, net: false, tls: false, crypto: false };
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+      crypto: false,
+      // The Ultimate Solana Shield: Tell Webpack to safely ignore these missing modules
+      "@solana-program/token-2022": false,
+      "@solana-program/compute-budget": false,
+      "@solana-program/token": false,
+      "@solana/kit": false,
+    };
+
     if (isServer && Array.isArray(config.externals)) {
-      config.externals.push("pino-pretty", "lokijs", "encoding", "@solana/web3.js");
+      config.externals.push(
+        "pino-pretty",
+        "lokijs",
+        "encoding",
+        "@solana/web3.js",
+      );
     }
     return config;
   },
