@@ -9,6 +9,7 @@
     "lint": "eslint",
     "predeploy": "npm run lint && npm run build",
     "safe-push": "npm run predeploy && git push",
+    "clean-install": "node -e \"const {rmSync}=require('fs'); rmSync('node_modules',{recursive:true,force:true}); rmSync('package-lock.json',{force:true});\" && npm install",
     "prepare": "husky"
   },
   "dependencies": {

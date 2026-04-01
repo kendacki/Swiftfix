@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# If package-lock.json changed between branches, refresh deps automatically.
+if git diff --name-only HEAD@{1} HEAD | grep -q "^package-lock\\.json$"; then
+  npm install
+fi
