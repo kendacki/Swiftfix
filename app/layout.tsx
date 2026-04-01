@@ -5,7 +5,7 @@ import "./globals.css";
 
 const Providers = dynamic(
   () => import("../components/Providers").then((m) => m.Providers),
-  { ssr: false },
+  { ssr: false }
 );
 
 const geistSans = Geist({
