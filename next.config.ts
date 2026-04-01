@@ -21,6 +21,7 @@ function supabaseImageRemotePattern():
 const supabasePattern = supabaseImageRemotePattern();
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@privy-io/react-auth", "x402"],
   images: {
     remotePatterns: supabasePattern ? [supabasePattern] : [],
   },
