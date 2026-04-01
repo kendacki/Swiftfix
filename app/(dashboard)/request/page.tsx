@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import {
+  Calendar,
   Mail,
   MapPin,
   Phone,
@@ -22,6 +23,52 @@ import {
   assignArtisanToRequest,
   createServiceRequest,
 } from "@/actions/requestActions";
+
+export type UserBooking = {
+  id: string;
+  trade: string;
+  date: string;
+  artisanName: string;
+  phoneNumber: string;
+  status: string;
+};
+
+/**
+ * Mock bookings loader — replace with a real API when ready.
+ */
+export async function fetchUserBookings(userId: string): Promise<UserBooking[]> {
+  await new Promise((r) => setTimeout(r, 450));
+  if (!userId) return [];
+  return [
+    {
+      id: "mock-1",
+      trade: "Plumber",
+      date: new Date(Date.now() - 2 * 86400000).toISOString(),
+      artisanName: "Ade & Sons Plumbing",
+      phoneNumber: "08012345678",
+      status: "COMPLETED",
+    },
+    {
+      id: "mock-2",
+      trade: "Electrician",
+      date: new Date(Date.now() - 9 * 86400000).toISOString(),
+      artisanName: "BrightWire Electricals",
+      phoneNumber: "08098765432",
+      status: "ASSIGNED",
+    },
+  ];
+}
+
+function formatBookingDate(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat("en-NG", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}
 
 function urgencyBadgeClasses(urgency: ArtisanExtraction["urgency"]) {
   if (urgency === "High") return "border-red-200 bg-red-50 text-red-700";
@@ -116,7 +163,14 @@ function ArtisanSkeletonCard() {
   );
 }
 
+type RequestTab = "new_request" | "bookings";
+
 export default function RequestPage() {
+  const [activeTab, setActiveTab] = useState<RequestTab>("new_request");
+  const [bookings, setBookings] = useState<UserBooking[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [remoteBookingsLoaded, setRemoteBookingsLoaded] = useState(false);
+
   const [prompt, setPrompt] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<ArtisanExtraction | null>(null);
@@ -133,21 +187,78 @@ export default function RequestPage() {
   const [paymentSuccess, setPaymentSuccess] = useState<string | null>(null);
   const [isPaying, startPaymentTransition] = useTransition();
 
-  const { ready, authenticated, user } = usePrivy();
+  const { ready, authenticated, user, login } = usePrivy();
   const router = useRouter();
+
+  useEffect(() => {
+    setRemoteBookingsLoaded(false);
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (activeTab !== "bookings" || !ready || !authenticated || !user?.id) return;
+    if (remoteBookingsLoaded) return;
+
+    let cancelled = false;
+    setBookingsLoading(true);
+    void fetchUserBookings(user.id)
+      .then((remote) => {
+        if (cancelled) return;
+        setBookings((prev) => {
+          const local = prev.filter((b) => b.id.startsWith("local-"));
+          return [...local, ...remote];
+        });
+      })
+      .catch((err) => {
+        console.error("fetchUserBookings:", err);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setRemoteBookingsLoaded(true);
+        setBookingsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, ready, authenticated, user?.id, remoteBookingsLoaded]);
 
   const canSubmit = useMemo(
     () => prompt.trim().length > 0 && !isAnalyzing,
     [prompt, isAnalyzing]
   );
 
-  const handleBook = async (artisan: RecommendedArtisan) => {
-    if (!serviceRequestId || !user?.id) return;
+  const handleBook = async (artisan: RecommendedArtisan): Promise<boolean> => {
+    if (!serviceRequestId || !user?.id) return false;
     try {
       await assignArtisanToRequest(user.id, serviceRequestId, artisan);
+      return true;
     } catch (e) {
       console.error("assignArtisanToRequest:", e);
+      return false;
     }
+  };
+
+  const appendLocalBooking = (artisan: RecommendedArtisan) => {
+    const entry: UserBooking = {
+      id: `local-${globalThis.crypto.randomUUID()}`,
+      trade: result?.trade?.trim() || "Service",
+      date: new Date().toISOString(),
+      artisanName: artisan.name,
+      phoneNumber: artisan.phoneNumber,
+      status: "ASSIGNED",
+    };
+    setBookings((prev) => [entry, ...prev]);
+  };
+
+  const onBookAndCall = async (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    artisan: RecommendedArtisan,
+    tel: string
+  ) => {
+    e.preventDefault();
+    const assigned = await handleBook(artisan);
+    if (assigned) appendLocalBooking(artisan);
+    window.location.href = tel;
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -258,6 +369,43 @@ export default function RequestPage() {
         </p>
       </div>
 
+      <div
+        className="inline-flex w-full rounded-full border border-zinc-200 bg-zinc-100/80 p-1 shadow-inner sm:w-auto"
+        role="tablist"
+        aria-label="Request sections"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "new_request"}
+          onClick={() => setActiveTab("new_request")}
+          className={[
+            "min-w-0 flex-1 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 sm:flex-none",
+            activeTab === "new_request"
+              ? "bg-zinc-900 text-white shadow-md"
+              : "bg-transparent text-zinc-600 hover:text-zinc-900",
+          ].join(" ")}
+        >
+          New Request
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "bookings"}
+          onClick={() => setActiveTab("bookings")}
+          className={[
+            "min-w-0 flex-1 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 sm:flex-none",
+            activeTab === "bookings"
+              ? "bg-zinc-900 text-white shadow-md"
+              : "bg-transparent text-zinc-600 hover:text-zinc-900",
+          ].join(" ")}
+        >
+          My Bookings
+        </button>
+      </div>
+
+      {activeTab === "new_request" ? (
+        <>
       <form
         onSubmit={onSubmit}
         className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6"
@@ -479,13 +627,7 @@ export default function RequestPage() {
                     <div className="mt-5 flex flex-col gap-2">
                       <a
                         href={tel}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          void (async () => {
-                            await handleBook(artisan);
-                            window.location.href = tel;
-                          })();
-                        }}
+                        onClick={(e) => void onBookAndCall(e, artisan, tel)}
                         className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-3 text-sm font-bold text-white shadow-md transition hover:from-violet-500 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-violet-300"
                       >
                         <Phone className="h-4 w-4" />
@@ -500,6 +642,109 @@ export default function RequestPage() {
                         Book &amp; Pay
                       </button>
                     </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      ) : null}
+        </>
+      ) : null}
+
+      {activeTab === "bookings" ? (
+        <section className="space-y-4">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
+            <h2 className="text-lg font-semibold text-zinc-900">My Bookings</h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              Past requests and who you booked—call again anytime.
+            </p>
+          </div>
+
+          {!ready ? (
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-10 text-center text-sm text-zinc-600">
+              Loading…
+            </div>
+          ) : !authenticated ? (
+            <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-10 text-center">
+              <p className="text-sm font-medium text-zinc-800">
+                Log in to see your past bookings.
+              </p>
+              <button
+                type="button"
+                onClick={() => login()}
+                className="mt-4 inline-flex items-center justify-center rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+              >
+                Log in
+              </button>
+            </div>
+          ) : bookingsLoading && bookings.length === 0 ? (
+            <div className="grid gap-4">
+              {[0, 1].map((i) => (
+                <div
+                  key={i}
+                  className="animate-pulse rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm"
+                >
+                  <div className="h-4 w-1/3 rounded bg-zinc-200" />
+                  <div className="mt-3 h-3 w-2/3 rounded bg-zinc-100" />
+                  <div className="mt-4 h-10 w-full rounded-xl bg-zinc-100" />
+                </div>
+              ))}
+            </div>
+          ) : bookings.length === 0 ? (
+            <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center text-sm text-zinc-600 shadow-sm">
+              No bookings yet. Start a new request and use{" "}
+              <span className="font-semibold text-zinc-800">Book &amp; Call</span>{" "}
+              to save one here.
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {bookings.map((b) => {
+                const tel = phoneToTelHref(b.phoneNumber);
+                return (
+                  <article
+                    key={b.id}
+                    className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-md transition hover:shadow-lg"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          {b.trade}
+                        </div>
+                        <div className="mt-1 text-base font-bold text-zinc-900">
+                          {b.artisanName}
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-600">
+                          <span className="inline-flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5 text-zinc-400" />
+                            {formatBookingDate(b.date)}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Phone className="h-3.5 w-3.5 text-emerald-600" />
+                            {b.phoneNumber}
+                          </span>
+                        </div>
+                      </div>
+                      <span
+                        className={[
+                          "shrink-0 rounded-full border px-3 py-1 text-xs font-semibold",
+                          b.status === "ASSIGNED"
+                            ? "border-violet-200 bg-violet-50 text-violet-800"
+                            : b.status === "COMPLETED"
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                              : "border-zinc-200 bg-zinc-50 text-zinc-700",
+                        ].join(" ")}
+                      >
+                        {b.status}
+                      </span>
+                    </div>
+                    <a
+                      href={tel}
+                      className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
+                    >
+                      <Phone className="h-4 w-4" />
+                      Call Again
+                    </a>
                   </article>
                 );
               })}
