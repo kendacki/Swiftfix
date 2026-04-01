@@ -19,7 +19,8 @@ export async function syncUser(privyId: string, email?: string) {
       return existing;
     }
 
-    const created = await prisma.$transaction(async (tx) => {
+    const created = await prisma.$transaction(
+      async (tx) => {
       const user = await tx.user.create({
         data: {
           privyId,
@@ -34,12 +35,17 @@ export async function syncUser(privyId: string, email?: string) {
       });
 
       return user;
-    });
+      },
+      {
+        maxWait: 10000,
+        timeout: 20000,
+      }
+    );
 
     return created;
   } catch (error) {
     console.error("syncUser error:", error);
-    throw new Error("Unable to sync user at the moment. Please try again.");
+    return null;
   }
 }
 

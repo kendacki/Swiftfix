@@ -73,55 +73,61 @@ export async function executeSwap(
     throw new Error("Invalid swap parameters.");
   }
 
-  const updatedWallet = await prisma.$transaction(async (tx) => {
-    const user = await tx.user.findUnique({
-      where: { privyId },
-    });
+  const updatedWallet = await prisma.$transaction(
+    async (tx) => {
+      const user = await tx.user.findUnique({
+        where: { privyId },
+      });
 
-    if (!user) {
-      throw new Error("User not found for provided Privy ID.");
-    }
+      if (!user) {
+        throw new Error("User not found for provided Privy ID.");
+      }
 
-    const wallet = await tx.wallet.findUnique({
-      where: { userId: user.id },
-    });
+      const wallet = await tx.wallet.findUnique({
+        where: { userId: user.id },
+      });
 
-    if (!wallet) {
-      throw new Error("Wallet not found for user.");
-    }
+      if (!wallet) {
+        throw new Error("Wallet not found for user.");
+      }
 
-    const currentUsdt = Number(wallet.usdtBalance);
-    if (currentUsdt < amount) {
-      throw new Error("Insufficient balance");
-    }
+      const currentUsdt = Number(wallet.usdtBalance);
+      if (currentUsdt < amount) {
+        throw new Error("Insufficient balance");
+      }
 
-    const ngnDelta = amount * quotedRate;
+      const ngnDelta = amount * quotedRate;
 
-    const newWallet = await tx.wallet.update({
-      where: { id: wallet.id },
-      data: {
-        usdtBalance: {
-          decrement: amount,
+      const newWallet = await tx.wallet.update({
+        where: { id: wallet.id },
+        data: {
+          usdtBalance: {
+            decrement: amount,
+          },
+          ngnBalance: {
+            increment: ngnDelta,
+          },
         },
-        ngnBalance: {
-          increment: ngnDelta,
+      });
+
+      await tx.transaction.create({
+        data: {
+          userId: user.id,
+          type: "SWAP",
+          amount,
+          currency: fromCurrency,
+          status: "COMPLETED",
+          description: `Swap ${amount} ${fromCurrency} to NGN at rate ${quotedRate}`,
         },
-      },
-    });
+      });
 
-    await tx.transaction.create({
-      data: {
-        userId: user.id,
-        type: "SWAP",
-        amount,
-        currency: fromCurrency,
-        status: "COMPLETED",
-        description: `Swap ${amount} ${fromCurrency} to NGN at rate ${quotedRate}`,
-      },
-    });
-
-    return newWallet;
-  });
+      return newWallet;
+    },
+    {
+      maxWait: 10000,
+      timeout: 20000,
+    }
+  );
 
   revalidatePath("/wallet");
   revalidatePath("/transactions");

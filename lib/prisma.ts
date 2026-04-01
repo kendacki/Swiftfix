@@ -12,14 +12,17 @@ if (!connectionString) {
 
 const adapter = new PrismaNeon({ connectionString });
 
-const createPrismaClient = () => new PrismaClient({ adapter });
+const prismaClientSingleton = () => {
+  return new PrismaClient({ adapter });
+};
 
 declare global {
-  var prisma: PrismaClient | undefined;
+  var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>;
 }
 
-export const prisma = globalThis.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
+const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
 
 export default prisma;
+export { prisma };
+
+if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prisma;
