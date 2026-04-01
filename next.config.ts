@@ -21,6 +21,7 @@ function supabaseImageRemotePattern():
 const supabasePattern = supabaseImageRemotePattern();
 
 const nextConfig: NextConfig = {
+  turbopack: {},
   transpilePackages: ["@privy-io/react-auth", "x402"],
   webpack: (config, { isServer }) => {
     config.resolve.fallback = { fs: false, net: false, tls: false, crypto: false };
