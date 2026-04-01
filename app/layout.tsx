@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const Providers = dynamic(
-  () => import("../components/Providers").then((m) => m.Providers),
-  { ssr: false }
-);
+import ClientProviders from "../components/ClientProviders";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +34,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <Providers privyAppId={privyAppId}>{children}</Providers>
+        <ClientProviders privyAppId={privyAppId}>{children}</ClientProviders>
       </body>
     </html>
   );
