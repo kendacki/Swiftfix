@@ -34,7 +34,7 @@ export async function uploadAvatar(privyId: string, formData: FormData) {
 
   const bucket = process.env.SUPABASE_STORAGE_BUCKET ?? "avatars";
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
-  const path = `avatars/${privyId}/${Date.now()}-${safeName}`;
+  const path = `${privyId}/${Date.now()}-${safeName}`;
 
   const supabase = getSupabaseClient();
 

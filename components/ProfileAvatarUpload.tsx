@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { Camera } from "lucide-react";
 import { uploadAvatar } from "@/actions/avatarActions";
@@ -12,7 +12,7 @@ function Spinner() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-6 w-6 animate-spin text-white"
+      className="h-6 w-6 animate-spin text-zinc-600"
       aria-label="Loading"
     >
       <circle
@@ -51,6 +51,10 @@ export function ProfileAvatarUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setAvatarUrl(existingAvatarUrl);
+  }, [existingAvatarUrl]);
+
   const onPick = () => {
     if (isUploading) return;
     fileInputRef.current?.click();
@@ -77,8 +81,13 @@ export function ProfileAvatarUpload() {
 
       const { publicUrl } = await uploadAvatar(user?.id ?? "", form);
 
+      const existingMeta =
+        (user as unknown as { customMetadata?: Record<string, unknown> })
+          ?.customMetadata ?? {};
+
       await updateUser({
         customMetadata: {
+          ...existingMeta,
           avatarUrl: publicUrl,
         },
       });
@@ -140,7 +149,7 @@ export function ProfileAvatarUpload() {
             Profile picture
           </div>
           <div className="mt-0.5 text-xs text-zinc-600">
-            Upload a new avatar (auto-cropped to 200×200).
+            Stored in Supabase; saved to your profile until you upload again.
           </div>
           <button
             type="button"
