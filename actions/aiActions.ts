@@ -65,3 +65,67 @@ export async function parseArtisanRequest(
   }
 }
 
+export async function buildArtisanSearchQuery(
+  trade: string,
+  location: string,
+  options?: { latitude?: number; longitude?: number }
+): Promise<string> {
+  const safeTrade = trade?.trim() || "artisan services";
+  const safeLocation = location?.trim() || "Lagos, Nigeria";
+
+  try {
+    const coordLine =
+      options?.latitude != null && options?.longitude != null
+        ? `GPS coordinates (use to refine locality): ${options.latitude}, ${options.longitude}`
+        : "";
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You write ONE line of plain text: a highly specific web search query to find real local businesses in Nigeria (Google Maps / business directories) that list phone numbers.
+Rules:
+- Output ONLY the query string. No quotes, markdown, JSON, or explanation.
+- Include trade/service + place names. Prefer "near [area]" phrasing when helpful.`,
+        },
+        {
+          role: "user",
+          content: [
+            `Trade/service: ${safeTrade}`,
+            `Location context: ${safeLocation}`,
+            coordLine,
+            "Return the single best search query.",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        },
+      ],
+      model: "openai/gpt-oss-120b",
+      temperature: 0.15,
+      max_tokens: 120,
+    });
+
+    const raw = chatCompletion.choices[0]?.message?.content?.trim() ?? "";
+    const cleaned = raw
+      .replace(/^["'`]+|["'`]+$/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (cleaned.length < 8) {
+      throw new Error("Query too short");
+    }
+
+    return cleaned.slice(0, 400);
+  } catch (error) {
+    console.error("Groq search query error:", error);
+    const coord =
+      options?.latitude != null && options?.longitude != null
+        ? ` near ${options.latitude},${options.longitude}`
+        : "";
+    return `Top rated ${safeTrade} in ${safeLocation} Nigeria phone number contact${coord}`.slice(
+      0,
+      400
+    );
+  }
+}
+

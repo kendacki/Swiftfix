@@ -1,15 +1,27 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { MapPin, Phone, Sparkles, Star, Timer, Wrench } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  Phone,
+  Sparkles,
+  Star,
+  Timer,
+  Wrench,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { parseArtisanRequest, type ArtisanExtraction } from "@/actions/aiActions";
 import {
   fetchArtisans,
-  type TinyfishArtisan,
+  type RecommendedArtisan,
 } from "@/actions/tinyfishActions";
 import { payArtisan } from "@/actions/paymentActions";
+import {
+  assignArtisanToRequest,
+  createServiceRequest,
+} from "@/actions/requestActions";
 
 function urgencyBadgeClasses(urgency: ArtisanExtraction["urgency"]) {
   if (urgency === "High") return "border-red-200 bg-red-50 text-red-700";
@@ -21,14 +33,100 @@ function urgencyLabel(urgency: ArtisanExtraction["urgency"]) {
   return urgency === "High" ? "High" : urgency === "Medium" ? "Medium" : "Low";
 }
 
+function isVagueLocation(location: string): boolean {
+  const t = location.trim().toLowerCase();
+  return t.length < 2 || t === "not specified" || t === "n/a";
+}
+
+function withLocalityHint(location: string): string {
+  const t = location.trim();
+  if (!t || isVagueLocation(t)) return "Lagos, Nigeria";
+  if (/nigeria/i.test(t)) return t;
+  if (/lagos|ikeja|lekki|yaba|vi\b|victoria island|surulere|abuja|port harcourt/i.test(t))
+    return `${t}, Nigeria`;
+  return `${t}, Lagos, Nigeria`;
+}
+
+async function resolveSearchLocation(rawLocation: string): Promise<{
+  text: string;
+  latitude?: number;
+  longitude?: number;
+}> {
+  if (!isVagueLocation(rawLocation)) {
+    return { text: withLocalityHint(rawLocation) };
+  }
+
+  return new Promise((resolve) => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      resolve({ text: "Lagos, Nigeria" });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resolve({
+          text: "Lagos, Nigeria",
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+      },
+      () => resolve({ text: "Lagos, Nigeria" }),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  });
+}
+
+function phoneToTelHref(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return "#";
+  if (digits.startsWith("234")) return `tel:+${digits}`;
+  if (digits.startsWith("0") && digits.length >= 10) return `tel:+234${digits.slice(1)}`;
+  if (digits.length === 10) return `tel:+234${digits}`;
+  return `tel:+${digits}`;
+}
+
+function InitialsAvatar({ name }: { name: string }) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const initials =
+    parts.length >= 2
+      ? `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase()
+      : (name.slice(0, 2) || "SF").toUpperCase();
+  return (
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-600 to-orange-500 text-base font-bold text-white shadow-md ring-4 ring-white">
+      {initials}
+    </div>
+  );
+}
+
+function ArtisanSkeletonCard() {
+  return (
+    <div className="flex animate-pulse flex-col rounded-xl border border-zinc-100 bg-white p-5 shadow-md">
+      <div className="flex items-start gap-3">
+        <div className="h-14 w-14 shrink-0 rounded-full bg-zinc-200" />
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="h-4 w-3/4 rounded bg-zinc-200" />
+          <div className="h-3 w-1/2 rounded bg-zinc-100" />
+        </div>
+      </div>
+      <div className="mt-4 space-y-2">
+        <div className="h-3 w-full rounded bg-zinc-100" />
+        <div className="h-3 w-5/6 rounded bg-zinc-100" />
+      </div>
+      <div className="mt-6 h-11 w-full rounded-xl bg-gradient-to-r from-violet-200 to-fuchsia-200" />
+    </div>
+  );
+}
+
 export default function RequestPage() {
   const [prompt, setPrompt] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<ArtisanExtraction | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [artisans, setArtisans] = useState<TinyfishArtisan[]>([]);
+  const [artisans, setArtisans] = useState<RecommendedArtisan[]>([]);
   const [isFetchingArtisans, setIsFetchingArtisans] = useState(false);
-  const [selectedArtisan, setSelectedArtisan] = useState<TinyfishArtisan | null>(null);
+  const [artisanFetchFailed, setArtisanFetchFailed] = useState(false);
+  const [serviceRequestId, setServiceRequestId] = useState<string | null>(null);
+  const [selectedArtisan, setSelectedArtisan] =
+    useState<RecommendedArtisan | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -43,25 +141,57 @@ export default function RequestPage() {
     [prompt, isAnalyzing]
   );
 
+  const handleBook = async (artisan: RecommendedArtisan) => {
+    if (!serviceRequestId || !user?.id) return;
+    try {
+      await assignArtisanToRequest(user.id, serviceRequestId, artisan);
+    } catch (e) {
+      console.error("assignArtisanToRequest:", e);
+    }
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setResult(null);
     setArtisans([]);
+    setArtisanFetchFailed(false);
+    setServiceRequestId(null);
 
     if (!prompt.trim()) return;
+
+    if (!ready || !authenticated || !user?.id) {
+      setError("Please sign in to find and book artisans.");
+      return;
+    }
 
     try {
       setIsAnalyzing(true);
       const extracted = await parseArtisanRequest(prompt);
+
+      const resolved = await resolveSearchLocation(extracted.location);
+
+      const { id: newRequestId } = await createServiceRequest(user.id, {
+        trade: extracted.trade,
+        location: resolved.text,
+        urgency: extracted.urgency,
+        originalPrompt: prompt.trim(),
+      });
+      setServiceRequestId(newRequestId);
       setResult(extracted);
 
+      setIsAnalyzing(false);
       setIsFetchingArtisans(true);
       const tinyfishResults = await fetchArtisans(
         extracted.trade,
-        extracted.location
+        resolved.text,
+        {
+          latitude: resolved.latitude,
+          longitude: resolved.longitude,
+        }
       );
       setArtisans(tinyfishResults);
+      setArtisanFetchFailed(tinyfishResults.length === 0);
     } catch {
       setError(
         "Sorry—something went wrong while analyzing your request. Please try again."
@@ -72,7 +202,7 @@ export default function RequestPage() {
     }
   };
 
-  const openPaymentModal = (artisan: TinyfishArtisan) => {
+  const openPaymentModal = (artisan: RecommendedArtisan) => {
     setSelectedArtisan(artisan);
     setPaymentAmount("");
     setPaymentError(null);
@@ -145,7 +275,7 @@ export default function RequestPage() {
               className="mt-2 w-full resize-none rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm leading-6 text-zinc-900 shadow-sm outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
             />
             <div className="mt-2 text-xs text-zinc-500">
-              We’ll automatically extract Trade, Location, and Urgency.
+              We’ll automatically extract Trade, Location, and Urgency. If your area is vague, we may ask your browser for location to improve matches.
             </div>
           </div>
 
@@ -255,7 +385,7 @@ export default function RequestPage() {
           </div>
 
           <div className="mt-4 text-xs text-zinc-500">
-            Next: we’ll search your area and show recommended artisans.
+            Recommended artisans load below from live local listings.
           </div>
         </div>
       ) : null}
@@ -268,74 +398,111 @@ export default function RequestPage() {
                 Recommended Artisans
               </div>
               <div className="mt-1 text-sm text-zinc-600">
-                Curated professionals based on your request.
+                Top matches for your trade and area (up to three).
               </div>
             </div>
           </div>
 
           {isFetchingArtisans ? (
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {[0, 1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className="min-h-[120px] animate-pulse rounded-2xl border border-zinc-200 bg-zinc-50 p-4"
-                >
-                  <div className="h-4 w-2/3 rounded bg-zinc-200" />
-                  <div className="mt-3 h-3 w-1/3 rounded bg-zinc-200" />
-                  <div className="mt-4 h-3 w-full rounded bg-zinc-200" />
-                  <div className="mt-4 h-9 w-full rounded-xl bg-zinc-200" />
-                </div>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[0, 1, 2].map((i) => (
+                <ArtisanSkeletonCard key={i} />
               ))}
             </div>
-          ) : artisans.length === 0 ? (
-            <div className="mt-6 rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-600">
-              No artisans found yet. Try refining your trade or location in the prompt.
+          ) : artisanFetchFailed ? (
+            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6 text-center text-sm leading-relaxed text-amber-950">
+              We couldn&apos;t find available artisans in that exact area right now. Try
+              expanding your search location!
             </div>
           ) : (
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {artisans.map((artisan) => (
-                <article
-                  key={`${artisan.name}-${artisan.phone}`}
-                  className="flex h-full flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm"
-                >
-                  <div>
-                    <div className="text-sm font-semibold text-zinc-900">
-                      {artisan.name}
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {artisans.map((artisan) => {
+                const tel = phoneToTelHref(artisan.phoneNumber);
+                return (
+                  <article
+                    key={artisan.id}
+                    className="flex h-full flex-col rounded-xl border border-zinc-100 bg-white p-5 shadow-md transition hover:shadow-lg"
+                  >
+                    <div className="flex items-start gap-3">
+                      <InitialsAvatar name={artisan.name} />
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-base font-bold leading-tight text-zinc-900">
+                          {artisan.name}
+                        </h3>
+                        <div className="mt-1.5 flex items-start gap-1.5 text-xs text-zinc-500">
+                          <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400" />
+                          <span className="line-clamp-2">
+                            {artisan.address ?? result.location ?? "Local area"}
+                          </span>
+                        </div>
+                        {artisan.rating != null ? (
+                          <div className="mt-2 flex items-center gap-1 text-xs font-medium text-amber-700">
+                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                            {artisan.rating.toFixed(1)}
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
-                    <div className="mt-1 flex items-center gap-1 text-xs text-zinc-600">
-                      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                      <span>{artisan.rating.toFixed(1)}</span>
-                      <span className="text-zinc-400">•</span>
-                      <span>Top rated {result.trade || "artisan"}</span>
+
+                    <div className="mt-4 space-y-2 border-t border-zinc-100 pt-4">
+                      <a
+                        href={tel}
+                        className="flex items-center gap-2 text-xs font-medium text-zinc-700 hover:text-zinc-900"
+                      >
+                        <Phone className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                        <span className="truncate">{artisan.phoneNumber}</span>
+                      </a>
+                      {artisan.email ? (
+                        <a
+                          href={`mailto:${artisan.email}`}
+                          className="flex items-center gap-2 text-xs font-medium text-zinc-700 hover:text-zinc-900"
+                        >
+                          <Mail className="h-3.5 w-3.5 shrink-0 text-violet-600" />
+                          <span className="truncate">{artisan.email}</span>
+                        </a>
+                      ) : (
+                        <div className="flex items-center gap-2 text-xs text-zinc-400">
+                          <Mail className="h-3.5 w-3.5 shrink-0" />
+                          <span>No email listed</span>
+                        </div>
+                      )}
                     </div>
-                    <p className="mt-3 line-clamp-3 text-xs leading-relaxed text-zinc-600">
-                      {artisan.snippet}
-                    </p>
-                  </div>
 
-                  <div className="mt-4 flex flex-col gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        alert(`Contact ${artisan.name}: ${artisan.phone}`)
-                      }
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-900 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-200"
-                    >
-                      <Phone className="h-3.5 w-3.5" />
-                      Contact Now
-                    </button>
+                    {artisan.snippet ? (
+                      <p className="mt-3 line-clamp-3 flex-1 text-xs leading-relaxed text-zinc-500">
+                        {artisan.snippet}
+                      </p>
+                    ) : (
+                      <div className="flex-1" />
+                    )}
 
-                    <button
-                      type="button"
-                      onClick={() => openPaymentModal(artisan)}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-900 bg-zinc-900 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-200"
-                    >
-                      <Sparkles className="h-3.5 w-3.5" />
-                      Book &amp; Pay
-                    </button>
-                  </div>
-                </article>
-              ))}
+                    <div className="mt-5 flex flex-col gap-2">
+                      <a
+                        href={tel}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          void (async () => {
+                            await handleBook(artisan);
+                            window.location.href = tel;
+                          })();
+                        }}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-3 text-sm font-bold text-white shadow-md transition hover:from-violet-500 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-violet-300"
+                      >
+                        <Phone className="h-4 w-4" />
+                        Book &amp; Call
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => openPaymentModal(artisan)}
+                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-semibold text-zinc-900 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Book &amp; Pay
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
         </section>
@@ -409,4 +576,3 @@ export default function RequestPage() {
     </div>
   );
 }
-
