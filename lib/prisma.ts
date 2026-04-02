@@ -1,39 +1,41 @@
-import { PrismaClient } from "@prisma/client";
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import ws from "ws";
+import { PrismaClient } from '@prisma/client';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import ws from 'ws';
 
-// Tell Neon to use the standard Node.js WebSocket
 neonConfig.webSocketConstructor = ws;
 
-const prismaClientSingleton = () => {
-  // 1. Force Next.js to read the variable explicitly
-  const connectionString = `${process.env.DATABASE_URL}`;
+// Do not initialize the pool here!
+let prismaInstance: PrismaClient | undefined;
 
-  // 2. Secondary Failsafe check (just in case the string equals "undefined")
-  if (!connectionString || connectionString === "undefined") {
-    throw new Error(
-      "🚨 CRITICAL ERROR: Vercel failed to inject DATABASE_URL into the runtime environment.",
-    );
+const getPrisma = () => {
+  if (prismaInstance) return prismaInstance;
+
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("🚨 CRITICAL ERROR: DATABASE_URL is missing at runtime.");
   }
 
-  // 3. Initialize the Neon Pool explicitly passing the string
-  const pool = new Pool({ connectionString: connectionString });
-
-  // Pass the pool to the Prisma Adapter
-  // @ts-expect-error - Known type mismatch between Neon serverless and Prisma adapter definitions
+  const pool = new Pool({ connectionString });
+  // @ts-expect-error - Known type mismatch
   const adapter = new PrismaNeon(pool);
-
-  // Initialize Prisma with the custom adapter
-  return new PrismaClient({ adapter });
+  
+  prismaInstance = new PrismaClient({ adapter });
+  return prismaInstance;
 };
 
 declare global {
-  var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>;
+  var prismaGlobal: undefined | PrismaClient;
 }
 
-const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+// Export a Proxy so the rest of the app doesn't need to change imports
+const prisma = globalThis.prismaGlobal ?? new Proxy({} as PrismaClient, {
+  get: (target, prop) => {
+    const client = getPrisma();
+    return Reflect.get(client, prop);
+  }
+});
 
 export default prisma;
 
-if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prisma;
+if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma;
