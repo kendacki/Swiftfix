@@ -14,6 +14,7 @@ const prismaClientSingleton = () => {
   const pool = new Pool({ connectionString });
 
   // Pass the pool to the Prisma Adapter
+  // @ts-expect-error - Known type mismatch between Neon serverless and Prisma adapter definitions
   const adapter = new PrismaNeon(pool);
 
   // Initialize Prisma with the custom adapter
