@@ -379,12 +379,11 @@ export default function Page() {
               viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
               variants={fadeUp}
             >
-              <div className="text-sm font-semibold text-white/90">
+              <h2 className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl">
                 The strategic choice.
-              </div>
-              <p className="mt-3 max-w-md text-sm leading-6 text-white/60">
-                Built for people moving real value—swaps, payments, and
-                withdrawals in one clean flow.
+              </h2>
+              <p className="mt-4 max-w-xl text-balance text-lg font-medium leading-7 text-white/70 sm:text-xl sm:leading-8">
+                Built for people that are intentional about Financial Growth
               </p>
             </motion.div>
 
