@@ -7,18 +7,18 @@ import ws from "ws";
 neonConfig.webSocketConstructor = ws;
 
 const prismaClientSingleton = () => {
-  // We use the same pooled DATABASE_URL from Vercel
-  const connectionString = process.env.DATABASE_URL;
+  // 1. Force Next.js to read the variable explicitly
+  const connectionString = `${process.env.DATABASE_URL}`;
 
-  // Failsafe: Loudly warn if the variable is missing from Vercel
-  if (!connectionString) {
+  // 2. Secondary Failsafe check (just in case the string equals "undefined")
+  if (!connectionString || connectionString === "undefined") {
     throw new Error(
-      "🚨 CRITICAL ERROR: DATABASE_URL environment variable is missing or undefined!",
+      "🚨 CRITICAL ERROR: Vercel failed to inject DATABASE_URL into the runtime environment.",
     );
   }
 
-  // Initialize the Neon Pool
-  const pool = new Pool({ connectionString });
+  // 3. Initialize the Neon Pool explicitly passing the string
+  const pool = new Pool({ connectionString: connectionString });
 
   // Pass the pool to the Prisma Adapter
   // @ts-expect-error - Known type mismatch between Neon serverless and Prisma adapter definitions
