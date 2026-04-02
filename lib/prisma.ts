@@ -5,16 +5,13 @@ import ws from 'ws';
 
 neonConfig.webSocketConstructor = ws;
 
-// 1. Dynamic Getter: Bypasses static bundler replacement and checks all Vercel naming conventions
 const getDbUrl = () => {
-  // Check standard name, Vercel Postgres names, and bracket notation to avoid Webpack stripping
-  const url = process.env['DATABASE_URL'] || process.env['POSTGRES_PRISMA_URL'] || process.env['POSTGRES_URL'] || process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL;
   
-  if (!url) {
-    // If it still fails, log exactly what Vercel DID inject so we can see the real name
-    const keys = Object.keys(process.env).filter(k => !k.startsWith('npm_'));
-    console.error("🚨 FATAL: Database URL is entirely missing. Available Vercel Variables:", keys.join(', '));
-    throw new Error("Cannot connect to Database: Environment Variable missing in Vercel Runtime.");
+  // Block both missing variables AND Webpack's string-literal bugs
+  if (!url || url === "undefined" || url === "null" || url.trim() === "") {
+    console.error("🚨 FATAL: Database URL is literally evaluating to:", url);
+    throw new Error("Cannot connect to Database: Vercel injected an invalid string.");
   }
   return url;
 };

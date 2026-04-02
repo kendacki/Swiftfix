@@ -21,6 +21,9 @@ function supabaseImageRemotePattern():
 const supabasePattern = supabaseImageRemotePattern();
 
 const nextConfig: NextConfig = {
+  env: {
+    DATABASE_URL: process.env.DATABASE_URL,
+  },
   turbopack: {},
   transpilePackages: ["@privy-io/react-auth", "x402"],
   webpack: (config, { isServer }) => {
