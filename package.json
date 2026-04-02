@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
-    "@prisma/adapter-neon": "^6.19.3",
-    "@prisma/client": "^6.4.1",
+    "@prisma/adapter-neon": "6.5.0",
+    "@prisma/client": "6.5.0",
     "@privy-io/react-auth": "^3.18.0",
     "@solana-program/memo": "^0.8.0",
     "@solana-program/system": "^0.8.1",
@@ -39,7 +39,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "husky": "^9.1.7",
-    "prisma": "^6.4.1",
+    "prisma": "6.5.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
