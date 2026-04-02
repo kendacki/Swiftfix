@@ -566,82 +566,60 @@ export default function RequestPage() {
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {artisans.map((artisan) => {
                 const tel = phoneToTelHref(artisan.phoneNumber);
+                const tradeLabel = (result?.trade ?? "").trim().toUpperCase() || "SERVICE";
+                const matchScore =
+                  artisan.rating != null
+                    ? Math.max(0, Math.min(100, Math.round((artisan.rating / 5) * 100)))
+                    : 78;
+                const badgeClass =
+                  matchScore >= 85
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : matchScore >= 70
+                      ? "border-violet-200 bg-violet-50 text-violet-800"
+                      : "border-zinc-200 bg-zinc-50 text-zinc-700";
                 return (
                   <article
                     key={artisan.id}
-                    className="flex h-full flex-col rounded-xl border border-zinc-100 bg-white p-5 shadow-md transition hover:shadow-lg"
+                    className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-md transition hover:shadow-lg"
                   >
-                    <div className="flex items-start gap-3">
-                      <InitialsAvatar name={artisan.name} />
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-base font-bold leading-tight text-zinc-900">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          {tradeLabel}
+                        </div>
+                        <div className="mt-1 text-base font-bold text-zinc-900">
                           {artisan.name}
-                        </h3>
-                        <div className="mt-1.5 flex items-start gap-1.5 text-xs text-zinc-500">
-                          <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400" />
-                          <span className="line-clamp-2">
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-600">
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin className="h-3.5 w-3.5 text-zinc-400" />
                             {artisan.address ?? result.location ?? "Local area"}
                           </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Phone className="h-3.5 w-3.5 text-emerald-600" />
+                            {artisan.phoneNumber}
+                          </span>
                         </div>
-                        {artisan.rating != null ? (
-                          <div className="mt-2 flex items-center gap-1 text-xs font-medium text-amber-700">
-                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                            {artisan.rating.toFixed(1)}
-                          </div>
-                        ) : null}
                       </div>
+
+                      <span
+                        className={[
+                          "shrink-0 rounded-full border px-3 py-1 text-xs font-semibold",
+                          badgeClass,
+                        ].join(" ")}
+                      >
+                        {matchScore}% Match
+                      </span>
                     </div>
 
-                    <div className="mt-4 space-y-2 border-t border-zinc-100 pt-4">
-                      <a
-                        href={tel}
-                        className="flex items-center gap-2 text-xs font-medium text-zinc-700 hover:text-zinc-900"
-                      >
-                        <Phone className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                        <span className="truncate">{artisan.phoneNumber}</span>
-                      </a>
-                      {artisan.email ? (
-                        <a
-                          href={`mailto:${artisan.email}`}
-                          className="flex items-center gap-2 text-xs font-medium text-zinc-700 hover:text-zinc-900"
-                        >
-                          <Mail className="h-3.5 w-3.5 shrink-0 text-violet-600" />
-                          <span className="truncate">{artisan.email}</span>
-                        </a>
-                      ) : (
-                        <div className="flex items-center gap-2 text-xs text-zinc-400">
-                          <Mail className="h-3.5 w-3.5 shrink-0" />
-                          <span>No email listed</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {artisan.snippet ? (
-                      <p className="mt-3 line-clamp-3 flex-1 text-xs leading-relaxed text-zinc-500">
-                        {artisan.snippet}
-                      </p>
-                    ) : (
-                      <div className="flex-1" />
-                    )}
-
-                    <div className="mt-5 flex flex-col gap-2">
-                      <a
-                        href={tel}
-                        onClick={(e) => void onBookAndCall(e, artisan, tel)}
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-3 text-sm font-bold text-white shadow-md transition hover:from-violet-500 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-violet-300"
-                      >
-                        <Phone className="h-4 w-4" />
-                        Book &amp; Call
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => openPaymentModal(artisan)}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-semibold text-zinc-900 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-200"
-                      >
-                        <Sparkles className="h-3.5 w-3.5" />
-                        Book &amp; Pay
-                      </button>
-                    </div>
+                    <a
+                      href={tel}
+                      onClick={(e) => void onBookAndCall(e, artisan, tel)}
+                      className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
+                    >
+                      <Phone className="h-4 w-4" />
+                      Book Now
+                    </a>
                   </article>
                 );
               })}
