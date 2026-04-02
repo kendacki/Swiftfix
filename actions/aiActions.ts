@@ -1,6 +1,9 @@
 "use server";
 
-import Groq from "groq-sdk";
+import { Groq } from "groq-sdk";
+
+// Initialize the Groq client. It automatically picks up process.env.GROQ_API_KEY
+const groq = new Groq();
 
 export type ArtisanExtraction = {
   trade: string;
@@ -27,9 +30,6 @@ export async function parseArtisanRequest(
 
   if (!process.env.GROQ_API_KEY) throw new Error("Missing GROQ_API_KEY");
 
-  // Keep Groq API usage strictly on the server.
-  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
   // 1) Groq call
   let responseContent = "{}";
   try {
@@ -52,6 +52,7 @@ Do not include any markdown formatting, backticks, or conversational text. Just 
         },
       ],
       model: "openai/gpt-oss-120b", // Swap to "llama3-70b-8192" if Groq rejects this model name
+      stream: false,
       temperature: 0.1,
       max_tokens: 150,
     });
