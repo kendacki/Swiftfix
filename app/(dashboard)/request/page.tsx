@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
-import { parseArtisanRequest, type ArtisanExtraction } from "@/actions/aiActions";
+import { type ArtisanExtraction } from "@/actions/aiActions";
+import { extractRequestDetails } from "@/actions/extract";
 import {
   fetchArtisans,
   type RecommendedArtisan,
@@ -278,7 +279,12 @@ export default function RequestPage() {
 
     try {
       setIsAnalyzing(true);
-      const extracted = await parseArtisanRequest(prompt);
+      const extraction = await extractRequestDetails(prompt);
+      if (!extraction.success) {
+        throw new Error(extraction.error ?? "Analysis failed");
+      }
+
+      const extracted = extraction.data as ArtisanExtraction;
 
       const resolved = await resolveSearchLocation(extracted.location);
 
