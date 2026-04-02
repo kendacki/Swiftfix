@@ -23,11 +23,14 @@ const getDbUrl = () => {
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 // 3. Instantiate the client safely
+const pool = new Pool({ connectionString: getDbUrl() });
+
+// @ts-expect-error - Known type mismatch between Neon serverless and Prisma adapter definitions
+const adapter = new PrismaNeon(pool);
+
 export const prisma =
   globalForPrisma.prisma ||
-  new PrismaClient({
-    adapter: new PrismaNeon(new Pool({ connectionString: getDbUrl() })),
-  });
+  new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
