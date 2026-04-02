@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
+import { withDbRetry } from "@/lib/db-retry";
 
 export async function getUserWallet(privyId: string) {
   const user = await prisma.user.findUnique({
@@ -44,62 +45,65 @@ export async function fundWallet(
     throw new Error("Amount must be greater than zero.");
   }
 
-  const result = await prisma.$transaction(
-    async (tx) => {
-      const user = await tx.user.findUnique({
-        where: { privyId },
-      });
+  const result = await withDbRetry(
+    () =>
+      prisma.$transaction(
+        async (tx) => {
+          const user = await tx.user.findUnique({
+            where: { privyId },
+          });
 
-      if (!user) {
-        throw new Error("User not found for provided Privy ID.");
-      }
+          if (!user) {
+            throw new Error("User not found for provided Privy ID.");
+          }
 
-      let wallet = await tx.wallet.findUnique({
-        where: { userId: user.id },
-      });
+          let wallet = await tx.wallet.findUnique({
+            where: { userId: user.id },
+          });
 
-      if (!wallet) {
-        wallet = await tx.wallet.create({
-          data: {
-            userId: user.id,
-          },
-        });
-      }
-
-      const updatedWallet = await tx.wallet.update({
-        where: { id: wallet.id },
-        data:
-          currency === "NGN"
-            ? {
-                ngnBalance: {
-                  increment: amount,
-                },
-              }
-            : {
-                usdtBalance: {
-                  increment: amount,
-                },
+          if (!wallet) {
+            wallet = await tx.wallet.create({
+              data: {
+                userId: user.id,
               },
-      });
+            });
+          }
 
-      await tx.transaction.create({
-        data: {
-          userId: user.id,
-          type: "DEPOSIT",
-          amount,
-          currency,
-          status: "COMPLETED",
-          reference: generateReference(),
-          description: `Wallet funding of ${amount} ${currency}`,
+          const updatedWallet = await tx.wallet.update({
+            where: { id: wallet.id },
+            data:
+              currency === "NGN"
+                ? {
+                    ngnBalance: {
+                      increment: amount,
+                    },
+                  }
+                : {
+                    usdtBalance: {
+                      increment: amount,
+                    },
+                  },
+          });
+
+          await tx.transaction.create({
+            data: {
+              userId: user.id,
+              type: "DEPOSIT",
+              amount,
+              currency,
+              status: "COMPLETED",
+              reference: generateReference(),
+              description: `Wallet funding of ${amount} ${currency}`,
+            },
+          });
+
+          return updatedWallet;
         },
-      });
-
-      return updatedWallet;
-    },
-    {
-      maxWait: 10000,
-      timeout: 20000,
-    }
+        {
+          maxWait: 10000,
+          timeout: 20000,
+        }
+      )
   );
 
   revalidatePath("/wallet");
