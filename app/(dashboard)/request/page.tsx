@@ -303,7 +303,8 @@ export default function RequestPage() {
       );
       setArtisans(tinyfishResults);
       setArtisanFetchFailed(tinyfishResults.length === 0);
-    } catch {
+    } catch (error) {
+      console.error("GROQ EXTRACTION ERROR:", error);
       setError(
         "Sorry—something went wrong while analyzing your request. Please try again."
       );
