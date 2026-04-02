@@ -5,37 +5,30 @@ import ws from 'ws';
 
 neonConfig.webSocketConstructor = ws;
 
-// Do not initialize the pool here!
-let prismaInstance: PrismaClient | undefined;
-
-const getPrisma = () => {
-  if (prismaInstance) return prismaInstance;
-
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error("🚨 CRITICAL ERROR: DATABASE_URL is missing at runtime.");
-  }
-
-  const pool = new Pool({ connectionString });
-  // @ts-expect-error - Known type mismatch
-  const adapter = new PrismaNeon(pool);
+// 1. Dynamic Getter: Bypasses static bundler replacement and checks all Vercel naming conventions
+const getDbUrl = () => {
+  // Check standard name, Vercel Postgres names, and bracket notation to avoid Webpack stripping
+  const url = process.env['DATABASE_URL'] || process.env['POSTGRES_PRISMA_URL'] || process.env['POSTGRES_URL'] || process.env.DATABASE_URL;
   
-  prismaInstance = new PrismaClient({ adapter });
-  return prismaInstance;
+  if (!url) {
+    // If it still fails, log exactly what Vercel DID inject so we can see the real name
+    const keys = Object.keys(process.env).filter(k => !k.startsWith('npm_'));
+    console.error("🚨 FATAL: Database URL is entirely missing. Available Vercel Variables:", keys.join(', '));
+    throw new Error("Cannot connect to Database: Environment Variable missing in Vercel Runtime.");
+  }
+  return url;
 };
 
-declare global {
-  var prismaGlobal: undefined | PrismaClient;
-}
+// 2. Global instance to prevent hot-reload exhaustion in dev
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-// Export a Proxy so the rest of the app doesn't need to change imports
-const prisma = globalThis.prismaGlobal ?? new Proxy({} as PrismaClient, {
-  get: (target, prop) => {
-    const client = getPrisma();
-    return Reflect.get(client, prop);
-  }
-});
+// 3. Instantiate the client safely
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    adapter: new PrismaNeon(new Pool({ connectionString: getDbUrl() })),
+  });
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export default prisma;
-
-if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma;
