@@ -68,10 +68,20 @@ function PillRow() {
     "Always compliant",
   ];
 
+  type AnimatedPillProps = {
+    initial?: unknown;
+    animate?: unknown;
+    transition?: unknown;
+    className?: string;
+    children?: React.ReactNode;
+  };
+
+  const AnimatedPill = motion.div as unknown as React.ComponentType<AnimatedPillProps>;
+
   return (
     <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
       {items.map((t) => (
-        <motion.div
+        <AnimatedPill
           key={t}
           className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-[#A1A1A1] backdrop-blur"
           initial={{ opacity: 0, y: 6 }}
@@ -79,7 +89,7 @@ function PillRow() {
           transition={{ duration: 0.45, ease: easeInOut }}
         >
           {t}
-        </motion.div>
+        </AnimatedPill>
       ))}
     </div>
   );

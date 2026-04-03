@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { AlertCircle, ArrowRightLeft, Banknote, Send, Wallet } from "lucide-react";
+import { AlertCircle, Banknote, Send, Wallet } from "lucide-react";
 import { sendCrypto, sendFiat } from "@/actions/transferActions";
 
 type Tab = "FIAT" | "CRYPTO";

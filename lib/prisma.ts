@@ -22,7 +22,7 @@ const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 // 3. Instantiate the client safely
 const pool = new Pool({ connectionString: getDbUrl() });
 
-// @ts-expect-error - Known type mismatch between Neon serverless and Prisma adapter definitions
+// Neon serverless Pool instance wired to the Prisma Neon adapter.
 const adapter = new PrismaNeon(pool);
 
 export const prisma =

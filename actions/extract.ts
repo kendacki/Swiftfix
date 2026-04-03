@@ -42,8 +42,9 @@ export async function extractRequestDetails(promptText: string) {
 
     return { success: true, data: parsedData };
 
-  } catch (error: any) {
-    console.error("🚨 [EXTRACTION FATAL ERROR]:", error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("🚨 [EXTRACTION FATAL ERROR]:", message);
     return { success: false, error: "Analysis failed. Please try again." };
   }
 }

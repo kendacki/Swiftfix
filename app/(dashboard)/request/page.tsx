@@ -3,11 +3,9 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   Calendar,
-  Mail,
   MapPin,
   Phone,
   Sparkles,
-  Star,
   Timer,
   Wrench,
 } from "lucide-react";
@@ -590,22 +588,25 @@ export default function RequestPage() {
                     className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-md transition hover:shadow-lg"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {tradeLabel}
-                        </div>
-                        <div className="mt-1 text-base font-bold text-zinc-900">
-                          {artisan.name}
-                        </div>
-                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-600">
-                          <span className="inline-flex items-center gap-1">
-                            <MapPin className="h-3.5 w-3.5 text-zinc-400" />
-                            {artisan.address ?? result.location ?? "Local area"}
-                          </span>
-                          <span className="inline-flex items-center gap-1">
-                            <Phone className="h-3.5 w-3.5 text-emerald-600" />
-                            {artisan.phoneNumber}
-                          </span>
+                      <div className="flex min-w-0 flex-1 gap-3">
+                        <InitialsAvatar name={artisan.name} />
+                        <div className="min-w-0">
+                          <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            {tradeLabel}
+                          </div>
+                          <div className="mt-1 text-base font-bold text-zinc-900">
+                            {artisan.name}
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-600">
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5 text-zinc-400" />
+                              {artisan.address ?? result.location ?? "Local area"}
+                            </span>
+                            <span className="inline-flex items-center gap-1">
+                              <Phone className="h-3.5 w-3.5 text-emerald-600" />
+                              {artisan.phoneNumber}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
@@ -619,14 +620,23 @@ export default function RequestPage() {
                       </span>
                     </div>
 
-                    <a
-                      href={tel}
-                      onClick={(e) => void onBookAndCall(e, artisan, tel)}
-                      className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
-                    >
-                      <Phone className="h-4 w-4" />
-                      Book Now
-                    </a>
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                      <a
+                        href={tel}
+                        onClick={(e) => void onBookAndCall(e, artisan, tel)}
+                        className="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
+                      >
+                        <Phone className="h-4 w-4" />
+                        Book Now
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => openPaymentModal(artisan)}
+                        className="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300 sm:w-auto"
+                      >
+                        Pay
+                      </button>
+                    </div>
                   </article>
                 );
               })}
