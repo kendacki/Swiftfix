@@ -26,7 +26,7 @@ export function Providers({ children }: ProvidersProps) {
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ""}
       config={{
-        loginMethods: ["email", "sms"],
+        loginMethods: ["email", "wallet", "sms"],
       }}
     >
       <AuthRedirect />

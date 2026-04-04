@@ -1,9 +1,11 @@
- "use client";
+"use client";
 
 import { useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useRouter } from "next/navigation";
 import { BadgeCheck, ChevronRight, LogOut, ShieldCheck, UserRound } from "lucide-react";
 import type { ReactNode } from "react";
+import { usePrivy } from "@privy-io/react-auth";
+import { SecuritySettingsList } from "@/components/SecuritySettingsList";
 
 type SettingsCardProps = {
   title: string;
@@ -70,9 +72,10 @@ function SettingsCard({
   );
 }
 
-type ActiveSection = "profile" | "security" | "identity" | null;
+type ActiveSection = "security" | null;
 
 export default function SettingsPage() {
+  const router = useRouter();
   const { ready, logout } = usePrivy();
   const [activeSection, setActiveSection] = useState<ActiveSection>(null);
 
@@ -97,7 +100,7 @@ export default function SettingsPage() {
             title="Profile"
             description="Update your personal information."
             icon={<UserRound className="h-5 w-5" />}
-            onClick={() => setActiveSection("profile")}
+            onClick={() => router.push("/profile")}
             disabled={!ready}
           />
 
@@ -105,7 +108,9 @@ export default function SettingsPage() {
             title="Security"
             description="Manage your security preferences."
             icon={<ShieldCheck className="h-5 w-5" />}
-            onClick={() => setActiveSection("security")}
+            onClick={() =>
+              setActiveSection((s) => (s === "security" ? null : "security"))
+            }
             disabled={!ready}
           />
 
@@ -113,7 +118,7 @@ export default function SettingsPage() {
             title="Identity Verification"
             description="Verify your identity for compliance."
             icon={<BadgeCheck className="h-5 w-5" />}
-            onClick={() => setActiveSection("identity")}
+            onClick={() => router.push("/kyc")}
             disabled={!ready}
           />
 
@@ -127,18 +132,13 @@ export default function SettingsPage() {
           />
         </div>
 
-        {activeSection && (
-          <div className="mt-5 rounded-xl bg-zinc-50 p-4 text-sm text-zinc-700">
-            Coming soon:{" "}
-            {activeSection === "profile"
-              ? "Profile"
-              : activeSection === "security"
-                ? "Security"
-                : "Identity Verification"}
+        {activeSection === "security" ? (
+          <div className="mt-6">
+            <p className="mb-3 text-sm font-medium text-zinc-800">Security</p>
+            <SecuritySettingsList />
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
 }
-

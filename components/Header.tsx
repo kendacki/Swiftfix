@@ -58,6 +58,9 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
       return "Transactions";
     if (pathname === "/request" || pathname.startsWith("/request/")) return "Request";
     if (pathname === "/settings" || pathname.startsWith("/settings/")) return "Settings";
+    if (pathname === "/profile" || pathname.startsWith("/profile/")) return "Profile";
+    if (pathname === "/kyc" || pathname.startsWith("/kyc/"))
+      return "Identity Verification";
     return "Dashboard";
   })();
 
