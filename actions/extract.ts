@@ -165,6 +165,8 @@ export async function extractRequestDetails(promptText: string) {
       urgency,
     };
 
+    // Schema (prisma/schema.prisma): model Artisan { trade, location, name, phoneNumber, ... }
+    // User has no trade/location — use prisma.artisan, not prisma.user.
     console.log("🟢 [STEP 6] Searching Database for matches...");
 
     let artisans: RecommendedArtisan[] = [];
@@ -172,6 +174,7 @@ export async function extractRequestDetails(promptText: string) {
 
     if (hasSearch) {
       try {
+        // Case-insensitive contains on trade + location (see findArtisansFromCatalog)
         artisans = await findArtisansFromCatalog(tradeQ, locationQ);
       } catch (err) {
         if (

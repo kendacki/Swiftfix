@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Calendar,
   MapPin,
@@ -9,12 +9,10 @@ import {
   Timer,
   Wrench,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { type ArtisanExtraction } from "@/actions/aiActions";
 import { extractRequestDetails } from "@/actions/extract";
 import type { RecommendedArtisan } from "@/actions/tinyfishActions";
-import { payArtisan } from "@/actions/paymentActions";
 import {
   assignArtisanToRequest,
   createServiceRequest,
@@ -140,18 +138,9 @@ export default function RequestPage() {
   const [result, setResult] = useState<ArtisanExtraction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [artisans, setArtisans] = useState<RecommendedArtisan[]>([]);
-  const [artisanFetchFailed, setArtisanFetchFailed] = useState(false);
   const [serviceRequestId, setServiceRequestId] = useState<string | null>(null);
-  const [selectedArtisan, setSelectedArtisan] =
-    useState<RecommendedArtisan | null>(null);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [paymentAmount, setPaymentAmount] = useState("");
-  const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [paymentSuccess, setPaymentSuccess] = useState<string | null>(null);
-  const [isPaying, startPaymentTransition] = useTransition();
 
   const { ready, authenticated, user, login } = usePrivy();
-  const router = useRouter();
 
   useEffect(() => {
     setRemoteBookingsLoaded(false);
@@ -229,7 +218,6 @@ export default function RequestPage() {
     setError(null);
     setResult(null);
     setArtisans([]);
-    setArtisanFetchFailed(false);
 
     setServiceRequestId(null);
 
@@ -261,7 +249,6 @@ export default function RequestPage() {
       setServiceRequestId(newRequestId);
       setResult(extracted);
       setArtisans(dbArtisans);
-      setArtisanFetchFailed(dbArtisans.length === 0);
     } catch (error) {
       console.error("GROQ EXTRACTION ERROR:", error);
       setError(
@@ -270,53 +257,6 @@ export default function RequestPage() {
     } finally {
       setIsAnalyzing(false);
     }
-  };
-
-  const openPaymentModal = (artisan: RecommendedArtisan) => {
-    setSelectedArtisan(artisan);
-    setPaymentAmount("");
-    setPaymentError(null);
-    setPaymentSuccess(null);
-    setIsPaymentModalOpen(true);
-  };
-
-  const closePaymentModal = () => {
-    setIsPaymentModalOpen(false);
-  };
-
-  const onConfirmPayment = () => {
-    if (!selectedArtisan) return;
-
-    setPaymentError(null);
-    setPaymentSuccess(null);
-
-    if (!ready || !authenticated || !user?.id) {
-      setPaymentError("Please sign in to complete payment.");
-      return;
-    }
-
-    const amount = Number(paymentAmount);
-    if (!Number.isFinite(amount) || amount <= 0) {
-      setPaymentError("Enter a valid amount to pay.");
-      return;
-    }
-
-    startPaymentTransition(async () => {
-      try {
-        await payArtisan(user.id, selectedArtisan.name, amount);
-        setPaymentSuccess("Payment completed successfully.");
-        setTimeout(() => {
-          setIsPaymentModalOpen(false);
-          router.push("/transactions");
-        }, 800);
-      } catch (e) {
-        const message =
-          e instanceof Error
-            ? e.message
-            : "Payment failed. Please try again.";
-        setPaymentError(message);
-      }
-    });
   };
 
   return (
@@ -510,26 +450,16 @@ export default function RequestPage() {
             </div>
           </div>
 
-          {!isAnalyzing && artisanFetchFailed ? (
+          {!isAnalyzing && artisans.length === 0 ? (
             <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-6 text-center text-sm leading-relaxed text-zinc-700">
-              No artisans found in this area for that trade. Try a broader location or
-              different wording.
+              No artisans found in this area.
             </div>
           ) : !isAnalyzing && artisans.length > 0 ? (
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid gap-4">
               {artisans.map((artisan) => {
                 const tel = phoneToTelHref(artisan.phoneNumber);
-                const tradeLabel = (result?.trade ?? "").trim().toUpperCase() || "SERVICE";
-                const matchScore =
-                  artisan.rating != null
-                    ? Math.max(0, Math.min(100, Math.round((artisan.rating / 5) * 100)))
-                    : 78;
-                const badgeClass =
-                  matchScore >= 85
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                    : matchScore >= 70
-                      ? "border-violet-200 bg-violet-50 text-violet-800"
-                      : "border-zinc-200 bg-zinc-50 text-zinc-700";
+                const tradeLabel =
+                  (result?.trade ?? "").trim().toUpperCase() || "SERVICE";
                 return (
                   <article
                     key={artisan.id}
@@ -554,32 +484,18 @@ export default function RequestPage() {
                           </span>
                         </div>
                       </div>
-                      <span
-                        className={[
-                          "shrink-0 rounded-full border px-3 py-1 text-xs font-semibold",
-                          badgeClass,
-                        ].join(" ")}
-                      >
-                        {matchScore}% Match
+                      <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
+                        Listed
                       </span>
                     </div>
-                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                      <a
-                        href={tel}
-                        onClick={(e) => void onBookAndCall(e, artisan, tel)}
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
-                      >
-                        <Phone className="h-4 w-4" />
-                        Book Now
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => openPaymentModal(artisan)}
-                        className="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300 sm:w-auto"
-                      >
-                        Pay
-                      </button>
-                    </div>
+                    <a
+                      href={tel}
+                      onClick={(e) => void onBookAndCall(e, artisan, tel)}
+                      className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
+                    >
+                      <Phone className="h-4 w-4" />
+                      Book Now
+                    </a>
                   </article>
                 );
               })}
@@ -691,71 +607,6 @@ export default function RequestPage() {
         </section>
       ) : null}
 
-      {isPaymentModalOpen && selectedArtisan ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold text-zinc-900">
-                  Book &amp; Pay
-                </div>
-                <div className="mt-1 text-xs text-zinc-600">
-                  You are about to pay{" "}
-                  <span className="font-semibold">{selectedArtisan.name}</span>.
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={closePaymentModal}
-                className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
-              >
-                Close
-              </button>
-            </div>
-
-            <div className="mt-4">
-              <label className="text-xs font-semibold text-zinc-700">
-                Amount to Pay (₦)
-              </label>
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={paymentAmount}
-                onChange={(e) => setPaymentAmount(e.target.value)}
-                placeholder="Enter agreed amount"
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
-              />
-            </div>
-
-            {paymentError ? (
-              <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-800">
-                {paymentError}
-              </div>
-            ) : null}
-
-            {paymentSuccess ? (
-              <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800">
-                {paymentSuccess}
-              </div>
-            ) : null}
-
-            <button
-              type="button"
-              onClick={onConfirmPayment}
-              disabled={isPaying}
-              className={[
-                "mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-zinc-200",
-                isPaying
-                  ? "cursor-not-allowed bg-zinc-200 text-zinc-500"
-                  : "bg-zinc-900 text-white hover:bg-zinc-800",
-              ].join(" ")}
-            >
-              {isPaying ? "Processing Payment..." : "Confirm Payment"}
-            </button>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
