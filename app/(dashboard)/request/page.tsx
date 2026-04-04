@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Calendar,
+  Check,
+  Copy,
   MapPin,
   Phone,
   Sparkles,
@@ -128,8 +130,18 @@ function phoneToTelHref(phone: string): string {
 
 type RequestTab = "new_request" | "bookings";
 
+type ActiveBookingPayload = {
+  trade?: string;
+  companyName: string;
+  phone: string;
+};
+
 export default function RequestPage() {
   const [activeTab, setActiveTab] = useState<RequestTab>("new_request");
+  const [activeBooking, setActiveBooking] = useState<ActiveBookingPayload | null>(
+    null,
+  );
+  const [isCopied, setIsCopied] = useState(false);
   const [bookings, setBookings] = useState<UserBooking[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [remoteBookingsLoaded, setRemoteBookingsLoaded] = useState(false);
@@ -142,6 +154,17 @@ export default function RequestPage() {
   const [serviceRequestId, setServiceRequestId] = useState<string | null>(null);
 
   const { ready, authenticated, user, login } = usePrivy();
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("swiftfix_active_booking");
+      if (stored) {
+        setActiveBooking(JSON.parse(stored) as ActiveBookingPayload);
+      }
+    } catch {
+      /* ignore invalid JSON */
+    }
+  }, []);
 
   useEffect(() => {
     setRemoteBookingsLoaded(false);
@@ -191,30 +214,36 @@ export default function RequestPage() {
     }
   };
 
-  const appendLocalBooking = (artisan: RecommendedArtisan) => {
-    const entry: UserBooking = {
-      id: `local-${globalThis.crypto.randomUUID()}`,
-      trade: artisan.trade?.trim() || result?.trade?.trim() || "Service",
-      date: new Date().toISOString(),
-      artisanName: artisan.companyName ?? artisan.name,
-      phoneNumber: artisan.phoneNumber.trim() || "Google listing",
-      status: "ASSIGNED",
-    };
-    setBookings((prev) => [entry, ...prev]);
-  };
-
-  const onBookAndCall = async (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    artisan: RecommendedArtisan,
-    href: string
-  ) => {
-    e.preventDefault();
-    const assigned = await handleBook(artisan);
-    if (assigned) appendLocalBooking(artisan);
-    if (href && href !== "#") {
-      window.location.href = href;
+  const handleCopyNumber = () => {
+    if (activeBooking?.phone) {
+      void navigator.clipboard.writeText(activeBooking.phone);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
     }
   };
+
+  const handleBookNowClick = async (artisan: RecommendedArtisan) => {
+    const assigned = await handleBook(artisan);
+    if (!assigned) return;
+
+    const payload: ActiveBookingPayload = {
+      trade: (artisan.trade ?? result?.trade ?? "Service").trim(),
+      companyName: artisan.companyName ?? artisan.name,
+      phone: artisan.phoneNumber?.trim() ?? "",
+    };
+    localStorage.setItem("swiftfix_active_booking", JSON.stringify(payload));
+    setActiveBooking(payload);
+    setActiveTab("bookings");
+  };
+
+  const bookingsWithoutActiveDuplicate = useMemo(() => {
+    if (!activeBooking?.phone) return bookings;
+    const a = activeBooking.phone.replace(/\D/g, "");
+    if (!a) return bookings;
+    return bookings.filter(
+      (b) => b.phoneNumber.replace(/\D/g, "") !== a,
+    );
+  }, [bookings, activeBooking]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -460,8 +489,6 @@ export default function RequestPage() {
           ) : !isAnalyzing && artisans.length > 0 ? (
             <div className="mt-6 grid gap-4">
               {artisans.map((artisan) => {
-                const tel = phoneToTelHref(artisan.phoneNumber);
-                const bookHref = artisan.mapsUrl ?? tel;
                 const tradeLabel =
                   (artisan.trade ?? result?.trade ?? "").trim().toUpperCase() ||
                   "SERVICE";
@@ -527,14 +554,14 @@ export default function RequestPage() {
                         {badge.label}
                       </span>
                     </div>
-                    <a
-                      href={bookHref}
-                      onClick={(e) => void onBookAndCall(e, artisan, bookHref)}
-                      className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
+                    <button
+                      type="button"
+                      onClick={() => void handleBookNowClick(artisan)}
+                      className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
                     >
                       <Phone className="h-4 w-4" />
                       Book Now
-                    </a>
+                    </button>
                   </article>
                 );
               })}
@@ -554,6 +581,67 @@ export default function RequestPage() {
             </p>
           </div>
 
+          {activeBooking && (
+            <div className="mb-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="flex items-start justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  {activeBooking.trade || "SERVICE EXPERT"}
+                </span>
+                <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-purple-700">
+                  Just Assigned
+                </span>
+              </div>
+
+              <h3 className="mt-2 text-lg font-bold text-gray-900">
+                {activeBooking.companyName}
+              </h3>
+
+              <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  <span>Assigned Just Now</span>
+                </div>
+                {activeBooking.phone ? (
+                  <div className="flex items-center gap-1.5 font-medium text-gray-600">
+                    <Phone className="h-4 w-4" />
+                    <span>{activeBooking.phone}</span>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                {activeBooking.phone ? (
+                  <a
+                    href={`tel:${activeBooking.phone.replace(/\s+/g, "")}`}
+                    className="flex items-center gap-2 rounded-lg bg-[#0b9e84] px-5 py-2.5 font-medium text-white transition-colors hover:bg-[#09806a]"
+                  >
+                    <Phone className="h-4 w-4" />
+                    Call Artisan
+                  </a>
+                ) : (
+                  <span className="rounded-lg bg-gray-100 px-5 py-2.5 font-medium text-gray-500">
+                    No Phone Available
+                  </span>
+                )}
+
+                {activeBooking.phone ? (
+                  <button
+                    type="button"
+                    onClick={handleCopyNumber}
+                    className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-2.5 font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                  >
+                    {isCopied ? (
+                      <Check className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                    {isCopied ? "Number Copied!" : "Copy Number"}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          )}
+
           {!ready ? (
             <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-10 text-center text-sm text-zinc-600">
               Loading…
@@ -571,7 +659,9 @@ export default function RequestPage() {
                 Log in
               </button>
             </div>
-          ) : bookingsLoading && bookings.length === 0 ? (
+          ) : bookingsLoading &&
+            bookingsWithoutActiveDuplicate.length === 0 &&
+            !activeBooking ? (
             <div className="grid gap-4">
               {[0, 1].map((i) => (
                 <div
@@ -584,7 +674,7 @@ export default function RequestPage() {
                 </div>
               ))}
             </div>
-          ) : bookings.length === 0 ? (
+          ) : bookingsWithoutActiveDuplicate.length === 0 && !activeBooking ? (
             <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center text-sm text-zinc-600 shadow-sm">
               No bookings yet. Start a new request and use{" "}
               <span className="font-semibold text-zinc-800">Book &amp; Call</span>{" "}
@@ -592,7 +682,7 @@ export default function RequestPage() {
             </div>
           ) : (
             <div className="grid gap-4">
-              {bookings.map((b) => {
+              {bookingsWithoutActiveDuplicate.map((b) => {
                 const tel = phoneToTelHref(b.phoneNumber);
                 return (
                   <article
