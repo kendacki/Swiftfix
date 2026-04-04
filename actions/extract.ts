@@ -188,18 +188,28 @@ export async function extractRequestDetails(promptText: string) {
       urgency,
     };
 
-    console.log("🟢 [STEP 6] Searching SerpApi (engine=google_local)...");
+    console.log("🟢 [STEP 6] Searching Google via SerpApi...");
 
-    const serpApiKey = process.env.SERPAPI_API_KEY;
-    if (!serpApiKey) {
-      throw new Error("Missing SERPAPI_API_KEY environment variable.");
+    // Check for both possible Vercel variable names
+    const apiKey = process.env.SERPAPI_API_KEY || process.env.SERPAPI_KEY;
+
+    if (!apiKey) {
+      console.error(
+        "🚨 FATAL: SerpApi key is missing. Available Vercel Variables:",
+        Object.keys(process.env)
+          .filter((k) => !k.startsWith("npm_"))
+          .join(", "),
+      );
+      throw new Error(
+        "Missing SerpApi environment variable. Please check Vercel settings.",
+      );
     }
 
     const searchQuery = `${parsedData.trade} in ${parsedData.location}, Lagos, Nigeria`;
     const serpParams = new URLSearchParams({
       engine: "google_local",
       q: searchQuery,
-      api_key: serpApiKey,
+      api_key: apiKey,
       hl: "en",
       gl: "ng",
       google_domain: "google.com",
