@@ -134,6 +134,7 @@ type ActiveBookingPayload = {
   trade?: string;
   companyName: string;
   phone: string;
+  status?: "ASSIGNED" | "COMPLETED";
 };
 
 export default function RequestPage() {
@@ -142,6 +143,9 @@ export default function RequestPage() {
     null,
   );
   const [isCopied, setIsCopied] = useState(false);
+  const [bookingStatus, setBookingStatus] = useState<"ASSIGNED" | "COMPLETED">(
+    "ASSIGNED",
+  );
   const [bookings, setBookings] = useState<UserBooking[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [remoteBookingsLoaded, setRemoteBookingsLoaded] = useState(false);
@@ -159,7 +163,11 @@ export default function RequestPage() {
     try {
       const stored = localStorage.getItem("swiftfix_active_booking");
       if (stored) {
-        setActiveBooking(JSON.parse(stored) as ActiveBookingPayload);
+        const parsed = JSON.parse(stored) as ActiveBookingPayload;
+        setActiveBooking(parsed);
+        setBookingStatus(
+          parsed.status === "COMPLETED" ? "COMPLETED" : "ASSIGNED",
+        );
       }
     } catch {
       /* ignore invalid JSON */
@@ -214,11 +222,28 @@ export default function RequestPage() {
     }
   };
 
+  const markAsCompleted = () => {
+    setBookingStatus("COMPLETED");
+    if (activeBooking) {
+      const updatedBooking: ActiveBookingPayload = {
+        ...activeBooking,
+        status: "COMPLETED",
+      };
+      setActiveBooking(updatedBooking);
+      localStorage.setItem(
+        "swiftfix_active_booking",
+        JSON.stringify(updatedBooking),
+      );
+    }
+  };
+
   const handleCopyNumber = () => {
     if (activeBooking?.phone) {
-      void navigator.clipboard.writeText(activeBooking.phone);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      void navigator.clipboard.writeText(activeBooking.phone).then(() => {
+        markAsCompleted();
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      });
     }
   };
 
@@ -230,9 +255,11 @@ export default function RequestPage() {
       trade: (artisan.trade ?? result?.trade ?? "Service").trim(),
       companyName: artisan.companyName ?? artisan.name,
       phone: artisan.phoneNumber?.trim() ?? "",
+      status: "ASSIGNED",
     };
     localStorage.setItem("swiftfix_active_booking", JSON.stringify(payload));
     setActiveBooking(payload);
+    setBookingStatus("ASSIGNED");
     setActiveTab("bookings");
   };
 
@@ -587,9 +614,15 @@ export default function RequestPage() {
                 <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
                   {activeBooking.trade || "SERVICE EXPERT"}
                 </span>
-                <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-purple-700">
-                  Just Assigned
-                </span>
+                {bookingStatus === "ASSIGNED" ? (
+                  <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-purple-700">
+                    Just Assigned
+                  </span>
+                ) : (
+                  <span className="rounded-full border border-[#0b9e84] bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#0b9e84]">
+                    Completed
+                  </span>
+                )}
               </div>
 
               <h3 className="mt-2 text-lg font-bold text-gray-900">
@@ -613,6 +646,7 @@ export default function RequestPage() {
                 {activeBooking.phone ? (
                   <a
                     href={`tel:${activeBooking.phone.replace(/\s+/g, "")}`}
+                    onClick={markAsCompleted}
                     className="flex items-center gap-2 rounded-lg bg-[#0b9e84] px-5 py-2.5 font-medium text-white transition-colors hover:bg-[#09806a]"
                   >
                     <Phone className="h-4 w-4" />
