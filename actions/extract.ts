@@ -18,6 +18,7 @@ type SerpLocalResult = {
   address?: string;
   hours?: string;
   type?: string;
+  phone?: string;
 };
 
 type SerpApiResponse = {
@@ -33,6 +34,8 @@ type VettedPlace = {
   formatted_address: string | null;
   rating: number | null;
   user_ratings_total: number;
+  /** Present when SerpApi returned a phone (Stage 1 requires it for candidates). */
+  phone: string;
   business_status?: string | null;
   opening_hours?: { open_now?: boolean };
 };
@@ -78,25 +81,19 @@ function normalizeSerpLocal(
   const rating = typeof raw.rating === "number" ? raw.rating : null;
   const openNow = inferOpenFromHours(raw.hours);
 
+  const phone =
+    typeof raw.phone === "string" ? raw.phone.trim() : "";
+
   return {
     id,
     name: title,
     formatted_address: raw.address?.trim() ?? null,
     rating,
     user_ratings_total: reviews,
+    phone,
     opening_hours:
       openNow === null ? undefined : { open_now: openNow },
   };
-}
-
-/**
- * Stage 1 (SerpApi): no OPERATIONAL field — require rating/reviews thresholds,
- * drop permanently closed via hours, require stable listing data.
- */
-function passesSerpHardFilter(p: VettedPlace): boolean {
-  if ((p.user_ratings_total ?? 0) <= 3) return false;
-  if ((p.rating ?? 0) < 3.5) return false;
-  return true;
 }
 
 function mapVettedPlaceToRecommendedArtisan(
@@ -116,7 +113,7 @@ function mapVettedPlaceToRecommendedArtisan(
     name: place.name,
     companyName: place.name,
     trade: parsedData.trade,
-    phoneNumber: "",
+    phoneNumber: place.phone,
     email: null,
     address: place.formatted_address,
     rating,
@@ -230,32 +227,42 @@ export async function extractRequestDetails(promptText: string) {
       throw new Error("SerpApi search did not succeed.");
     }
 
-    const rawLocals = serpData.local_results ?? [];
+    const localResults = serpData.local_results ?? [];
     console.log(
-      `🟢 [STEP 7] SerpApi returned ${rawLocals.length} local_results (raw).`,
+      `🟢 [STEP 7] SerpApi returned ${localResults.length} local_results (raw).`,
     );
 
+    console.log(
+      "🟢 [STEP 7a] Stage 1: Hard Filtering bad data & requiring phone numbers...",
+    );
+    const validPlaces = localResults.filter((p: SerpLocalResult) => {
+      const hasGoodReviews = (p.reviews || 0) >= 5;
+      const hasGoodRating = (p.rating || 0) >= 3.5;
+      // Strict phone check: must exist, must be a string, must not be empty
+      const hasValidPhone =
+        typeof p.phone === "string" && p.phone.trim() !== "";
+
+      return hasGoodReviews && hasGoodRating && hasValidPhone;
+    });
+
     const normalized: VettedPlace[] = [];
-    for (const raw of rawLocals) {
+    for (const raw of validPlaces) {
       const n = normalizeSerpLocal(raw);
       if (n) normalized.push(n);
     }
 
-    // STAGE 1: Hard filter (SerpApi field semantics)
-    const validPlaces = normalized.filter(passesSerpHardFilter);
-
     console.log(
-      `🟢 [STEP 7a] After hard filter (reviews>3, rating≥3.5): ${validPlaces.length} candidates.`,
+      `🟢 [STEP 7a] After hard filter (reviews≥5, rating≥3.5, phone required): ${normalized.length} candidates.`,
     );
 
-    let finalPlaces: VettedPlace[] = validPlaces;
+    let finalPlaces: VettedPlace[] = normalized;
 
-    if (validPlaces.length > 3) {
+    if (normalized.length > 3) {
       console.log(
         "🟢 [STEP 7b] Too many candidates. Engaging Groq for AI vetting...",
       );
 
-      const candidates: VettingCandidate[] = validPlaces
+      const candidates: VettingCandidate[] = normalized
         .slice(0, 10)
         .map((p) => ({
           id: p.id,
@@ -287,13 +294,13 @@ export async function extractRequestDetails(promptText: string) {
           ? parsed.filter((x): x is string => typeof x === "string")
           : [];
 
-        finalPlaces = orderPlacesByIdOrder(validPlaces, winningIds);
+        finalPlaces = orderPlacesByIdOrder(normalized, winningIds);
 
         if (finalPlaces.length === 0) {
           console.warn(
             "🚨 Groq vetting returned no matching IDs; falling back to top 3 from Stage 1.",
           );
-          finalPlaces = validPlaces.slice(0, 3);
+          finalPlaces = normalized.slice(0, 3);
         } else {
           finalPlaces = finalPlaces.slice(0, 3);
         }
@@ -302,10 +309,10 @@ export async function extractRequestDetails(promptText: string) {
           "🚨 Groq vetting parsing failed, falling back to top 3.",
           e,
         );
-        finalPlaces = validPlaces.slice(0, 3);
+        finalPlaces = normalized.slice(0, 3);
       }
     } else {
-      finalPlaces = validPlaces.slice(0, 3);
+      finalPlaces = normalized.slice(0, 3);
     }
 
     console.log(`🟢 [STEP 7c] Final vetted artisans: ${finalPlaces.length}`);
