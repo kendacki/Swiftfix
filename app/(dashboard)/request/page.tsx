@@ -30,30 +30,10 @@ export type UserBooking = {
   status: string;
 };
 
-/**
- * Mock bookings loader — replace with a real API when ready.
- */
+/** Past bookings from your backend — returns empty until wired. */
 async function fetchUserBookings(userId: string): Promise<UserBooking[]> {
-  await new Promise((r) => setTimeout(r, 450));
   if (!userId) return [];
-  return [
-    {
-      id: "mock-1",
-      trade: "Plumber",
-      date: new Date(Date.now() - 2 * 86400000).toISOString(),
-      artisanName: "Ade & Sons Plumbing",
-      phoneNumber: "08012345678",
-      status: "COMPLETED",
-    },
-    {
-      id: "mock-2",
-      trade: "Electrician",
-      date: new Date(Date.now() - 9 * 86400000).toISOString(),
-      artisanName: "BrightWire Electricals",
-      phoneNumber: "08098765432",
-      status: "ASSIGNED",
-    },
-  ];
+  return [];
 }
 
 function formatBookingDate(iso: string): string {
@@ -709,12 +689,16 @@ export default function RequestPage() {
               ))}
             </div>
           ) : bookingsWithoutActiveDuplicate.length === 0 && !activeBooking ? (
-            <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center text-sm text-zinc-600 shadow-sm">
-              No bookings yet. Start a new request and use{" "}
-              <span className="font-semibold text-zinc-800">Book &amp; Call</span>{" "}
-              to save one here.
+            <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 py-12 text-center">
+              <p className="font-medium text-gray-500">
+                You haven&apos;t booked any artisans yet.
+              </p>
+              <p className="mt-1 text-sm text-gray-400">
+                Head over to &apos;New Request&apos; to find the best local
+                professionals.
+              </p>
             </div>
-          ) : (
+          ) : bookingsWithoutActiveDuplicate.length > 0 ? (
             <div className="grid gap-4">
               {bookingsWithoutActiveDuplicate.map((b) => {
                 const tel = phoneToTelHref(b.phoneNumber);
@@ -766,7 +750,7 @@ export default function RequestPage() {
                 );
               })}
             </div>
-          )}
+          ) : null}
         </section>
       ) : null}
 
