@@ -10,6 +10,16 @@ export type RecommendedArtisan = {
   address: string | null;
   rating: number | null;
   snippet: string | null;
+  /** Display trade (e.g. Google aggregator) */
+  trade?: string;
+  /** Same as name when provided by aggregators */
+  companyName?: string;
+  /** Google Places “open now” when available */
+  isOpen?: boolean | null;
+  /** Link when no phone (e.g. Google Maps) */
+  mapsUrl?: string | null;
+  /** Data source hint */
+  source?: string;
 };
 
 /** @deprecated Use RecommendedArtisan */

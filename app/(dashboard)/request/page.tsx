@@ -6,6 +6,7 @@ import {
   MapPin,
   Phone,
   Sparkles,
+  Star,
   Timer,
   Wrench,
 } from "lucide-react";
@@ -193,10 +194,10 @@ export default function RequestPage() {
   const appendLocalBooking = (artisan: RecommendedArtisan) => {
     const entry: UserBooking = {
       id: `local-${globalThis.crypto.randomUUID()}`,
-      trade: result?.trade?.trim() || "Service",
+      trade: artisan.trade?.trim() || result?.trade?.trim() || "Service",
       date: new Date().toISOString(),
-      artisanName: artisan.name,
-      phoneNumber: artisan.phoneNumber,
+      artisanName: artisan.companyName ?? artisan.name,
+      phoneNumber: artisan.phoneNumber.trim() || "Google listing",
       status: "ASSIGNED",
     };
     setBookings((prev) => [entry, ...prev]);
@@ -205,12 +206,14 @@ export default function RequestPage() {
   const onBookAndCall = async (
     e: React.MouseEvent<HTMLAnchorElement>,
     artisan: RecommendedArtisan,
-    tel: string
+    href: string
   ) => {
     e.preventDefault();
     const assigned = await handleBook(artisan);
     if (assigned) appendLocalBooking(artisan);
-    window.location.href = tel;
+    if (href && href !== "#") {
+      window.location.href = href;
+    }
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -432,7 +435,7 @@ export default function RequestPage() {
           </div>
 
           <div className="mt-4 text-xs text-zinc-500">
-            Matching artisans from our database appear below (up to three).
+            Live businesses from Google Places appear below (up to three).
           </div>
         </div>
       ) : null}
@@ -445,7 +448,7 @@ export default function RequestPage() {
                 Recommended Artisans
               </div>
               <div className="mt-1 text-sm text-zinc-600">
-                Top matches for your trade and area (up to three).
+                Top Google matches for your trade and area (up to three).
               </div>
             </div>
           </div>
@@ -458,8 +461,29 @@ export default function RequestPage() {
             <div className="mt-6 grid gap-4">
               {artisans.map((artisan) => {
                 const tel = phoneToTelHref(artisan.phoneNumber);
+                const bookHref = artisan.mapsUrl ?? tel;
                 const tradeLabel =
-                  (result?.trade ?? "").trim().toUpperCase() || "SERVICE";
+                  (artisan.trade ?? result?.trade ?? "").trim().toUpperCase() ||
+                  "SERVICE";
+                const displayName = artisan.companyName ?? artisan.name;
+                const badge =
+                  artisan.isOpen === true
+                    ? {
+                        label: "Open now",
+                        className:
+                          "border-emerald-200 bg-emerald-50 text-emerald-800",
+                      }
+                    : artisan.isOpen === false
+                      ? {
+                          label: "Closed",
+                          className:
+                            "border-amber-200 bg-amber-50 text-amber-900",
+                        }
+                      : {
+                          label: "Google",
+                          className:
+                            "border-blue-200 bg-blue-50 text-blue-800",
+                        };
                 return (
                   <article
                     key={artisan.id}
@@ -471,26 +495,41 @@ export default function RequestPage() {
                           {tradeLabel}
                         </div>
                         <div className="mt-1 text-base font-bold text-zinc-900">
-                          {artisan.name}
+                          {displayName}
                         </div>
                         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-600">
                           <span className="inline-flex items-center gap-1">
                             <MapPin className="h-3.5 w-3.5 text-zinc-400" />
                             {artisan.address ?? result.location ?? "Local area"}
                           </span>
-                          <span className="inline-flex items-center gap-1">
-                            <Phone className="h-3.5 w-3.5 text-emerald-600" />
-                            {artisan.phoneNumber}
-                          </span>
+                          {artisan.rating != null ? (
+                            <span className="inline-flex items-center gap-1">
+                              <Star className="h-3.5 w-3.5 text-amber-500" />
+                              {artisan.rating.toFixed(1)} / 5
+                            </span>
+                          ) : null}
+                          {artisan.phoneNumber.trim() ? (
+                            <span className="inline-flex items-center gap-1">
+                              <Phone className="h-3.5 w-3.5 text-emerald-600" />
+                              {artisan.phoneNumber}
+                            </span>
+                          ) : (
+                            <span className="text-zinc-500">Phone not listed</span>
+                          )}
                         </div>
                       </div>
-                      <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
-                        Listed
+                      <span
+                        className={[
+                          "shrink-0 rounded-full border px-3 py-1 text-xs font-semibold",
+                          badge.className,
+                        ].join(" ")}
+                      >
+                        {badge.label}
                       </span>
                     </div>
                     <a
-                      href={tel}
-                      onClick={(e) => void onBookAndCall(e, artisan, tel)}
+                      href={bookHref}
+                      onClick={(e) => void onBookAndCall(e, artisan, bookHref)}
                       className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
                     >
                       <Phone className="h-4 w-4" />

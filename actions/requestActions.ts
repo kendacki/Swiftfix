@@ -60,6 +60,9 @@ export async function assignArtisanToRequest(
         address: artisan.address,
         rating: artisan.rating,
         snippet: artisan.snippet,
+        ...(artisan.mapsUrl != null ? { mapsUrl: artisan.mapsUrl } : {}),
+        ...(artisan.trade != null ? { trade: artisan.trade } : {}),
+        ...(artisan.source != null ? { source: artisan.source } : {}),
       },
     },
   });

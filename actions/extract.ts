@@ -1,116 +1,53 @@
 "use server";
 
-import { Prisma } from "@prisma/client";
 import { Groq } from "groq-sdk";
 import type { ArtisanExtraction } from "@/actions/aiActions";
 import { coerceUrgency } from "@/lib/urgency";
 import type { RecommendedArtisan } from "@/actions/tinyfishActions";
-import { prisma } from "@/lib/prisma";
 
 // Initialize Groq outside the function
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-function toRecommendedArtisan(row: {
-  id: string;
+type GooglePlaceResult = {
+  place_id: string;
   name: string;
-  phoneNumber: string;
-  email: string | null;
-  address: string | null;
-  rating: number | null;
-  snippet: string | null;
-}): RecommendedArtisan {
+  formatted_address?: string;
+  rating?: number;
+  opening_hours?: { open_now?: boolean };
+};
+
+type GoogleTextSearchResponse = {
+  status: string;
+  results?: GooglePlaceResult[];
+  error_message?: string;
+};
+
+function mapPlaceToRecommendedArtisan(
+  place: GooglePlaceResult,
+  parsedData: ArtisanExtraction,
+): RecommendedArtisan {
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query_place_id=${encodeURIComponent(place.place_id)}`;
+  const rating = typeof place.rating === "number" ? place.rating : null;
+  const openNow = place.opening_hours?.open_now;
+  const snippetParts: string[] = [];
+  if (openNow === true) snippetParts.push("Open now");
+  else if (openNow === false) snippetParts.push("Closed now");
+  snippetParts.push("Google Places");
+
   return {
-    id: row.id,
-    name: row.name,
-    phoneNumber: row.phoneNumber,
-    email: row.email,
-    address: row.address,
-    rating: row.rating,
-    snippet: row.snippet,
+    id: place.place_id,
+    name: place.name,
+    companyName: place.name,
+    trade: parsedData.trade,
+    phoneNumber: "",
+    email: null,
+    address: place.formatted_address ?? null,
+    rating,
+    snippet: snippetParts.join(" · "),
+    isOpen: openNow ?? null,
+    mapsUrl,
+    source: "google_places",
   };
-}
-
-/** Maps `ServiceRequest.assignedArtisanJson` (see requestActions) to RecommendedArtisan. */
-function assignedArtisanJsonToRecommended(
-  json: Prisma.JsonValue | null | undefined,
-): RecommendedArtisan | null {
-  if (json == null || typeof json !== "object" || Array.isArray(json)) return null;
-  const j = json as Record<string, unknown>;
-  const id = typeof j.id === "string" ? j.id : "";
-  const name = typeof j.name === "string" ? j.name : "Artisan";
-  const phoneNumber = typeof j.phoneNumber === "string" ? j.phoneNumber : "";
-  if (!id || !phoneNumber) return null;
-  return {
-    id,
-    name,
-    phoneNumber,
-    email: typeof j.email === "string" ? j.email : null,
-    address: typeof j.address === "string" ? j.address : null,
-    rating: typeof j.rating === "number" ? j.rating : null,
-    snippet: typeof j.snippet === "string" ? j.snippet : null,
-  };
-}
-
-/**
- * Fallback when `Artisan` table is missing (P2021) or empty: use prior bookings that
- * match trade/location and have `assignedArtisanJson` populated.
- * Schema: model ServiceRequest { trade, location, assignedArtisanJson, ... }
- */
-async function findArtisansFromServiceRequests(
-  tradeQ: string,
-  locationQ: string,
-): Promise<RecommendedArtisan[]> {
-  if (!tradeQ && !locationQ) return [];
-
-  const where: Prisma.ServiceRequestWhereInput = {
-    assignedArtisanJson: { not: Prisma.DbNull },
-  };
-  if (tradeQ) {
-    where.trade = { contains: tradeQ, mode: "insensitive" };
-  }
-  if (locationQ) {
-    where.location = { contains: locationQ, mode: "insensitive" };
-  }
-
-  const rows = await prisma.serviceRequest.findMany({
-    where,
-    orderBy: { updatedAt: "desc" },
-    take: 24,
-  });
-
-  const seen = new Set<string>();
-  const out: RecommendedArtisan[] = [];
-  for (const r of rows) {
-    const rec = assignedArtisanJsonToRecommended(r.assignedArtisanJson);
-    if (!rec || seen.has(rec.id)) continue;
-    seen.add(rec.id);
-    out.push(rec);
-    if (out.length >= 3) break;
-  }
-  return out;
-}
-
-/**
- * Optional catalog table `Artisan` (see schema). Fails with P2021 until migration is applied.
- */
-async function findArtisansFromCatalog(
-  tradeQ: string,
-  locationQ: string,
-): Promise<RecommendedArtisan[]> {
-  const where: Prisma.ArtisanWhereInput = {};
-  if (tradeQ) {
-    where.trade = { contains: tradeQ, mode: "insensitive" };
-  }
-  if (locationQ) {
-    where.location = { contains: locationQ, mode: "insensitive" };
-  }
-  if (Object.keys(where).length === 0) return [];
-
-  const rows = await prisma.artisan.findMany({
-    where,
-    take: 3,
-  });
-  return rows.map(toRecommendedArtisan);
 }
 
 export async function extractRequestDetails(promptText: string) {
@@ -165,36 +102,31 @@ export async function extractRequestDetails(promptText: string) {
       urgency,
     };
 
-    // Schema (prisma/schema.prisma): model Artisan { trade, location, name, phoneNumber, ... }
-    // User has no trade/location — use prisma.artisan, not prisma.user.
-    console.log("🟢 [STEP 6] Searching Database for matches...");
+    console.log("🟢 [STEP 6] Searching Google Places API...");
 
-    let artisans: RecommendedArtisan[] = [];
-    const hasSearch = Boolean(tradeQ || locationQ);
-
-    if (hasSearch) {
-      try {
-        // Case-insensitive contains on trade + location (see findArtisansFromCatalog)
-        artisans = await findArtisansFromCatalog(tradeQ, locationQ);
-      } catch (err) {
-        if (
-          err instanceof Prisma.PrismaClientKnownRequestError &&
-          err.code === "P2021"
-        ) {
-          console.warn(
-            "[STEP 6] Artisan catalog table missing (P2021); falling back to ServiceRequest.assignedArtisanJson.",
-          );
-        } else {
-          throw err;
-        }
-      }
-
-      if (artisans.length === 0) {
-        artisans = await findArtisansFromServiceRequests(tradeQ, locationQ);
-      }
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (!apiKey) {
+      throw new Error("Missing GOOGLE_PLACES_API_KEY environment variable.");
     }
 
-    console.log(`🟢 [STEP 7] Found ${artisans.length} Artisans.`);
+    const searchQuery = `${parsedData.trade} in ${parsedData.location}, Lagos, Nigeria`;
+    const placesUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchQuery)}&key=${apiKey}`;
+
+    const placesRes = await fetch(placesUrl, { next: { revalidate: 3600 } });
+    const placesData = (await placesRes.json()) as GoogleTextSearchResponse;
+
+    if (placesData.status !== "OK" && placesData.status !== "ZERO_RESULTS") {
+      console.error("🚨 Google API Error:", placesData);
+      throw new Error("Failed to fetch results from Google.");
+    }
+
+    console.log(
+      `🟢 [STEP 7] Found ${placesData.results?.length || 0} businesses on Google.`,
+    );
+
+    const artisans: RecommendedArtisan[] = (placesData.results || [])
+      .slice(0, 3)
+      .map((place) => mapPlaceToRecommendedArtisan(place, parsedData));
 
     return {
       success: true as const,
@@ -205,14 +137,6 @@ export async function extractRequestDetails(promptText: string) {
     console.error("🚨 [EXTRACTION FATAL ERROR]:", error);
     if (error instanceof Error && error.stack) {
       console.error(error.stack);
-    }
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error(
-        "🚨 [Prisma] code:",
-        error.code,
-        "meta:",
-        JSON.stringify(error.meta),
-      );
     }
     return { success: false as const, error: "Analysis failed. Please try again." };
   }
