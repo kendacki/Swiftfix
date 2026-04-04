@@ -24,6 +24,12 @@ const nextConfig: NextConfig = {
   env: {
     DATABASE_URL: process.env.DATABASE_URL,
   },
+  // Prevent Webpack from bundling Prisma / WebSocket stacks (avoids minifier corruption, e.g. b.mask)
+  serverExternalPackages: [
+    "@prisma/client",
+    "ws",
+    "@neondatabase/serverless",
+  ],
   turbopack: {},
   transpilePackages: ["@privy-io/react-auth", "x402"],
   webpack: (config, { isServer }) => {
