@@ -435,7 +435,7 @@ export default function RequestPage() {
           </div>
 
           <div className="mt-4 text-xs text-zinc-500">
-            Live businesses from Google Places appear below (up to three).
+            Live Google Maps listings (via SerpApi) appear below (up to three).
           </div>
         </div>
       ) : null}
@@ -448,7 +448,7 @@ export default function RequestPage() {
                 Recommended Artisans
               </div>
               <div className="mt-1 text-sm text-zinc-600">
-                Top Google matches for your trade and area (up to three).
+                Top vetted matches for your trade and area (up to three).
               </div>
             </div>
           </div>

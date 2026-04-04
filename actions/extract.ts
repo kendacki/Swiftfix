@@ -8,20 +8,33 @@ import type { RecommendedArtisan } from "@/actions/tinyfishActions";
 // Initialize Groq outside the function
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-type GooglePlaceResult = {
-  place_id: string;
-  name: string;
-  formatted_address?: string;
+/** Raw SerpApi `google_local` local_results item */
+type SerpLocalResult = {
+  position?: number;
+  title?: string;
+  place_id?: string | number;
   rating?: number;
-  user_ratings_total?: number;
-  business_status?: string;
-  opening_hours?: { open_now?: boolean };
+  reviews?: number;
+  address?: string;
+  hours?: string;
+  type?: string;
 };
 
-type GoogleTextSearchResponse = {
-  status: string;
-  results?: GooglePlaceResult[];
-  error_message?: string;
+type SerpApiResponse = {
+  search_metadata?: { status?: string };
+  error?: string;
+  local_results?: SerpLocalResult[];
+};
+
+/** Normalized place for Stage 1 / 2 / UI mapping */
+type VettedPlace = {
+  id: string;
+  name: string;
+  formatted_address: string | null;
+  rating: number | null;
+  user_ratings_total: number;
+  business_status?: string | null;
+  opening_hours?: { open_now?: boolean };
 };
 
 type VettingCandidate = {
@@ -35,54 +48,91 @@ function stripJsonFence(raw: string): string {
   return raw.replace(/```json/gi, "").replace(/```/g, "").trim();
 }
 
-/** Stage 1: operational (when Google sends status), enough reviews, minimum rating. */
-function passesHardFilter(p: GooglePlaceResult): boolean {
-  if (
-    p.business_status != null &&
-    p.business_status !== "OPERATIONAL"
-  ) {
-    return false;
+function stablePlaceId(r: SerpLocalResult): string {
+  if (r.place_id != null && String(r.place_id).length > 0) {
+    return String(r.place_id);
   }
-  return (
-    (p.user_ratings_total ?? 0) > 3 &&
-    (p.rating ?? 0) >= 3.5
-  );
+  const t = (r.title ?? "place").replace(/\s+/g, " ").trim();
+  const pos = r.position ?? 0;
+  return `serp-${pos}-${t.slice(0, 48).replace(/[^\w-]+/g, "_")}`;
 }
 
-function mapPlaceToRecommendedArtisan(
-  place: GooglePlaceResult,
+/** Infer open state from SerpApi `hours` string (no Google business_status). */
+function inferOpenFromHours(hours?: string): boolean | null {
+  if (!hours) return null;
+  const h = hours.toLowerCase();
+  if (h.includes("permanently closed")) return false;
+  if (h.startsWith("open") || h.includes("open 24")) return true;
+  if (h.includes("closed") && !h.startsWith("open")) return false;
+  return null;
+}
+
+function normalizeSerpLocal(
+  raw: SerpLocalResult,
+): VettedPlace | null {
+  const title = raw.title?.trim();
+  if (!title) return null;
+
+  const id = stablePlaceId(raw);
+  const reviews = typeof raw.reviews === "number" ? raw.reviews : 0;
+  const rating = typeof raw.rating === "number" ? raw.rating : null;
+  const openNow = inferOpenFromHours(raw.hours);
+
+  return {
+    id,
+    name: title,
+    formatted_address: raw.address?.trim() ?? null,
+    rating,
+    user_ratings_total: reviews,
+    opening_hours:
+      openNow === null ? undefined : { open_now: openNow },
+  };
+}
+
+/**
+ * Stage 1 (SerpApi): no OPERATIONAL field — require rating/reviews thresholds,
+ * drop permanently closed via hours, require stable listing data.
+ */
+function passesSerpHardFilter(p: VettedPlace): boolean {
+  if ((p.user_ratings_total ?? 0) <= 3) return false;
+  if ((p.rating ?? 0) < 3.5) return false;
+  return true;
+}
+
+function mapVettedPlaceToRecommendedArtisan(
+  place: VettedPlace,
   parsedData: ArtisanExtraction,
 ): RecommendedArtisan {
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query_place_id=${encodeURIComponent(place.place_id)}`;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query_place_id=${encodeURIComponent(place.id)}`;
   const rating = typeof place.rating === "number" ? place.rating : null;
   const openNow = place.opening_hours?.open_now;
   const snippetParts: string[] = [];
   if (openNow === true) snippetParts.push("Open now");
   else if (openNow === false) snippetParts.push("Closed now");
-  snippetParts.push("Google Places · vetted");
+  snippetParts.push("SerpApi · vetted");
 
   return {
-    id: place.place_id,
+    id: place.id,
     name: place.name,
     companyName: place.name,
     trade: parsedData.trade,
     phoneNumber: "",
     email: null,
-    address: place.formatted_address ?? null,
+    address: place.formatted_address,
     rating,
     snippet: snippetParts.join(" · "),
     isOpen: openNow ?? null,
     mapsUrl,
-    source: "google_places",
+    source: "serpapi_google_local",
   };
 }
 
 function orderPlacesByIdOrder(
-  places: GooglePlaceResult[],
+  places: VettedPlace[],
   ids: string[],
-): GooglePlaceResult[] {
-  const byId = new Map(places.map((p) => [p.place_id, p]));
-  const ordered: GooglePlaceResult[] = [];
+): VettedPlace[] {
+  const byId = new Map(places.map((p) => [p.id, p]));
+  const ordered: VettedPlace[] = [];
   for (const id of ids) {
     const p = byId.get(id);
     if (p) ordered.push(p);
@@ -116,7 +166,6 @@ export async function extractRequestDetails(promptText: string) {
     const rawResponse = chatCompletion.choices[0]?.message?.content || "";
     console.log("🟢 [STEP 3] Raw Groq Response:", rawResponse);
 
-    // FAILSAFE: AI models often wrap JSON in ```json ... ``` markdown. We must strip this before parsing.
     const cleanedResponse = stripJsonFence(rawResponse);
     console.log(
       "🟢 [STEP 4] Cleaned Response (Ready for Tinyfish):",
@@ -139,38 +188,58 @@ export async function extractRequestDetails(promptText: string) {
       urgency,
     };
 
-    console.log("🟢 [STEP 6] Searching Google Places API...");
+    console.log("🟢 [STEP 6] Searching SerpApi (engine=google_local)...");
 
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-    if (!apiKey) {
-      throw new Error("Missing GOOGLE_PLACES_API_KEY environment variable.");
+    const serpApiKey = process.env.SERPAPI_API_KEY;
+    if (!serpApiKey) {
+      throw new Error("Missing SERPAPI_API_KEY environment variable.");
     }
 
     const searchQuery = `${parsedData.trade} in ${parsedData.location}, Lagos, Nigeria`;
-    const placesUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchQuery)}&key=${apiKey}`;
+    const serpParams = new URLSearchParams({
+      engine: "google_local",
+      q: searchQuery,
+      api_key: serpApiKey,
+      hl: "en",
+      gl: "ng",
+      google_domain: "google.com",
+    });
 
-    const placesRes = await fetch(placesUrl, { next: { revalidate: 3600 } });
-    const placesData = (await placesRes.json()) as GoogleTextSearchResponse;
+    const serpUrl = `https://serpapi.com/search.json?${serpParams.toString()}`;
+    const serpRes = await fetch(serpUrl, { next: { revalidate: 3600 } });
+    const serpData = (await serpRes.json()) as SerpApiResponse;
 
-    if (placesData.status !== "OK" && placesData.status !== "ZERO_RESULTS") {
-      console.error("🚨 Google API Error:", placesData);
-      throw new Error("Failed to fetch results from Google.");
+    if (serpData.error) {
+      console.error("🚨 SerpApi Error:", serpData.error);
+      throw new Error("Failed to fetch results from SerpApi.");
     }
 
+    const status = serpData.search_metadata?.status;
+    if (status && status !== "Success") {
+      console.error("🚨 SerpApi search_metadata.status:", status, serpData);
+      throw new Error("SerpApi search did not succeed.");
+    }
+
+    const rawLocals = serpData.local_results ?? [];
     console.log(
-      `🟢 [STEP 7] Found ${placesData.results?.length || 0} raw businesses on Google.`,
+      `🟢 [STEP 7] SerpApi returned ${rawLocals.length} local_results (raw).`,
     );
 
-    // STAGE 1: Hard filter
-    const validPlaces = (placesData.results || []).filter(passesHardFilter);
+    const normalized: VettedPlace[] = [];
+    for (const raw of rawLocals) {
+      const n = normalizeSerpLocal(raw);
+      if (n) normalized.push(n);
+    }
+
+    // STAGE 1: Hard filter (SerpApi field semantics)
+    const validPlaces = normalized.filter(passesSerpHardFilter);
 
     console.log(
-      `🟢 [STEP 7a] After hard filter (OPERATIONAL, reviews>3, rating≥3.5): ${validPlaces.length} candidates.`,
+      `🟢 [STEP 7a] After hard filter (reviews>3, rating≥3.5): ${validPlaces.length} candidates.`,
     );
 
-    let finalPlaces: GooglePlaceResult[] = validPlaces;
+    let finalPlaces: VettedPlace[] = validPlaces;
 
-    // Skip Stage 2 if 3 or fewer survivors (save tokens)
     if (validPlaces.length > 3) {
       console.log(
         "🟢 [STEP 7b] Too many candidates. Engaging Groq for AI vetting...",
@@ -179,10 +248,10 @@ export async function extractRequestDetails(promptText: string) {
       const candidates: VettingCandidate[] = validPlaces
         .slice(0, 10)
         .map((p) => ({
-          id: p.place_id,
+          id: p.id,
           name: p.name,
-          rating: p.rating,
-          reviews: p.user_ratings_total ?? 0,
+          rating: p.rating ?? undefined,
+          reviews: p.user_ratings_total,
         }));
 
       const vettingCompletion = await groq.chat.completions.create({
@@ -232,7 +301,7 @@ export async function extractRequestDetails(promptText: string) {
     console.log(`🟢 [STEP 7c] Final vetted artisans: ${finalPlaces.length}`);
 
     const artisans: RecommendedArtisan[] = finalPlaces.map((place) =>
-      mapPlaceToRecommendedArtisan(place, parsedData),
+      mapVettedPlaceToRecommendedArtisan(place, parsedData),
     );
 
     return {
