@@ -1,10 +1,10 @@
-# SwifFund
+# SwiftFix
 
 ## Overview
 
-SwifFund is a next-generation fintech and AI-powered service platform. It bridges the gap between decentralized finance and local commerce by providing users with a secure dual-currency wallet (NGN and USDT) and an intelligent search engine to find, book, and pay local professionals.
+SwiftFix is a next-generation fintech and AI-powered service platform. It bridges the gap between decentralized finance and local commerce by providing users with a secure dual-currency wallet (NGN and USDT) and an intelligent search engine to find, book, and pay local professionals.
 
-The core mission of SwifFund is to eliminate the friction of liquidity and discovery. Users can hold crypto, swap to fiat in real-time using live market data, and immediately spend those funds to hire verified local artisans—all within a single, seamless application.
+The core mission of SwiftFix is to eliminate the friction of liquidity and discovery. Users can hold crypto, swap to fiat in real-time using live market data, and immediately spend those funds to hire verified local artisans—all within a single, seamless application.
 
 ## Core Features
 
