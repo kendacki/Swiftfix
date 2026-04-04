@@ -1,6 +1,6 @@
 "use server";
 
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { Groq } from "groq-sdk";
 import type { ArtisanExtraction } from "@/actions/aiActions";
 import { coerceUrgency } from "@/lib/urgency";
@@ -82,6 +82,7 @@ export async function extractRequestDetails(promptText: string) {
       urgency,
     };
 
+    // Schema: model Artisan { trade, location, ... } — client delegate prisma.artisan
     console.log("🟢 [STEP 6] Searching Database for matches...");
 
     const where: Prisma.ArtisanWhereInput = {};
@@ -110,8 +111,18 @@ export async function extractRequestDetails(promptText: string) {
       artisans,
     };
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error("🚨 [EXTRACTION FATAL ERROR]:", message);
+    console.error("🚨 [EXTRACTION FATAL ERROR]:", error);
+    if (error instanceof Error && error.stack) {
+      console.error(error.stack);
+    }
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error(
+        "🚨 [Prisma] code:",
+        error.code,
+        "meta:",
+        JSON.stringify(error.meta),
+      );
+    }
     return { success: false as const, error: "Analysis failed. Please try again." };
   }
 }

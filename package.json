@@ -41,5 +41,8 @@
   },
   "overrides": {
     "plain-crypto-js": "0.0.1-security.0"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.cjs"
   }
 }
