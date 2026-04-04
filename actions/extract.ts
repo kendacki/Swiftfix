@@ -19,6 +19,8 @@ type SerpLocalResult = {
   hours?: string;
   type?: string;
   phone?: string;
+  phone_number?: string;
+  local_phone?: string;
 };
 
 type SerpApiResponse = {
@@ -233,21 +235,31 @@ export async function extractRequestDetails(promptText: string) {
     );
 
     console.log(
-      "🟢 [STEP 7a] Stage 1: Hard Filtering bad data & requiring phone numbers...",
+      "🟢 [STEP 7a] Stage 1: Hard Filtering & Normalizing data...",
     );
-    const validPlaces = localResults.filter((p: SerpLocalResult) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SerpApi row shape varies; we normalize phone keys below.
+    const validPlaces = localResults.filter((p: any) => {
       const hasGoodReviews = (p.reviews || 0) >= 5;
       const hasGoodRating = (p.rating || 0) >= 3.5;
-      // Strict phone check: must exist, must be a string, must not be empty
+
+      // NORMALIZATION: Grab the number whether SerpApi calls it 'phone', 'phone_number', or 'local_phone'
+      const normalizedPhone = p.phone || p.phone_number || p.local_phone;
+
+      // Strict check on the normalized variable
       const hasValidPhone =
-        typeof p.phone === "string" && p.phone.trim() !== "";
+        typeof normalizedPhone === "string" && normalizedPhone.trim() !== "";
+
+      // If valid, explicitly map it back to 'p.phone' so the UI mapping doesn't break
+      if (hasValidPhone) {
+        p.phone = normalizedPhone;
+      }
 
       return hasGoodReviews && hasGoodRating && hasValidPhone;
     });
 
     const normalized: VettedPlace[] = [];
     for (const raw of validPlaces) {
-      const n = normalizeSerpLocal(raw);
+      const n = normalizeSerpLocal(raw as SerpLocalResult);
       if (n) normalized.push(n);
     }
 
