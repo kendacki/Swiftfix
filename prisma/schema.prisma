@@ -39,6 +39,21 @@ model ServiceRequest {
   updatedAt           DateTime @updatedAt
 }
 
+/// Vetted local artisans (searchable by trade + area)
+model Artisan {
+  id          String   @id @default(uuid())
+  trade       String
+  location    String
+  name        String
+  phoneNumber String
+  email       String?
+  address     String?
+  rating      Float?
+  snippet     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Wallet {
   id            String   @id @default(uuid())
   userId        String   @unique

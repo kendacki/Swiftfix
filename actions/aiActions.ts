@@ -1,6 +1,7 @@
 "use server";
 
 import { Groq } from "groq-sdk";
+import { coerceUrgency } from "@/lib/urgency";
 
 // Initialize the Groq client. It automatically picks up process.env.GROQ_API_KEY
 const groq = new Groq();
@@ -10,14 +11,6 @@ export type ArtisanExtraction = {
   location: string;
   urgency: "High" | "Medium" | "Low";
 };
-
-function coerceUrgency(value: unknown): ArtisanExtraction["urgency"] {
-  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
-  if (normalized === "high") return "High";
-  if (normalized === "medium") return "Medium";
-  if (normalized === "low") return "Low";
-  return "Medium";
-}
 
 export async function parseArtisanRequest(
   userPrompt: string

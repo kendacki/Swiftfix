@@ -13,10 +13,7 @@ import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { type ArtisanExtraction } from "@/actions/aiActions";
 import { extractRequestDetails } from "@/actions/extract";
-import {
-  fetchArtisans,
-  type RecommendedArtisan,
-} from "@/actions/tinyfishActions";
+import type { RecommendedArtisan } from "@/actions/tinyfishActions";
 import { payArtisan } from "@/actions/paymentActions";
 import {
   assignArtisanToRequest,
@@ -130,38 +127,6 @@ function phoneToTelHref(phone: string): string {
   return `tel:+${digits}`;
 }
 
-function InitialsAvatar({ name }: { name: string }) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const initials =
-    parts.length >= 2
-      ? `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase()
-      : (name.slice(0, 2) || "SF").toUpperCase();
-  return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-600 to-orange-500 text-base font-bold text-white shadow-md ring-4 ring-white">
-      {initials}
-    </div>
-  );
-}
-
-function ArtisanSkeletonCard() {
-  return (
-    <div className="flex animate-pulse flex-col rounded-xl border border-zinc-100 bg-white p-5 shadow-md">
-      <div className="flex items-start gap-3">
-        <div className="h-14 w-14 shrink-0 rounded-full bg-zinc-200" />
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="h-4 w-3/4 rounded bg-zinc-200" />
-          <div className="h-3 w-1/2 rounded bg-zinc-100" />
-        </div>
-      </div>
-      <div className="mt-4 space-y-2">
-        <div className="h-3 w-full rounded bg-zinc-100" />
-        <div className="h-3 w-5/6 rounded bg-zinc-100" />
-      </div>
-      <div className="mt-6 h-11 w-full rounded-xl bg-gradient-to-r from-violet-200 to-fuchsia-200" />
-    </div>
-  );
-}
-
 type RequestTab = "new_request" | "bookings";
 
 export default function RequestPage() {
@@ -175,7 +140,6 @@ export default function RequestPage() {
   const [result, setResult] = useState<ArtisanExtraction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [artisans, setArtisans] = useState<RecommendedArtisan[]>([]);
-  const [isFetchingArtisans, setIsFetchingArtisans] = useState(false);
   const [artisanFetchFailed, setArtisanFetchFailed] = useState(false);
   const [serviceRequestId, setServiceRequestId] = useState<string | null>(null);
   const [selectedArtisan, setSelectedArtisan] =
@@ -266,6 +230,7 @@ export default function RequestPage() {
     setResult(null);
     setArtisans([]);
     setArtisanFetchFailed(false);
+
     setServiceRequestId(null);
 
     if (!prompt.trim()) return;
@@ -282,7 +247,8 @@ export default function RequestPage() {
         throw new Error(extraction.error ?? "Analysis failed");
       }
 
-      const extracted = extraction.data as ArtisanExtraction;
+      const extracted = extraction.data;
+      const dbArtisans = extraction.artisans;
 
       const resolved = await resolveSearchLocation(extracted.location);
 
@@ -294,19 +260,8 @@ export default function RequestPage() {
       });
       setServiceRequestId(newRequestId);
       setResult(extracted);
-
-      setIsAnalyzing(false);
-      setIsFetchingArtisans(true);
-      const tinyfishResults = await fetchArtisans(
-        extracted.trade,
-        resolved.text,
-        {
-          latitude: resolved.latitude,
-          longitude: resolved.longitude,
-        }
-      );
-      setArtisans(tinyfishResults);
-      setArtisanFetchFailed(tinyfishResults.length === 0);
+      setArtisans(dbArtisans);
+      setArtisanFetchFailed(dbArtisans.length === 0);
     } catch (error) {
       console.error("GROQ EXTRACTION ERROR:", error);
       setError(
@@ -314,7 +269,6 @@ export default function RequestPage() {
       );
     } finally {
       setIsAnalyzing(false);
-      setIsFetchingArtisans(false);
     }
   };
 
@@ -538,7 +492,7 @@ export default function RequestPage() {
           </div>
 
           <div className="mt-4 text-xs text-zinc-500">
-            Recommended artisans load below from live local listings.
+            Matching artisans from our database appear below (up to three).
           </div>
         </div>
       ) : null}
@@ -556,18 +510,12 @@ export default function RequestPage() {
             </div>
           </div>
 
-          {isFetchingArtisans ? (
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {[0, 1, 2].map((i) => (
-                <ArtisanSkeletonCard key={i} />
-              ))}
+          {!isAnalyzing && artisanFetchFailed ? (
+            <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-6 text-center text-sm leading-relaxed text-zinc-700">
+              No artisans found in this area for that trade. Try a broader location or
+              different wording.
             </div>
-          ) : artisanFetchFailed ? (
-            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6 text-center text-sm leading-relaxed text-amber-950">
-              We couldn&apos;t find available artisans in that exact area right now. Try
-              expanding your search location!
-            </div>
-          ) : (
+          ) : !isAnalyzing && artisans.length > 0 ? (
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {artisans.map((artisan) => {
                 const tel = phoneToTelHref(artisan.phoneNumber);
@@ -588,28 +536,24 @@ export default function RequestPage() {
                     className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-md transition hover:shadow-lg"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div className="flex min-w-0 flex-1 gap-3">
-                        <InitialsAvatar name={artisan.name} />
-                        <div className="min-w-0">
-                          <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                            {tradeLabel}
-                          </div>
-                          <div className="mt-1 text-base font-bold text-zinc-900">
-                            {artisan.name}
-                          </div>
-                          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-600">
-                            <span className="inline-flex items-center gap-1">
-                              <MapPin className="h-3.5 w-3.5 text-zinc-400" />
-                              {artisan.address ?? result.location ?? "Local area"}
-                            </span>
-                            <span className="inline-flex items-center gap-1">
-                              <Phone className="h-3.5 w-3.5 text-emerald-600" />
-                              {artisan.phoneNumber}
-                            </span>
-                          </div>
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          {tradeLabel}
+                        </div>
+                        <div className="mt-1 text-base font-bold text-zinc-900">
+                          {artisan.name}
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-600">
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin className="h-3.5 w-3.5 text-zinc-400" />
+                            {artisan.address ?? result.location ?? "Local area"}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Phone className="h-3.5 w-3.5 text-emerald-600" />
+                            {artisan.phoneNumber}
+                          </span>
                         </div>
                       </div>
-
                       <span
                         className={[
                           "shrink-0 rounded-full border px-3 py-1 text-xs font-semibold",
@@ -619,12 +563,11 @@ export default function RequestPage() {
                         {matchScore}% Match
                       </span>
                     </div>
-
                     <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                       <a
                         href={tel}
                         onClick={(e) => void onBookAndCall(e, artisan, tel)}
-                        className="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:w-auto"
                       >
                         <Phone className="h-4 w-4" />
                         Book Now
@@ -641,7 +584,7 @@ export default function RequestPage() {
                 );
               })}
             </div>
-          )}
+          ) : null}
         </section>
       ) : null}
         </>
