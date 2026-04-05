@@ -58,18 +58,34 @@ export async function toggleWithdrawal2FA(
 }
 
 /**
- * For SmileID / Sumsub webhooks or internal tools — updates KYC tier in custom metadata.
- * Verifies the caller via Privy access token.
+ * Updates KYC tier in Privy custom metadata by **Privy user id** (DID).
+ * Use from trusted server contexts only (e.g. verified KYC partner webhooks).
  */
 export async function updateUserKYCTier(
+  userId: string,
+  tier: "BASIC" | "ADVANCED",
+): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    const privy = getPrivy();
+    await mergeCustomMetadata(privy, userId, { kycTier: tier });
+    return { success: true };
+  } catch (error) {
+    console.error("Privy KYC metadata error:", error);
+    return { success: false, error: "Failed to update KYC status" };
+  }
+}
+
+/**
+ * Same as {@link updateUserKYCTier} but resolves the user from a Privy **access token**.
+ */
+export async function updateUserKYCTierWithAccessToken(
   accessToken: string,
   tier: "BASIC" | "ADVANCED",
 ): Promise<{ success: true } | { success: false; error: string }> {
   try {
     const privy = getPrivy();
     const claims = await privy.verifyAuthToken(accessToken);
-    await mergeCustomMetadata(privy, claims.userId, { kycTier: tier });
-    return { success: true };
+    return updateUserKYCTier(claims.userId, tier);
   } catch (error) {
     console.error("Privy KYC metadata error:", error);
     return { success: false, error: "Failed to update KYC status" };
