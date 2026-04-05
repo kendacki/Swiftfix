@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Key, Layers, Trash2, X } from "lucide-react";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy, useUser } from "@privy-io/react-auth";
 import { toggleWithdrawal2FA } from "@/actions/privy";
 import type { LinkedAccountWithMetadata } from "@privy-io/react-auth";
 
@@ -28,19 +28,9 @@ function accountLabel(account: LinkedAccountWithMetadata): { kind: string; id: s
 }
 
 export function SecuritySettingsList() {
-  const {
-    user,
-    authenticated,
-    getAccessToken,
-    refreshUser,
-    unlinkEmail,
-    unlinkWallet,
-    unlinkPhone,
-    unlinkGoogle,
-    unlinkTwitter,
-    unlinkDiscord,
-    unlinkGithub,
-  } = usePrivy();
+  const { user, authenticated, getAccessToken, unlinkEmail, unlinkWallet, unlinkPhone, unlinkGoogle, unlinkTwitter, unlinkDiscord, unlinkGithub } =
+    usePrivy();
+  const { refreshUser } = useUser();
 
   const [connectionsOpen, setConnectionsOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -95,7 +85,7 @@ export function SecuritySettingsList() {
       )
     ) {
       console.warn("Delete account requested");
-      toast.message("Account deletion is not wired yet.");
+      setFlash({ kind: "info", text: "Account deletion is not wired yet." });
     }
   };
 
@@ -130,14 +120,14 @@ export function SecuritySettingsList() {
             await unlinkGithub(account.subject);
             break;
           default:
-            toast.error("Unlink is not supported for this account type yet.");
+            setFlash({ kind: "err", text: "Unlink is not supported for this account type yet." });
             return;
         }
         await refreshUser();
-        toast.success("Connection removed");
+        setFlash({ kind: "ok", text: "Connection removed" });
       } catch (e) {
         console.error(e);
-        toast.error("Could not unlink this connection");
+        setFlash({ kind: "err", text: "Could not unlink this connection" });
       } finally {
         setUnlinkingIdx(null);
       }
