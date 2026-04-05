@@ -3,7 +3,6 @@
 import { useSyncExternalStore } from "react";
 import { PrivyProvider } from "@privy-io/react-auth";
 import type { ReactNode } from "react";
-import { Toaster } from "sonner";
 import { AuthRedirect } from "./AuthRedirect";
 
 type ProvidersProps = {
@@ -34,7 +33,6 @@ export function Providers({ children }: ProvidersProps) {
       }}
     >
       <AuthRedirect />
-      <Toaster richColors position="top-center" />
       {children}
     </PrivyProvider>
   );

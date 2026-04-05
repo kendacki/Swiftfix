@@ -1,5 +1,9 @@
 "use server";
 
+/**
+ * Avatar files go to Supabase Storage only. The public URL is saved to Privy
+ * `customMetadata.avatarUrl` on the client (see ProfileAvatarUpload) — no DB.
+ */
 import { createClient } from "@supabase/supabase-js";
 
 function getSupabaseClient() {

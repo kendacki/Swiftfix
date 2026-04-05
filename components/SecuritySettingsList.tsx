@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Key, Layers, Trash2, X } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
-import { toast } from "sonner";
 import { toggleWithdrawal2FA } from "@/actions/privy";
 import type { LinkedAccountWithMetadata } from "@privy-io/react-auth";
 
@@ -46,6 +45,16 @@ export function SecuritySettingsList() {
   const [connectionsOpen, setConnectionsOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [unlinkingIdx, setUnlinkingIdx] = useState<number | null>(null);
+  const [flash, setFlash] = useState<{
+    kind: "ok" | "err" | "info";
+    text: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!flash) return;
+    const id = window.setTimeout(() => setFlash(null), 4000);
+    return () => window.clearTimeout(id);
+  }, [flash]);
 
   const meta = user?.customMetadata as Record<string, unknown> | undefined;
   const is2FAEnabled = meta?.withdrawal2FAEnabled === true;
@@ -59,20 +68,20 @@ export function SecuritySettingsList() {
     try {
       const token = await getAccessToken();
       if (!token) {
-        toast.error("Could not get session. Please sign in again.");
+        setFlash({ kind: "err", text: "Could not get session. Please sign in again." });
         return;
       }
       const res = await toggleWithdrawal2FA(token, checked);
       if (res.success) {
         await getAccessToken();
         await refreshUser();
-        toast.success("Security settings updated");
+        setFlash({ kind: "ok", text: "Security settings updated" });
       } else {
-        toast.error(res.error ?? "Failed to update settings");
+        setFlash({ kind: "err", text: res.error ?? "Failed to update settings" });
       }
     } catch (e) {
       console.error(e);
-      toast.error("Failed to update settings");
+      setFlash({ kind: "err", text: "Failed to update settings" });
     } finally {
       setIsUpdating(false);
     }
@@ -148,6 +157,21 @@ export function SecuritySettingsList() {
 
   return (
     <div className="space-y-3">
+      {flash ? (
+        <div
+          role="status"
+          className={[
+            "rounded-lg border px-3 py-2 text-sm font-medium",
+            flash.kind === "ok"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+              : flash.kind === "err"
+                ? "border-red-200 bg-red-50 text-red-900"
+                : "border-zinc-200 bg-zinc-50 text-zinc-800",
+          ].join(" ")}
+        >
+          {flash.text}
+        </div>
+      ) : null}
       <div className="flex items-center justify-between rounded-xl bg-gray-100 px-4 py-3.5">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
