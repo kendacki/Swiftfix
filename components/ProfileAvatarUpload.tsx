@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { ChangeEvent } from "react";
 import { usePrivy, useUser } from "@privy-io/react-auth";
 import { updateUserMetadata } from "@/actions/privy";
 import { DEFAULT_AVATAR_PATH } from "@/hooks/useUserDisplay";
@@ -63,56 +64,77 @@ export function ProfileAvatarUpload() {
     fileInputRef.current?.click();
   };
 
-  const onFileSelected = async (file: File | null) => {
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
     setError(null);
     setSuccess(null);
 
-    if (!file) return;
     if (!ready || !authenticated) {
       setError("Please sign in to upload an avatar.");
+      return;
+    }
+
+    const preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    if (!preset || !cloudName) {
+      setError("Cloudinary is not configured (missing NEXT_PUBLIC_CLOUDINARY_* env vars).");
       return;
     }
 
     setIsUploading(true);
 
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        setError("Could not get session. Please sign in again.");
-        return;
-      }
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", preset);
+      formData.append("folder", "avatars");
 
-      const form = new FormData();
-      form.append("file", file);
+      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 
-      const res = await fetch("/api/upload-avatar", {
+      const response = await fetch(cloudinaryUrl, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
+        body: formData,
       });
 
-      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
-      if (!res.ok) {
-        throw new Error(data.error ?? "Upload failed. Please try again.");
-      }
-      const url = data.url;
-      if (!url) {
-        throw new Error("Upload did not return a URL.");
+      const data = (await response.json()) as {
+        secure_url?: string;
+        error?: { message?: string } | string;
+      };
+
+      if (!response.ok) {
+        const msg =
+          typeof data.error === "object" && data.error?.message
+            ? data.error.message
+            : typeof data.error === "string"
+              ? data.error
+              : "Cloudinary upload failed";
+        throw new Error(msg);
       }
 
-      const metaRes = await updateUserMetadata(token, { avatarUrl: url });
-      if (!metaRes.success) {
-        throw new Error(metaRes.error ?? "Could not save avatar to your profile.");
+      const newAvatarUrl = data.secure_url;
+      if (!newAvatarUrl) {
+        throw new Error("Cloudinary did not return a secure URL.");
+      }
+
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error("Could not get session. Please sign in again.");
+      }
+
+      const privyRes = await updateUserMetadata(token, { avatarUrl: newAvatarUrl });
+      if (!privyRes.success) {
+        throw new Error(privyRes.error ?? "Failed to save to profile");
       }
 
       await getAccessToken();
       await refreshUser();
-      setAvatarUrl(url);
+      setAvatarUrl(newAvatarUrl);
       setSuccess("Profile photo updated!");
-    } catch (e) {
-      const message =
-        e instanceof Error ? e.message : "Upload failed. Please try again.";
-      setError(message);
+    } catch (err) {
+      console.error("Upload error:", err);
+      setError(err instanceof Error ? err.message : "Failed to upload photo");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -172,10 +194,7 @@ export function ProfileAvatarUpload() {
         type="file"
         accept="image/*"
         className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0] ?? null;
-          void onFileSelected(f);
-        }}
+        onChange={(e) => void handleImageUpload(e)}
       />
 
       {success ? (

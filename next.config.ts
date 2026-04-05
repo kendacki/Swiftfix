@@ -20,9 +20,9 @@ function supabaseImageRemotePattern():
 
 const supabasePattern = supabaseImageRemotePattern();
 
-const vercelBlobPattern = {
+const cloudinaryPattern = {
   protocol: "https" as const,
-  hostname: "*.public.blob.vercel-storage.com",
+  hostname: "res.cloudinary.com",
   pathname: "/**",
 };
 
@@ -64,7 +64,10 @@ const nextConfig: NextConfig = {
     return config;
   },
   images: {
-    remotePatterns: [vercelBlobPattern, ...(supabasePattern ? [supabasePattern] : [])],
+    remotePatterns: [
+      cloudinaryPattern,
+      ...(supabasePattern ? [supabasePattern] : []),
+    ],
   },
 };
 
