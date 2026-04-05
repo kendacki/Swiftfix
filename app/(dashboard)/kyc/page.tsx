@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AlertCircle, BadgeCheck, Sparkles } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
 import { generateSmileSignature } from "@/actions/smile";
@@ -48,7 +48,7 @@ export default function KycPage() {
     return () => window.clearTimeout(id);
   }, [advancedToast]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isSmileIdOpen) return;
     const el = cameraRef.current;
     if (!el) return;
