@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUserDisplay } from "@/hooks/useUserDisplay";
 import { BalanceCard } from "@/components/BalanceCard";
 import { getUserWallet } from "@/actions/walletActions";
 import { getUserTransactions } from "@/actions/transactionActions";
@@ -44,7 +44,7 @@ function formatTxAmount(currency: string, amount: unknown) {
 }
 
 export default function DashboardPage() {
-  const { ready, authenticated, user } = usePrivy();
+  const { ready, authenticated, user, displayName } = useUserDisplay();
   const router = useRouter();
   const [wallet, setWallet] = useState<WalletSummary>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -69,11 +69,6 @@ export default function DashboardPage() {
       }
     })();
   }, [ready, authenticated, user]);
-
-  const displayName = useMemo(
-    () => user?.email?.address ?? user?.id ?? "there",
-    [user]
-  );
 
   const totalNgn = wallet?.ngnBalance ?? 0;
   const totalUsdt = wallet?.usdtBalance ?? 0;
