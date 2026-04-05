@@ -20,6 +20,12 @@ function supabaseImageRemotePattern():
 
 const supabasePattern = supabaseImageRemotePattern();
 
+const vercelBlobPattern = {
+  protocol: "https" as const,
+  hostname: "*.public.blob.vercel-storage.com",
+  pathname: "/**",
+};
+
 const nextConfig: NextConfig = {
   env: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -58,7 +64,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   images: {
-    remotePatterns: supabasePattern ? [supabasePattern] : [],
+    remotePatterns: [vercelBlobPattern, ...(supabasePattern ? [supabasePattern] : [])],
   },
 };
 

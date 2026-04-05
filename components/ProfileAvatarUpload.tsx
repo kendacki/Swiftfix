@@ -2,11 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
-import { Camera } from "lucide-react";
-import { uploadAvatar } from "@/actions/avatarActions";
-
-type PrivyUpdateUserFn = (updates: { customMetadata?: Record<string, unknown> }) => Promise<unknown>;
+import { usePrivy, useUser } from "@privy-io/react-auth";
+import { updateUserMetadata } from "@/actions/privy";
+import { DEFAULT_AVATAR_PATH } from "@/hooks/useUserDisplay";
 
 function Spinner() {
   return (
@@ -35,10 +33,8 @@ function Spinner() {
 
 export function ProfileAvatarUpload() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const { ready, authenticated, user } = usePrivy();
-
-  const updateUser = (usePrivy() as unknown as { updateUser?: PrivyUpdateUserFn })
-    .updateUser;
+  const { ready, authenticated, user, getAccessToken } = usePrivy();
+  const { refreshUser } = useUser();
 
   const existingAvatarUrl = useMemo(() => {
     const meta = (user as unknown as { customMetadata?: Record<string, unknown> })
@@ -50,10 +46,17 @@ export function ProfileAvatarUpload() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(existingAvatarUrl);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     setAvatarUrl(existingAvatarUrl);
   }, [existingAvatarUrl]);
+
+  useEffect(() => {
+    if (!success) return;
+    const id = window.setTimeout(() => setSuccess(null), 4000);
+    return () => window.clearTimeout(id);
+  }, [success]);
 
   const onPick = () => {
     if (isUploading) return;
@@ -62,37 +65,50 @@ export function ProfileAvatarUpload() {
 
   const onFileSelected = async (file: File | null) => {
     setError(null);
+    setSuccess(null);
 
     if (!file) return;
     if (!ready || !authenticated) {
       setError("Please sign in to upload an avatar.");
       return;
     }
-    if (!updateUser) {
-      setError("Profile update is unavailable. Please try again.");
-      return;
-    }
 
     setIsUploading(true);
 
     try {
+      const token = await getAccessToken();
+      if (!token) {
+        setError("Could not get session. Please sign in again.");
+        return;
+      }
+
       const form = new FormData();
       form.append("file", file);
 
-      const { publicUrl } = await uploadAvatar(user?.id ?? "", form);
-
-      const existingMeta =
-        (user as unknown as { customMetadata?: Record<string, unknown> })
-          ?.customMetadata ?? {};
-
-      await updateUser({
-        customMetadata: {
-          ...existingMeta,
-          avatarUrl: publicUrl,
-        },
+      const res = await fetch("/api/upload-avatar", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
       });
 
-      setAvatarUrl(publicUrl);
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (!res.ok) {
+        throw new Error(data.error ?? "Upload failed. Please try again.");
+      }
+      const url = data.url;
+      if (!url) {
+        throw new Error("Upload did not return a URL.");
+      }
+
+      const metaRes = await updateUserMetadata(token, { avatarUrl: url });
+      if (!metaRes.success) {
+        throw new Error(metaRes.error ?? "Could not save avatar to your profile.");
+      }
+
+      await getAccessToken();
+      await refreshUser();
+      setAvatarUrl(url);
+      setSuccess("Profile photo updated!");
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Upload failed. Please try again.";
@@ -102,6 +118,8 @@ export function ProfileAvatarUpload() {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
+
+  const displaySrc = avatarUrl ?? DEFAULT_AVATAR_PATH;
 
   return (
     <div className="space-y-2">
@@ -116,29 +134,19 @@ export function ProfileAvatarUpload() {
           ].join(" ")}
           aria-label="Upload profile avatar"
         >
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt="Profile avatar"
-              fill
-              className={[
-                "object-cover transition",
-                isUploading ? "scale-[1.02] blur-[1px] brightness-75" : "",
-              ].join(" ")}
-            />
-          ) : (
-            <div
-              className={[
-                "flex h-full w-full items-center justify-center text-zinc-500 transition",
-                isUploading ? "blur-[1px] brightness-75" : "",
-              ].join(" ")}
-            >
-              <Camera className="h-6 w-6" />
-            </div>
-          )}
+          <Image
+            src={displaySrc}
+            alt="Profile avatar"
+            fill
+            className={[
+              "object-cover transition",
+              isUploading ? "scale-[1.02] blur-[1px] brightness-75" : "",
+            ].join(" ")}
+            sizes="80px"
+          />
 
           {isUploading ? (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center bg-white/40">
               <Spinner />
             </div>
           ) : null}
@@ -170,6 +178,9 @@ export function ProfileAvatarUpload() {
         }}
       />
 
+      {success ? (
+        <div className="text-xs font-medium text-emerald-700">{success}</div>
+      ) : null}
       {error ? (
         <div className="text-xs font-medium text-red-700">{error}</div>
       ) : null}
@@ -178,4 +189,3 @@ export function ProfileAvatarUpload() {
 }
 
 export default ProfileAvatarUpload;
-

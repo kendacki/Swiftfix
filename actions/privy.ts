@@ -1,14 +1,38 @@
 "use server";
 
-import { PrivyClient } from "@privy-io/server-auth";
+import type { PrivyClient } from "@privy-io/server-auth";
+import { getPrivy } from "@/lib/privy-server";
 
-function getPrivy(): PrivyClient {
-  const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
-  const appSecret = process.env.PRIVY_APP_SECRET;
-  if (!appId || !appSecret) {
-    throw new Error("Missing NEXT_PUBLIC_PRIVY_APP_ID or PRIVY_APP_SECRET.");
+type MetadataPatch = Record<string, string | number | boolean>;
+
+async function mergeCustomMetadata(
+  privy: PrivyClient,
+  userId: string,
+  patch: MetadataPatch,
+): Promise<void> {
+  const existingUser = await privy.getUser(userId);
+  const prev =
+    (existingUser as { customMetadata?: MetadataPatch }).customMetadata ?? {};
+  await privy.setCustomMetadata(userId, { ...prev, ...patch });
+}
+
+/**
+ * Updates Privy custom metadata for the authenticated user (merges with existing keys).
+ * Pass the user's Privy **access token** from `getAccessToken()`.
+ */
+export async function updateUserMetadata(
+  accessToken: string,
+  updates: MetadataPatch,
+): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    const privy = getPrivy();
+    const claims = await privy.verifyAuthToken(accessToken);
+    await mergeCustomMetadata(privy, claims.userId, updates);
+    return { success: true };
+  } catch (error) {
+    console.error("Privy updateUserMetadata error:", error);
+    return { success: false, error: "Failed to update profile" };
   }
-  return new PrivyClient(appId, appSecret);
 }
 
 /**
@@ -23,7 +47,7 @@ export async function toggleWithdrawal2FA(
   try {
     const privy = getPrivy();
     const claims = await privy.verifyAuthToken(accessToken);
-    await privy.setCustomMetadata(claims.userId, {
+    await mergeCustomMetadata(privy, claims.userId, {
       withdrawal2FAEnabled: isEnabled,
     });
     return { success: true };
@@ -44,7 +68,7 @@ export async function updateUserKYCTier(
   try {
     const privy = getPrivy();
     const claims = await privy.verifyAuthToken(accessToken);
-    await privy.setCustomMetadata(claims.userId, { kycTier: tier });
+    await mergeCustomMetadata(privy, claims.userId, { kycTier: tier });
     return { success: true };
   } catch (error) {
     console.error("Privy KYC metadata error:", error);

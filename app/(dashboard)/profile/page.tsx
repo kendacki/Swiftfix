@@ -2,31 +2,60 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy, useUser } from "@privy-io/react-auth";
 import { ShieldCheck } from "lucide-react";
 import ProfileAvatarUpload from "@/components/ProfileAvatarUpload";
+import { updateUserMetadata } from "@/actions/privy";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, ready } = usePrivy();
+  const { user, ready, getAccessToken } = usePrivy();
+  const { refreshUser } = useUser();
   const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [nameInput, setNameInput] = useState("");
   const [saving, setSaving] = useState(false);
+  const [flash, setFlash] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   useEffect(() => {
     const e = user?.email?.address;
     if (e) setEmail(e);
-    const meta = (user as unknown as { customMetadata?: { name?: string } })
+    const meta = (user as unknown as { customMetadata?: Record<string, unknown> })
       ?.customMetadata;
-    if (typeof meta?.name === "string") setDisplayName(meta.name);
+    const dn = meta?.displayName ?? meta?.name;
+    if (typeof dn === "string") setNameInput(dn);
+    else setNameInput("");
   }, [user]);
+
+  useEffect(() => {
+    if (!flash) return;
+    const id = window.setTimeout(() => setFlash(null), 4000);
+    return () => window.clearTimeout(id);
+  }, [flash]);
 
   const phone = user?.phone?.number ?? "";
 
-  const onSave = async () => {
+  const handleUpdateName = async () => {
+    if (!ready) return;
     setSaving(true);
+    setFlash(null);
     try {
-      await new Promise((r) => setTimeout(r, 400));
+      const token = await getAccessToken();
+      if (!token) {
+        setFlash({ kind: "err", text: "Could not get session. Please sign in again." });
+        return;
+      }
+      const trimmed = nameInput.trim();
+      const res = await updateUserMetadata(token, { displayName: trimmed || "User" });
+      if (!res.success) {
+        setFlash({ kind: "err", text: res.error ?? "Could not save display name." });
+        return;
+      }
+      await getAccessToken();
+      await refreshUser();
+      setFlash({ kind: "ok", text: "Display name updated!" });
+    } catch (e) {
+      console.error(e);
+      setFlash({ kind: "err", text: "Could not save display name." });
     } finally {
       setSaving(false);
     }
@@ -39,6 +68,19 @@ export default function ProfilePage() {
         <p className="mt-1 text-sm text-zinc-600">
           Update your personal information.
         </p>
+
+        {flash ? (
+          <div
+            role="status"
+            className={
+              flash.kind === "ok"
+                ? "mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-900"
+                : "mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-900"
+            }
+          >
+            {flash.text}
+          </div>
+        ) : null}
 
         <div className="mt-6 flex flex-col items-center">
           <ProfileAvatarUpload />
@@ -68,8 +110,8 @@ export default function ProfilePage() {
             Display name
             <input
               type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
               disabled={!ready}
               placeholder="Your name"
               className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200 disabled:opacity-60"
@@ -83,9 +125,9 @@ export default function ProfilePage() {
 
         <button
           type="button"
-          onClick={() => void onSave()}
+          onClick={() => void handleUpdateName()}
           disabled={!ready || saving}
-          className="mt-6 w-full rounded-full bg-zinc-400 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-500 disabled:opacity-60"
+          className="mt-6 w-full rounded-full bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-60"
         >
           {saving ? "Saving…" : "Save changes"}
         </button>

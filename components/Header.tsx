@@ -1,31 +1,28 @@
 "use client";
 
-import { usePrivy } from "@privy-io/react-auth";
-import { CircleUser, LogIn, LogOut, Menu } from "lucide-react";
+import { LogIn, LogOut, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ProfileAvatarUpload from "@/components/ProfileAvatarUpload";
+import { useUserDisplay } from "@/hooks/useUserDisplay";
 
 type HeaderProps = {
   onOpenMobileSidebar: () => void;
 };
 
 export function Header({ onOpenMobileSidebar }: HeaderProps) {
-  const { ready, authenticated, user, login, logout } = usePrivy();
+  const {
+    ready,
+    authenticated,
+    login,
+    logout,
+    displayName,
+    avatarUrl,
+  } = useUserDisplay();
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement | null>(null);
-
-  const displayIdentifier =
-    user?.phone?.number ?? user?.email?.address ?? "User";
-
-  const avatarUrl = useMemo(() => {
-    const meta = (user as unknown as { customMetadata?: Record<string, unknown> })
-      ?.customMetadata;
-    const v = meta?.avatarUrl;
-    return typeof v === "string" && v.length > 0 ? v : null;
-  }, [user]);
 
   useEffect(() => {
     if (!profileOpen) return;
@@ -116,16 +113,14 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
               className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300"
               aria-label="Profile"
             >
-              {avatarUrl ? (
-                <Image
-                  src={avatarUrl}
-                  alt="Profile avatar"
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <CircleUser className="h-6 w-6" />
-              )}
+              <Image
+                src={avatarUrl}
+                alt="Profile avatar"
+                fill
+                className="object-cover"
+                sizes="40px"
+                priority={false}
+              />
             </button>
 
             {profileOpen && ready && authenticated ? (
@@ -135,7 +130,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
                     Profile
                   </div>
                   <div className="mt-1 text-sm font-semibold text-zinc-900">
-                    {displayIdentifier}
+                    {displayName}
                   </div>
                 </div>
                 <div className="p-4">
@@ -149,4 +144,3 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
     </header>
   );
 }
-
