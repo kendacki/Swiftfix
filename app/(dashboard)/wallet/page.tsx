@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { BalanceCard } from "@/components/BalanceCard";
 import WalletQuickActions from "@/components/WalletQuickActions";
+import KYCGate from "@/components/KYCGate";
 import SwapCard from "@/components/SwapCard";
 import SendMoneyCard from "@/components/SendMoneyCard";
 import { Landmark, ShieldCheck } from "lucide-react";
@@ -48,8 +49,12 @@ export default function WalletPage() {
       <WalletQuickActions />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <SwapCard />
-        <SendMoneyCard />
+        <KYCGate>
+          <SwapCard />
+        </KYCGate>
+        <KYCGate>
+          <SendMoneyCard />
+        </KYCGate>
       </div>
 
       <section className="grid gap-6 lg:grid-cols-2">
