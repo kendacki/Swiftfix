@@ -5,10 +5,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserDisplay } from "@/hooks/useUserDisplay";
 import { BalanceCard } from "@/components/BalanceCard";
+import KYCGate from "@/components/KYCGate";
 import { getUserWallet } from "@/actions/walletActions";
 import { getUserTransactions } from "@/actions/transactionActions";
 import {
   ArrowDownLeft,
+  Lock,
   RefreshCw,
   Sparkles,
 } from "lucide-react";
@@ -150,23 +152,50 @@ export default function DashboardPage() {
             </div>
           </button>
 
-          <button
-            type="button"
-            onClick={() => router.push("/wallet")}
-            className="group flex items-center gap-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-left transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
+          <KYCGate
+            fallback={
+              <div className="flex flex-col justify-between gap-3 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/90 p-4 text-left">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-200 text-zinc-700">
+                    <Lock className="h-5 w-5" strokeWidth={2.25} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold tracking-tight text-zinc-900">
+                      Swap Crypto
+                    </div>
+                    <div className="mt-0.5 text-xs text-zinc-600">
+                      Advanced verification required to swap at live rates.
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push("/kyc")}
+                  className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+                >
+                  Verify Identity
+                </button>
+              </div>
+            }
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 text-white">
-              <RefreshCw className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-sm font-semibold tracking-tight text-zinc-900">
-                Swap Crypto
+            <button
+              type="button"
+              onClick={() => router.push("/wallet")}
+              className="group flex items-center gap-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-left transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 text-white">
+                <RefreshCw className="h-5 w-5" />
               </div>
-              <div className="mt-0.5 text-xs text-zinc-600">
-                Convert USDT to NGN at live rates.
+              <div className="min-w-0">
+                <div className="text-sm font-semibold tracking-tight text-zinc-900">
+                  Swap Crypto
+                </div>
+                <div className="mt-0.5 text-xs text-zinc-600">
+                  Convert USDT to NGN at live rates.
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          </KYCGate>
 
           <button
             type="button"
