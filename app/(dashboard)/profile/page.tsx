@@ -63,7 +63,7 @@ export default function ProfilePage() {
         setFlash({ kind: "err", text: res.error ?? "Could not save profile." });
         return;
       }
-      await getAccessToken();
+      await getAccessToken(); // Forces Privy to refetch user + customMetadata so useKYC updates everywhere.
       await refreshUser();
       setFlash({ kind: "ok", text: "Profile updated!" });
     } catch (e) {
