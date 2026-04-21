@@ -3,6 +3,7 @@
 import { LogIn, LogOut, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import ProfileAvatarUpload from "@/components/ProfileAvatarUpload";
 import { useUserDisplay } from "@/hooks/useUserDisplay";
@@ -73,6 +74,22 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
           >
             <Menu className="h-5 w-5" />
           </button>
+
+          <Link
+            href="/dashboard"
+            prefetch={false}
+            className="hidden items-center lg:flex"
+            aria-label="SwiftFix home"
+          >
+            <Image
+              src="/logo.png"
+              alt="SwiftFix"
+              width={120}
+              height={24}
+              className="h-6 w-auto"
+              priority={false}
+            />
+          </Link>
 
           <div className="text-sm font-semibold text-zinc-900 sm:text-base">
             {pageTitle}
