@@ -6,6 +6,7 @@ import { verifyPaystackDeposit } from "@/actions/paymentActions";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { usePaystackPayment } from "react-paystack";
 import { ReceiveModal } from "@/components/ReceiveModal";
+import { useSmartWalletAddress } from "@/hooks/useSmartWalletAddress";
 
 export function WalletQuickActions() {
   const { ready, authenticated, user } = usePrivy();
@@ -13,6 +14,8 @@ export function WalletQuickActions() {
   const { wallets } = useWallets();
   const [isVerifyingFiat, setIsVerifyingFiat] = useState(false);
   const [receiveOpen, setReceiveOpen] = useState(false);
+
+  const { address: smartWalletAddress } = useSmartWalletAddress();
 
   const embeddedWallet = wallets.find(
     (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
@@ -88,9 +91,10 @@ export function WalletQuickActions() {
   };
 
   const handleCopyAddress = async () => {
-    if (!embeddedAddress) return;
+    const toCopy = smartWalletAddress || embeddedAddress;
+    if (!toCopy) return;
     try {
-      await navigator.clipboard.writeText(embeddedAddress);
+      await navigator.clipboard.writeText(toCopy);
     } catch {
       // ignore clipboard errors; address is still visible
     }
@@ -99,14 +103,14 @@ export function WalletQuickActions() {
   return (
     <section className="space-y-3">
       <ReceiveModal open={receiveOpen} onClose={() => setReceiveOpen(false)} />
-      {embeddedAddress ? (
+      {smartWalletAddress || embeddedAddress ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
           <div className="min-w-0">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              Your embedded wallet (EVM)
+              {smartWalletAddress ? "Your smart wallet (EVM)" : "Your embedded wallet (EVM)"}
             </div>
             <div className="mt-1 truncate font-mono text-xs text-zinc-900">
-              {embeddedAddress}
+              {smartWalletAddress || embeddedAddress}
             </div>
           </div>
           <button
