@@ -11,14 +11,14 @@ export type KYCGateProps = {
 };
 
 /**
- * Restricts children until the user has Advanced KYC (`isAdvancedVerified`).
+ * Restricts children until the user has Basic KYC (`isBasicVerified`).
  * Use for high-risk actions (send, swap); leave deposits and read-only UI outside the gate.
  */
 export function KYCGate({ children, fallback }: KYCGateProps) {
   const router = useRouter();
-  const { isAdvancedVerified, isBasicVerified } = useKYC();
+  const { isBasicVerified } = useKYC();
 
-  if (isAdvancedVerified) {
+  if (isBasicVerified) {
     return <>{children}</>;
   }
 
@@ -43,7 +43,7 @@ export function KYCGate({ children, fallback }: KYCGateProps) {
           Verification Required
         </h3>
         <p className="mt-2 max-w-sm text-sm leading-relaxed text-zinc-600">
-          You must complete Advanced Identity Verification to unlock this feature.
+          You must complete Identity Verification to unlock this feature.
         </p>
         <button
           type="button"

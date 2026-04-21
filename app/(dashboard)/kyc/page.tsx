@@ -1,23 +1,9 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { AlertCircle, BadgeCheck, Sparkles } from "lucide-react";
-import { usePrivy } from "@privy-io/react-auth";
-import { generateSmileSignature } from "@/actions/smile";
+import { useEffect, useState } from "react";
+import { BadgeCheck } from "lucide-react";
 import { useKYC } from "@/hooks/useKYC";
-
-const SmileCamera = dynamic(
-  () =>
-    import("@smile_identity/smart-camera-web").then(() => {
-      function SmileCameraLoader() {
-        return null;
-      }
-      return SmileCameraLoader;
-    }),
-  { ssr: false },
-);
 
 function CheckRow({ ok, label }: { ok: boolean; label: string }) {
   return (
@@ -31,13 +17,9 @@ function CheckRow({ ok, label }: { ok: boolean; label: string }) {
 }
 
 export default function KycPage() {
-  const { user } = usePrivy();
-  const { isBasicVerified, isAdvancedVerified, hasEmail, hasPhone, hasName } = useKYC();
+  const { isBasicVerified, hasEmail, hasPhone, hasName } = useKYC();
   const [advancedToast, setAdvancedToast] = useState<string | null>(null);
   const [toastSuccess, setToastSuccess] = useState(false);
-  const [isSmileIdOpen, setIsSmileIdOpen] = useState(false);
-  const [isAdvancedKycLoading, setIsAdvancedKycLoading] = useState(false);
-  const cameraRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!advancedToast) return;
@@ -47,86 +29,6 @@ export default function KycPage() {
     }, 5000);
     return () => window.clearTimeout(id);
   }, [advancedToast]);
-
-  useLayoutEffect(() => {
-    if (!isSmileIdOpen) return;
-    const el = cameraRef.current;
-    if (!el) return;
-
-    const onImagesComputed = async (e: Event) => {
-      const detail = (e as CustomEvent<{ images?: unknown[] }>).detail;
-      const images = detail?.images;
-      const userId = user?.id;
-      if (!userId) {
-        setToastSuccess(false);
-        setAdvancedToast("Sign in required to submit verification.");
-        return;
-      }
-      try {
-        const res = await fetch("/api/webhooks/kyc", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            images,
-            verificationStatus: "CAPTURED",
-          }),
-        });
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText || res.statusText);
-        }
-        setToastSuccess(true);
-        setAdvancedToast("Images submitted successfully.");
-        setIsSmileIdOpen(false);
-      } catch (err) {
-        console.error("KYC capture submit:", err);
-        setToastSuccess(false);
-        setAdvancedToast("Could not submit verification. Try again.");
-      }
-    };
-
-    el.addEventListener("imagesComputed", onImagesComputed as EventListener);
-    return () =>
-      el.removeEventListener("imagesComputed", onImagesComputed as EventListener);
-  }, [isSmileIdOpen, user?.id]);
-
-  async function handleStartAdvancedKYC() {
-    setIsAdvancedKycLoading(true);
-    setToastSuccess(false);
-    try {
-      await import("@smile_identity/smart-camera-web");
-      const result = await generateSmileSignature();
-      if (result.success) {
-        setIsSmileIdOpen(true);
-      } else {
-        setAdvancedToast(result.error);
-      }
-    } catch (err) {
-      console.error("handleStartAdvancedKYC:", err);
-      setAdvancedToast("Could not start verification. Try again.");
-    } finally {
-      setIsAdvancedKycLoading(false);
-    }
-  }
-
-  const advancedLocked = !isBasicVerified;
-
-  if (isSmileIdOpen) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-        <SmileCamera />
-        <smart-camera-web ref={cameraRef} capture-id="true" />
-        <button
-          type="button"
-          onClick={() => setIsSmileIdOpen(false)}
-          className="absolute top-4 right-4 text-white"
-        >
-          Close
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto w-full max-w-lg pb-8">
@@ -200,68 +102,6 @@ export default function KycPage() {
               Go to Profile to complete
             </Link>
           </div>
-        ) : null}
-      </div>
-
-      {/* Advanced KYC */}
-      <div
-        className={[
-          "mt-4 rounded-2xl border-2 p-5 shadow-sm transition",
-          advancedLocked ? "pointer-events-none border-zinc-200 bg-zinc-100/80 opacity-50" : "",
-          !advancedLocked && isAdvancedVerified
-            ? "border-emerald-400 bg-emerald-50 shadow-[0_0_24px_rgba(16,185,129,0.35)] ring-2 ring-emerald-300/60"
-            : "",
-          !advancedLocked && !isAdvancedVerified
-            ? "border-amber-200 bg-amber-50/90"
-            : "",
-        ].join(" ")}
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2
-              className={[
-                "text-lg font-bold",
-                advancedLocked ? "text-slate-600" : "text-slate-900",
-              ].join(" ")}
-            >
-              Advanced KYC
-            </h2>
-            {isAdvancedVerified ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400 bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-900 shadow-sm">
-                <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-                Unlocked &amp; Verified
-              </span>
-            ) : !advancedLocked ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-white px-2 py-0.5 text-xs font-semibold text-amber-900">
-                <AlertCircle className="h-3.5 w-3.5" />
-                Not Started
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-white px-2 py-0.5 text-xs font-semibold text-zinc-600">
-                Locked
-              </span>
-            )}
-          </div>
-        </div>
-        <ul
-          className={[
-            "mt-2 list-inside list-disc text-sm",
-            advancedLocked ? "text-slate-500" : isAdvancedVerified ? "text-emerald-900" : "text-slate-700",
-          ].join(" ")}
-        >
-          <li>Full platform access, increased limits</li>
-          <li>Complete advanced verification to unlock the full experience</li>
-        </ul>
-
-        {isBasicVerified && !isAdvancedVerified ? (
-          <button
-            type="button"
-            disabled={isAdvancedKycLoading}
-            onClick={() => void handleStartAdvancedKYC()}
-            className="mt-4 w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isAdvancedKycLoading ? "Starting…" : "Start Advanced Verification"}
-          </button>
         ) : null}
       </div>
     </div>
