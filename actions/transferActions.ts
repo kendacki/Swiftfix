@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
+import { ensureUserAndWallet } from "@/actions/walletActions";
 
 export async function sendFiat(
   privyId: string,
@@ -20,14 +21,7 @@ export async function sendFiat(
     throw new Error("Paystack is not configured (PAYSTACK_SECRET_KEY).");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { privyId },
-    select: { id: true },
-  });
-
-  if (!user) {
-    throw new Error("User not found for provided Privy ID.");
-  }
+  const { user } = await ensureUserAndWallet(privyId);
 
   const wallet = await prisma.wallet.findUnique({
     where: { userId: user.id },
@@ -182,16 +176,11 @@ export async function sendCrypto(
     throw new Error("Amount must be greater than zero.");
   }
 
+  const ensured = await ensureUserAndWallet(privyId);
+
   await prisma.$transaction(
     async (tx) => {
-      const user = await tx.user.findUnique({
-        where: { privyId },
-      });
-
-      if (!user) {
-        throw new Error("User not found for provided Privy ID.");
-      }
-
+      const user = ensured.user;
       const wallet = await tx.wallet.findUnique({
         where: { userId: user.id },
       });

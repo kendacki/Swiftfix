@@ -27,7 +27,8 @@ export default function WalletPage() {
 
     void (async () => {
       try {
-        const data = await getUserWallet(user.id);
+        const email = user?.email?.address || undefined;
+        const data = await getUserWallet(user.id, email);
         setWallet({
           ngnBalance: Number(data.ngnBalance),
         });
