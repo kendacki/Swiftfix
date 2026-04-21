@@ -29,6 +29,12 @@ export function Providers({ children }: ProvidersProps) {
     appearance: {
       showWalletLoginFirst: false,
     },
+    // Email / SMS users need an Ethereum embedded wallet; SDK default is `off`.
+    embeddedWallets: {
+      ethereum: {
+        createOnLogin: "users-without-wallets",
+      },
+    },
     // NOTE: Some versions of `@privy-io/react-auth` may not yet include this in TS types.
     smartWallets: {
       createOnLogin: "all-users",
