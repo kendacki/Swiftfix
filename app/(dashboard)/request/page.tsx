@@ -19,6 +19,7 @@ import type { RecommendedArtisan } from "@/actions/tinyfishActions";
 import {
   assignArtisanToRequest,
   createServiceRequest,
+  getUserBookings,
 } from "@/actions/requestActions";
 
 export type UserBooking = {
@@ -29,12 +30,6 @@ export type UserBooking = {
   phoneNumber: string;
   status: string;
 };
-
-/** Past bookings from your backend — returns empty until wired. */
-async function fetchUserBookings(userId: string): Promise<UserBooking[]> {
-  if (!userId) return [];
-  return [];
-}
 
 function formatBookingDate(iso: string): string {
   try {
@@ -140,8 +135,9 @@ export default function RequestPage() {
   const { ready, authenticated, user, login } = usePrivy();
 
   useEffect(() => {
+    if (!user?.id) return;
     try {
-      const stored = localStorage.getItem("swiftfix_active_booking");
+      const stored = localStorage.getItem(`swiftfix_active_booking_${user.id}`);
       if (stored) {
         const parsed = JSON.parse(stored) as ActiveBookingPayload;
         setActiveBooking(parsed);
@@ -152,7 +148,7 @@ export default function RequestPage() {
     } catch {
       /* ignore invalid JSON */
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     setRemoteBookingsLoaded(false);
@@ -164,16 +160,27 @@ export default function RequestPage() {
 
     let cancelled = false;
     setBookingsLoading(true);
-    void fetchUserBookings(user.id)
+    void getUserBookings(user.id)
       .then((remote) => {
         if (cancelled) return;
-        setBookings((prev) => {
-          const local = prev.filter((b) => b.id.startsWith("local-"));
-          return [...local, ...remote];
+        const mapped: UserBooking[] = remote.map((r) => {
+          const artisan = r.assignedArtisanJson as
+            | { name?: string; phoneNumber?: string }
+            | null
+            | undefined;
+          return {
+            id: r.id,
+            trade: r.trade,
+            date: r.updatedAt.toISOString(),
+            artisanName: artisan?.name ?? "Assigned artisan",
+            phoneNumber: artisan?.phoneNumber ?? "",
+            status: r.status,
+          };
         });
+        setBookings(mapped);
       })
       .catch((err) => {
-        console.error("fetchUserBookings:", err);
+        console.error("getUserBookings:", err);
       })
       .finally(() => {
         if (cancelled) return;
@@ -211,7 +218,7 @@ export default function RequestPage() {
       };
       setActiveBooking(updatedBooking);
       localStorage.setItem(
-        "swiftfix_active_booking",
+        `swiftfix_active_booking_${user?.id ?? "unknown"}`,
         JSON.stringify(updatedBooking),
       );
     }
@@ -237,7 +244,10 @@ export default function RequestPage() {
       phone: artisan.phoneNumber?.trim() ?? "",
       status: "ASSIGNED",
     };
-    localStorage.setItem("swiftfix_active_booking", JSON.stringify(payload));
+    localStorage.setItem(
+      `swiftfix_active_booking_${user?.id ?? "unknown"}`,
+      JSON.stringify(payload),
+    );
     setActiveBooking(payload);
     setBookingStatus("ASSIGNED");
     setActiveTab("bookings");

@@ -4,6 +4,23 @@ import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import type { RecommendedArtisan } from "@/actions/tinyfishActions";
 
+export async function getUserBookings(privyId: string) {
+  if (!privyId?.trim()) {
+    throw new Error("Missing user.");
+  }
+
+  const user = await prisma.user.findUnique({ where: { privyId } });
+  if (!user) throw new Error("User not found.");
+
+  return prisma.serviceRequest.findMany({
+    where: {
+      userId: user.id,
+      status: { in: ["ASSIGNED", "COMPLETED"] },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+}
+
 export async function createServiceRequest(
   privyId: string,
   data: {
