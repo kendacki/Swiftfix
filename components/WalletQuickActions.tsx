@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { ArrowDownToLine, ArrowUpRight, Copy } from "lucide-react";
-import { fundWallet as fundWalletDb } from "@/actions/walletActions";
+import { handleTransactionConfirm } from "@/actions/walletActions";
 import { verifyPaystackDeposit } from "@/actions/paymentActions";
 import { useFundWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { usePaystackPayment } from "react-paystack";
@@ -36,30 +36,6 @@ export function WalletQuickActions() {
     email: paystackEmail,
     amount: 0,
   });
-
-  const _handleFund = (amount: number, currency: "NGN" | "USDT") => {
-    if (!ready || !authenticated || !user?.id) {
-      alert("Please log in to fund your wallet.");
-      return;
-    }
-
-    startTransition(async () => {
-      try {
-        if (currency === "USDT") {
-          // CRITICAL DIRECTIVE: Keep NGN fiat actions intact; do not simulate USDT via DB.
-          throw new Error("USDT funding must be done on-chain.");
-        }
-        await fundWalletDb(user.id, amount, currency);
-      } catch (error) {
-        // For MVP, surface minimal feedback via alert.
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Funding failed. Please try again.";
-        alert(message);
-      }
-    });
-  };
 
   const handleFundNgnPaystack = () => {
     if (!ready || !authenticated || !user?.id) {
@@ -127,7 +103,7 @@ export function WalletQuickActions() {
 
     startTransition(async () => {
       try {
-        await fundWallet({
+        const result = await fundWallet({
           address: embeddedAddress,
           options: {
             chain: { id: selectedChain.id },
@@ -136,6 +112,18 @@ export function WalletQuickActions() {
             },
           },
         });
+
+        if (result.status === "completed" && result.transactionHash && result.amount) {
+          const amt = Number(result.amount);
+          if (Number.isFinite(amt) && amt > 0 && user?.id) {
+            await handleTransactionConfirm({
+              privyId: user.id,
+              transactionHash: result.transactionHash,
+              amount: amt,
+              chainLabel: USDT_CHAIN_LABELS[usdtChain],
+            });
+          }
+        }
       } catch (error) {
         const message =
           error instanceof Error
@@ -218,31 +206,23 @@ export function WalletQuickActions() {
             <div className="mt-0.5 text-xs text-white/70">
               Buy or bridge USDT into your embedded wallet on the selected network.
             </div>
+            <div className="mt-2">
+              <label className="sr-only">USDT network</label>
+              <select
+                value={usdtChain}
+                onChange={(e) => setUsdtChain(e.target.value as UsdtChainKey)}
+                className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white outline-none focus:ring-2 focus:ring-white/20"
+              >
+                <option value="polygon">{USDT_CHAIN_LABELS.polygon}</option>
+                <option value="bsc">{USDT_CHAIN_LABELS.bsc}</option>
+                <option value="mainnet">{USDT_CHAIN_LABELS.mainnet}</option>
+                <option value="arbitrum">{USDT_CHAIN_LABELS.arbitrum}</option>
+              </select>
+            </div>
           </div>
         </div>
         <ArrowUpRight className="h-5 w-5 text-white/50 transition group-hover:text-white" />
       </button>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            USDT network
-          </div>
-          <div className="mt-1 text-xs text-zinc-700">
-            Choose the chain used for funding.
-          </div>
-        </div>
-        <select
-          value={usdtChain}
-          onChange={(e) => setUsdtChain(e.target.value as UsdtChainKey)}
-          className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-900 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
-        >
-          <option value="polygon">{USDT_CHAIN_LABELS.polygon}</option>
-          <option value="bsc">{USDT_CHAIN_LABELS.bsc}</option>
-          <option value="mainnet">{USDT_CHAIN_LABELS.mainnet}</option>
-          <option value="arbitrum">{USDT_CHAIN_LABELS.arbitrum}</option>
-        </select>
       </div>
     </section>
   );

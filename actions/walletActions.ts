@@ -112,3 +112,90 @@ export async function fundWallet(
   return result;
 }
 
+export async function handleTransactionConfirm(args: {
+  privyId: string;
+  transactionHash: string;
+  amount: number;
+  chainLabel?: string;
+}) {
+  const { privyId, transactionHash, amount, chainLabel } = args;
+
+  if (!privyId?.trim()) {
+    throw new Error("Missing Privy ID.");
+  }
+  if (!transactionHash?.trim() || !transactionHash.startsWith("0x")) {
+    throw new Error("Invalid transaction hash.");
+  }
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error("Invalid amount.");
+  }
+
+  // Deduplicate on-chain confirmations by tx hash.
+  const result = await withDbRetry(
+    () =>
+      prisma.$transaction(
+        async (tx) => {
+          const existing = await tx.transaction.findFirst({
+            where: { reference: transactionHash },
+            select: { id: true },
+          });
+          if (existing) {
+            throw new Error("Duplicate transaction");
+          }
+
+          const user = await tx.user.findUnique({
+            where: { privyId },
+            select: { id: true },
+          });
+          if (!user) {
+            throw new Error("User not found for provided Privy ID.");
+          }
+
+          let wallet = await tx.wallet.findUnique({
+            where: { userId: user.id },
+          });
+
+          if (!wallet) {
+            wallet = await tx.wallet.create({
+              data: {
+                userId: user.id,
+              },
+            });
+          }
+
+          const updatedWallet = await tx.wallet.update({
+            where: { id: wallet.id },
+            data: {
+              usdtBalance: {
+                increment: amount,
+              },
+            },
+          });
+
+          await tx.transaction.create({
+            data: {
+              userId: user.id,
+              type: "DEPOSIT",
+              amount,
+              currency: "USDT",
+              status: "COMPLETED",
+              reference: transactionHash,
+              description: `USDT deposit confirmed on-chain${chainLabel ? ` (${chainLabel})` : ""}`,
+            },
+          });
+
+          return updatedWallet;
+        },
+        {
+          maxWait: 10000,
+          timeout: 20000,
+        },
+      ),
+  );
+
+  revalidatePath("/wallet");
+  revalidatePath("/transactions");
+
+  return result;
+}
+
