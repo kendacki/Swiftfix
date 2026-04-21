@@ -3,27 +3,40 @@
 import { useState, useTransition } from "react";
 import { ArrowDownToLine, ArrowUpRight, Copy } from "lucide-react";
 import { verifyPaystackDeposit } from "@/actions/paymentActions";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { usePrivy } from "@privy-io/react-auth";
 import { usePaystackPayment } from "react-paystack";
 import { ReceiveModal } from "@/components/ReceiveModal";
 import { useSmartWalletAddress } from "@/hooks/useSmartWalletAddress";
 
+function resolvePaystackEmail(
+  user: ReturnType<typeof usePrivy>["user"],
+): string {
+  const direct = user?.email?.address?.trim();
+  if (direct) return direct;
+  const linked = user?.linkedAccounts?.find((a) => a.type === "email") as
+    | { address?: string }
+    | undefined;
+  if (linked?.address?.trim()) return linked.address.trim();
+  const fallback = process.env.NEXT_PUBLIC_PAYSTACK_FALLBACK_EMAIL?.trim();
+  if (fallback) return fallback;
+  if (user?.phone?.number) {
+    const safe = user.phone.number.replace(/[^\d+]/g, "").slice(0, 24) || "user";
+    return `sms+${safe}@swiftfix.com`;
+  }
+  const idPart = user?.id?.replace(/[^a-zA-Z0-9]/g, "").slice(-28) || "guest";
+  return `wallet+${idPart}@swiftfix.com`;
+}
+
 export function WalletQuickActions() {
   const { ready, authenticated, user } = usePrivy();
   const [isPending, startTransition] = useTransition();
-  const { wallets } = useWallets();
   const [isVerifyingFiat, setIsVerifyingFiat] = useState(false);
   const [receiveOpen, setReceiveOpen] = useState(false);
 
-  const { address: smartWalletAddress } = useSmartWalletAddress();
-
-  const embeddedWallet = wallets.find(
-    (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
-  );
-  const embeddedAddress = embeddedWallet?.address;
+  const { address: receiveAddress, hasExternalEthereumWallet } = useSmartWalletAddress();
 
   const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "";
-  const paystackEmail = user?.email?.address || "test@swiftfix.com";
+  const paystackEmail = resolvePaystackEmail(user);
 
   const initializePaystackPayment = usePaystackPayment({
     publicKey: paystackPublicKey,
@@ -91,7 +104,7 @@ export function WalletQuickActions() {
   };
 
   const handleCopyAddress = async () => {
-    const toCopy = smartWalletAddress || embeddedAddress;
+    const toCopy = receiveAddress;
     if (!toCopy) return;
     try {
       await navigator.clipboard.writeText(toCopy);
@@ -103,14 +116,18 @@ export function WalletQuickActions() {
   return (
     <section className="space-y-3">
       <ReceiveModal open={receiveOpen} onClose={() => setReceiveOpen(false)} />
-      {smartWalletAddress || embeddedAddress ? (
+      {receiveAddress ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
           <div className="min-w-0">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              {smartWalletAddress ? "Your smart wallet (EVM)" : "Your embedded wallet (EVM)"}
+              {hasExternalEthereumWallet
+                ? "Your connected wallet (EVM)"
+                : user?.smartWallet?.address === receiveAddress
+                  ? "Your smart wallet (EVM)"
+                  : "Your Privy wallet (EVM)"}
             </div>
             <div className="mt-1 truncate font-mono text-xs text-zinc-900">
-              {smartWalletAddress || embeddedAddress}
+              {receiveAddress}
             </div>
           </div>
           <button

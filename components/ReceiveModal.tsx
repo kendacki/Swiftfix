@@ -12,7 +12,7 @@ type ReceiveModalProps = {
 };
 
 export function ReceiveModal({ open, onClose }: ReceiveModalProps) {
-  const { address, isLoading } = useSmartWalletAddress();
+  const { address, isLoading, hasExternalEthereumWallet } = useSmartWalletAddress();
   const { authenticated, createWallet } = usePrivy();
   const [copied, setCopied] = useState(false);
   const [creatingWallet, setCreatingWallet] = useState(false);
@@ -62,7 +62,8 @@ export function ReceiveModal({ open, onClose }: ReceiveModalProps) {
     }
   };
 
-  const showCreateWalletCta = authenticated && !isLoading && !address;
+  const showCreateWalletCta =
+    authenticated && !isLoading && !address && !hasExternalEthereumWallet;
 
   return (
     <div className="fixed inset-0 z-[60]">
@@ -80,7 +81,8 @@ export function ReceiveModal({ open, onClose }: ReceiveModalProps) {
               Receive Crypto
             </div>
             <div className="mt-1 text-xs text-zinc-600">
-              Use this address to receive USDT (Privy embedded or smart wallet).
+              Shows the wallet you connected with (e.g. MetaMask), or your Privy embedded / smart
+              wallet for email or phone login.
             </div>
           </div>
           <button
@@ -104,7 +106,7 @@ export function ReceiveModal({ open, onClose }: ReceiveModalProps) {
             {showCreateWalletCta ? (
               <div className="mt-3 space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-950">
                 <p>
-                  No Ethereum wallet is linked to this login yet. Create a Privy embedded
+                  No Ethereum wallet yet for this email or phone login. Create a Privy embedded
                   wallet to get a receive address and QR code.
                 </p>
                 {createWalletError ? (
