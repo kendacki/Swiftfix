@@ -333,14 +333,6 @@ export function SwapCard() {
               1 USDT = {formattedRate}
             </span>
           </span>
-          {rateState ? (
-            <span>
-              Quote ID:{" "}
-              <span className="font-mono text-[11px] text-zinc-400">
-                {rateState.quoteId}
-              </span>
-            </span>
-          ) : null}
         </div>
 
         {error ? (
