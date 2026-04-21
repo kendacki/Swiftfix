@@ -1,24 +1,29 @@
 "use client";
 
-import { useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { ArrowDownToLine, ArrowUpRight, Copy } from "lucide-react";
 import { fundWallet as fundWalletDb } from "@/actions/walletActions";
 import { useFundWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import {
-  POLYGON_CHAIN_ID,
-  POLYGON_USDT_ADDRESS,
-} from "@/lib/constants/polygon";
+  USDT_CHAIN_LABELS,
+  USDT_CONTRACTS,
+  USDT_CHAINS,
+  type UsdtChainKey,
+} from "@/lib/constants/usdt";
 
 export function WalletQuickActions() {
   const { ready, authenticated, user } = usePrivy();
   const [isPending, startTransition] = useTransition();
   const { wallets } = useWallets();
   const { fundWallet } = useFundWallet();
+  const [usdtChain, setUsdtChain] = useState<UsdtChainKey>("polygon");
 
   const embeddedWallet = wallets.find(
     (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
   );
   const embeddedAddress = embeddedWallet?.address;
+  const selectedUsdtContract = useMemo(() => USDT_CONTRACTS[usdtChain], [usdtChain]);
+  const selectedChain = useMemo(() => USDT_CHAINS[usdtChain], [usdtChain]);
 
   const handleFund = (amount: number, currency: "NGN" | "USDT") => {
     if (!ready || !authenticated || !user?.id) {
@@ -28,6 +33,10 @@ export function WalletQuickActions() {
 
     startTransition(async () => {
       try {
+        if (currency === "USDT") {
+          // CRITICAL DIRECTIVE: Keep NGN fiat actions intact; do not simulate USDT via DB.
+          throw new Error("USDT funding must be done on-chain.");
+        }
         await fundWalletDb(user.id, amount, currency);
       } catch (error) {
         // For MVP, surface minimal feedback via alert.
@@ -51,10 +60,9 @@ export function WalletQuickActions() {
         await fundWallet({
           address: embeddedAddress,
           options: {
-            chain: { id: POLYGON_CHAIN_ID },
-            amount: "100",
+            chain: { id: selectedChain.id },
             asset: {
-              erc20: POLYGON_USDT_ADDRESS,
+              erc20: selectedUsdtContract,
             },
           },
         });
@@ -83,7 +91,7 @@ export function WalletQuickActions() {
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
           <div className="min-w-0">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              Your embedded wallet (Polygon)
+              Your embedded wallet (EVM)
             </div>
             <div className="mt-1 truncate font-mono text-xs text-zinc-900">
               {embeddedAddress}
@@ -135,15 +143,36 @@ export function WalletQuickActions() {
           </div>
           <div className="text-left">
             <div className="text-sm font-semibold tracking-tight text-white">
-              Fund USDT (Polygon)
+              Fund USDT
             </div>
             <div className="mt-0.5 text-xs text-white/70">
-              Buy or bridge USDT into your embedded wallet.
+              Buy or bridge USDT into your embedded wallet on the selected network.
             </div>
           </div>
         </div>
         <ArrowUpRight className="h-5 w-5 text-white/50 transition group-hover:text-white" />
       </button>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            USDT network
+          </div>
+          <div className="mt-1 text-xs text-zinc-700">
+            Choose the chain used for funding.
+          </div>
+        </div>
+        <select
+          value={usdtChain}
+          onChange={(e) => setUsdtChain(e.target.value as UsdtChainKey)}
+          className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-900 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
+        >
+          <option value="polygon">{USDT_CHAIN_LABELS.polygon}</option>
+          <option value="bsc">{USDT_CHAIN_LABELS.bsc}</option>
+          <option value="mainnet">{USDT_CHAIN_LABELS.mainnet}</option>
+          <option value="arbitrum">{USDT_CHAIN_LABELS.arbitrum}</option>
+        </select>
       </div>
     </section>
   );

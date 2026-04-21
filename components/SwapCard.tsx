@@ -10,19 +10,22 @@ import {
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import {
   createWalletClient,
+  createPublicClient,
   custom,
   encodeFunctionData,
   parseUnits,
+  http,
 } from "viem";
-import { polygon } from "viem/chains";
 import { MINIMAL_ERC20_ABI } from "@/lib/constants/abi";
 import {
-  POLYGON_CHAIN_ID,
-  POLYGON_USDT_ADDRESS,
-  POLYGON_USDT_DECIMALS,
+  NATIVE_GAS_LABELS,
   TREASURY_WALLET_ADDRESS,
-} from "@/lib/constants/polygon";
-import { polygonPublicClient } from "@/lib/viem/polygonClient";
+  USDT_CHAIN_LABELS,
+  USDT_CHAINS,
+  USDT_CONTRACTS,
+  USDT_DECIMALS,
+  type UsdtChainKey,
+} from "@/lib/constants/usdt";
 
 type SwapRateState = {
   rate: number;
@@ -41,6 +44,7 @@ export function SwapCard() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [direction, setDirection] = useState<SwapDirection>("USDT_TO_NGN");
+  const [usdtChain, setUsdtChain] = useState<UsdtChainKey>("polygon");
   const [txHash, setTxHash] = useState<string | null>(null);
   const [isConfirmingOnchain, setIsConfirmingOnchain] = useState(false);
 
@@ -134,9 +138,12 @@ export function SwapCard() {
           }
 
           // Step 1: On-chain ERC20 transfer of USDT -> Treasury wallet.
+          const chain = USDT_CHAINS[usdtChain];
+          const decimals = USDT_DECIMALS[usdtChain];
+          const usdtContract = USDT_CONTRACTS[usdtChain];
           const amount = parseUnits(
             numericPayAmount.toString(),
-            POLYGON_USDT_DECIMALS,
+            decimals,
           );
           const data = encodeFunctionData({
             abi: MINIMAL_ERC20_ABI,
@@ -144,23 +151,27 @@ export function SwapCard() {
             args: [TREASURY_WALLET_ADDRESS, amount],
           });
 
-          await embeddedWallet.switchChain(POLYGON_CHAIN_ID);
+          await embeddedWallet.switchChain(chain.id);
           const provider = await embeddedWallet.getEthereumProvider();
           const walletClient = createWalletClient({
-            chain: polygon,
+            chain,
             transport: custom(provider),
           });
 
           const hash = await walletClient.sendTransaction({
             account: embeddedWallet.address as `0x${string}`,
-            to: POLYGON_USDT_ADDRESS,
+            to: usdtContract,
             data,
             value: BigInt(0),
           });
           setTxHash(hash);
 
           setIsConfirmingOnchain(true);
-          await polygonPublicClient.waitForTransactionReceipt({
+          const publicClient = createPublicClient({
+            chain,
+            transport: http(chain.rpcUrls.default.http[0]),
+          });
+          await publicClient.waitForTransactionReceipt({
             hash: hash as `0x${string}`,
             confirmations: 1,
           });
@@ -182,7 +193,7 @@ export function SwapCard() {
           normalized.includes("gas")
         ) {
           setError(
-            "Insufficient Gas (MATIC). You need a small amount of MATIC on Polygon to pay the network fee.",
+            `Insufficient Gas (${NATIVE_GAS_LABELS[usdtChain]}). You need a small amount of ${NATIVE_GAS_LABELS[usdtChain]} on ${USDT_CHAIN_LABELS[usdtChain]} to pay the network fee.`,
           );
         } else {
           setError(message);
@@ -246,6 +257,27 @@ export function SwapCard() {
           >
             NGN → USDT
           </button>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              USDT source chain
+            </div>
+            <div className="mt-1 text-xs text-zinc-600">
+              Select the network you are swapping USDT from.
+            </div>
+          </div>
+          <select
+            value={usdtChain}
+            onChange={(e) => setUsdtChain(e.target.value as UsdtChainKey)}
+            className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-900 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
+          >
+            <option value="polygon">{USDT_CHAIN_LABELS.polygon}</option>
+            <option value="bsc">{USDT_CHAIN_LABELS.bsc}</option>
+            <option value="mainnet">{USDT_CHAIN_LABELS.mainnet}</option>
+            <option value="arbitrum">{USDT_CHAIN_LABELS.arbitrum}</option>
+          </select>
         </div>
 
         <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">

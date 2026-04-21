@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { PrivyProvider } from "@privy-io/react-auth";
 import type { ReactNode } from "react";
 import { AuthRedirect } from "./AuthRedirect";
+import { arbitrum, bsc, mainnet, polygon } from "viem/chains";
 
 type ProvidersProps = {
   children: ReactNode;
@@ -30,6 +31,8 @@ export function Providers({ children }: ProvidersProps) {
         appearance: {
           showWalletLoginFirst: false,
         },
+        supportedChains: [mainnet, bsc, polygon, arbitrum],
+        defaultChain: polygon,
       }}
     >
       <AuthRedirect />

@@ -9,7 +9,7 @@ import KYCGate from "@/components/KYCGate";
 import { getUserWallet } from "@/actions/walletActions";
 import { getUserTransactions } from "@/actions/transactionActions";
 import { getLiveSwapRate } from "@/actions/swapActions";
-import { useOnchainUsdtBalance } from "@/hooks/useOnchainUsdtBalance";
+import { useMultiChainBalance } from "@/hooks/useMultiChainBalance";
 import {
   ArrowDownLeft,
   Lock,
@@ -51,7 +51,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [wallet, setWallet] = useState<WalletSummary>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const { isLoading: isUsdtLoading, balanceFormatted } = useOnchainUsdtBalance();
+  const { isLoading: isUsdtLoading, totalFormatted } = useMultiChainBalance();
   const [usdtNgnEquivalent, setUsdtNgnEquivalent] = useState<number | null>(null);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function DashboardPage() {
   }, [ready, authenticated, user]);
 
   const totalNgn = wallet?.ngnBalance ?? 0;
-  const totalUsdt = Number(balanceFormatted || 0);
+  const totalUsdt = Number(totalFormatted || 0);
 
   useEffect(() => {
     if (!ready || !authenticated) return;
