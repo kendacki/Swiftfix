@@ -3,7 +3,9 @@
 import { useMemo, useState, useTransition } from "react";
 import { ArrowDownToLine, ArrowUpRight, Copy } from "lucide-react";
 import { fundWallet as fundWalletDb } from "@/actions/walletActions";
+import { verifyPaystackDeposit } from "@/actions/paymentActions";
 import { useFundWallet, usePrivy, useWallets } from "@privy-io/react-auth";
+import { usePaystackPayment } from "react-paystack";
 import {
   USDT_CHAIN_LABELS,
   USDT_CONTRACTS,
@@ -17,6 +19,7 @@ export function WalletQuickActions() {
   const { wallets } = useWallets();
   const { fundWallet } = useFundWallet();
   const [usdtChain, setUsdtChain] = useState<UsdtChainKey>("polygon");
+  const [isVerifyingFiat, setIsVerifyingFiat] = useState(false);
 
   const embeddedWallet = wallets.find(
     (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
@@ -25,7 +28,16 @@ export function WalletQuickActions() {
   const selectedUsdtContract = useMemo(() => USDT_CONTRACTS[usdtChain], [usdtChain]);
   const selectedChain = useMemo(() => USDT_CHAINS[usdtChain], [usdtChain]);
 
-  const handleFund = (amount: number, currency: "NGN" | "USDT") => {
+  const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "";
+  const paystackEmail = user?.email?.address || "test@swiftfix.com";
+
+  const initializePaystackPayment = usePaystackPayment({
+    publicKey: paystackPublicKey,
+    email: paystackEmail,
+    amount: 0,
+  });
+
+  const _handleFund = (amount: number, currency: "NGN" | "USDT") => {
     if (!ready || !authenticated || !user?.id) {
       alert("Please log in to fund your wallet.");
       return;
@@ -46,6 +58,64 @@ export function WalletQuickActions() {
             : "Funding failed. Please try again.";
         alert(message);
       }
+    });
+  };
+
+  const handleFundNgnPaystack = () => {
+    if (!ready || !authenticated || !user?.id) {
+      alert("Please log in to fund your wallet.");
+      return;
+    }
+
+    if (!paystackPublicKey.trim()) {
+      alert("Paystack is not configured (NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY).");
+      return;
+    }
+
+    const input = window.prompt("Enter amount to deposit (NGN):", "5000");
+    if (!input) return;
+    const amountNgn = Number(input);
+    if (!Number.isFinite(amountNgn) || amountNgn <= 0) {
+      alert("Enter a valid NGN amount.");
+      return;
+    }
+
+    const amountKobo = Math.round(amountNgn * 100);
+    if (amountKobo <= 0) {
+      alert("Invalid amount.");
+      return;
+    }
+
+    initializePaystackPayment({
+      config: {
+        amount: amountKobo,
+        email: paystackEmail,
+      },
+      onSuccess: (ref: unknown) => {
+        const reference =
+          (ref as { reference?: string } | undefined)?.reference || "";
+        if (!reference) {
+          alert("Missing Paystack reference. Please contact support.");
+          return;
+        }
+
+        setIsVerifyingFiat(true);
+        startTransition(async () => {
+          try {
+            await verifyPaystackDeposit(reference, user.id);
+            alert("Deposit verified and wallet credited.");
+          } catch (e) {
+            const message =
+              e instanceof Error
+                ? e.message
+                : "Verification failed. Please contact support.";
+            alert(message);
+          } finally {
+            setIsVerifyingFiat(false);
+          }
+        });
+      },
+      onClose: () => undefined,
     });
   };
 
@@ -111,8 +181,8 @@ export function WalletQuickActions() {
       <div className="grid gap-3 sm:grid-cols-2">
       <button
         type="button"
-        disabled={isPending}
-        onClick={() => handleFund(50_000, "NGN")}
+        disabled={isPending || isVerifyingFiat}
+        onClick={handleFundNgnPaystack}
         className="group flex items-center justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:cursor-not-allowed disabled:opacity-70"
       >
         <div className="flex items-center gap-4">
@@ -121,10 +191,10 @@ export function WalletQuickActions() {
           </div>
           <div className="text-left">
             <div className="text-sm font-semibold tracking-tight text-zinc-900">
-              Simulate NGN Deposit
+              Fund NGN (Paystack)
             </div>
             <div className="mt-0.5 text-xs text-zinc-600">
-              +₦50,000.00 into your wallet.
+              Pay with card/bank transfer (sandbox) and verify instantly.
             </div>
           </div>
         </div>
