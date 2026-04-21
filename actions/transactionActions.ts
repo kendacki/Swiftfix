@@ -9,18 +9,17 @@ export async function getUserTransactions(privyId: string): Promise<Transaction[
     const user = await withDbRetry(() =>
       prisma.user.findUnique({
         where: { privyId },
-        include: {
-          transactions: {
-            orderBy: {
-              createdAt: "desc",
-            },
-          },
-        },
       })
     );
 
     if (!user) return [];
-    return user.transactions;
+
+    return await withDbRetry(() =>
+      prisma.transaction.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+      })
+    );
   } catch (error) {
     console.error("Error fetching transactions:", error);
     return [];

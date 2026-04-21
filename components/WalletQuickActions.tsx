@@ -57,6 +57,7 @@ export function WalletQuickActions() {
       config: {
         amount: amountKobo,
         email: paystackEmail,
+        channels: ["card", "bank_transfer", "bank"],
       },
       onSuccess: (ref: unknown) => {
         const reference =

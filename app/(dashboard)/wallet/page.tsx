@@ -10,7 +10,7 @@ import SendMoneyCard from "@/components/SendMoneyCard";
 import { Landmark, ShieldCheck } from "lucide-react";
 import { getUserWallet } from "@/actions/walletActions";
 import { getLiveSwapRate } from "@/actions/swapActions";
-import { useOnchainUsdtBalance } from "@/hooks/useOnchainUsdtBalance";
+import { useMultiChainBalance } from "@/hooks/useMultiChainBalance";
 
 type WalletState = {
   ngnBalance: number;
@@ -19,7 +19,7 @@ type WalletState = {
 export default function WalletPage() {
   const { ready, authenticated, user } = usePrivy();
   const [wallet, setWallet] = useState<WalletState>(null);
-  const { isLoading: isUsdtLoading, balanceFormatted } = useOnchainUsdtBalance();
+  const { isLoading: isUsdtLoading, totalFormatted } = useMultiChainBalance();
   const [usdtNgnEquivalent, setUsdtNgnEquivalent] = useState<number | null>(null);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function WalletPage() {
   }, [ready, authenticated, user]);
 
   const ngnBalance = wallet?.ngnBalance ?? 0;
-  const onchainUsdt = Number(balanceFormatted || 0);
+  const onchainUsdt = Number(totalFormatted || 0);
 
   useEffect(() => {
     if (!ready || !authenticated) return;
