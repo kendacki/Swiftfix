@@ -21,12 +21,19 @@ import { polygonPublicClient } from "@/lib/viem/polygonClient";
 
 type Tab = "FIAT" | "CRYPTO";
 
+const BANKS = [
+  { name: "GTBank", code: "058" },
+  { name: "Access Bank", code: "044" },
+  { name: "First Bank", code: "011" },
+  { name: "Zenith Bank", code: "057" },
+] as const;
+
 export function SendMoneyCard() {
   const { ready, authenticated, user } = usePrivy();
   const { wallets } = useWallets();
   const [activeTab, setActiveTab] = useState<Tab>("FIAT");
   const [fiatAmount, setFiatAmount] = useState("");
-  const [bankName, setBankName] = useState("GTBank");
+  const [bankCode, setBankCode] = useState<(typeof BANKS)[number]["code"]>("058");
   const [accountNumber, setAccountNumber] = useState("");
 
   const [cryptoAmount, setCryptoAmount] = useState("");
@@ -69,8 +76,16 @@ export function SendMoneyCard() {
             setError("Please provide an account number.");
             return;
           }
-          await sendFiat(user.id, amt, bankName, accountNumber.trim());
-          setSuccess("NGN transfer simulated successfully.");
+          const selectedBank = BANKS.find((b) => b.code === bankCode);
+          await sendFiat(
+            user.id,
+            amt,
+            selectedBank?.name ?? "Bank",
+            accountNumber.trim(),
+            bankCode,
+            user?.email?.address ?? "SwiftFix User",
+          );
+          setSuccess("NGN transfer submitted successfully.");
           setFiatAmount("");
           setAccountNumber("");
         } else {
@@ -218,13 +233,15 @@ export function SendMoneyCard() {
                 Select bank
               </label>
               <select
-                value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
+                value={bankCode}
+                onChange={(e) => setBankCode(e.target.value as typeof bankCode)}
                 className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
               >
-                <option value="GTBank">GTBank</option>
-                <option value="Moniepoint">Moniepoint</option>
-                <option value="Zenith">Zenith</option>
+                {BANKS.map((b) => (
+                  <option key={b.code} value={b.code}>
+                    {b.name}
+                  </option>
+                ))}
               </select>
             </div>
 
