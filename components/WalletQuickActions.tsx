@@ -1,32 +1,23 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { ArrowDownToLine, ArrowUpRight, Copy } from "lucide-react";
 import { handleTransactionConfirm } from "@/actions/walletActions";
 import { verifyPaystackDeposit } from "@/actions/paymentActions";
 import { useFundWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { usePaystackPayment } from "react-paystack";
-import {
-  USDT_CHAIN_LABELS,
-  USDT_CONTRACTS,
-  USDT_CHAINS,
-  type UsdtChainKey,
-} from "@/lib/constants/usdt";
 
 export function WalletQuickActions() {
   const { ready, authenticated, user } = usePrivy();
   const [isPending, startTransition] = useTransition();
   const { wallets } = useWallets();
   const { fundWallet } = useFundWallet();
-  const [usdtChain, setUsdtChain] = useState<UsdtChainKey>("polygon");
   const [isVerifyingFiat, setIsVerifyingFiat] = useState(false);
 
   const embeddedWallet = wallets.find(
     (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
   );
   const embeddedAddress = embeddedWallet?.address;
-  const selectedUsdtContract = useMemo(() => USDT_CONTRACTS[usdtChain], [usdtChain]);
-  const selectedChain = useMemo(() => USDT_CHAINS[usdtChain], [usdtChain]);
 
   const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "";
   const paystackEmail = user?.email?.address || "test@swiftfix.com";
@@ -105,12 +96,6 @@ export function WalletQuickActions() {
       try {
         const result = await fundWallet({
           address: embeddedAddress,
-          options: {
-            chain: { id: selectedChain.id },
-            asset: {
-              erc20: selectedUsdtContract,
-            },
-          },
         });
 
         if (result.status === "completed" && result.transactionHash && result.amount) {
@@ -120,7 +105,6 @@ export function WalletQuickActions() {
               privyId: user.id,
               transactionHash: result.transactionHash,
               amount: amt,
-              chainLabel: USDT_CHAIN_LABELS[usdtChain],
             });
           }
         }
@@ -204,20 +188,7 @@ export function WalletQuickActions() {
               Fund USDT
             </div>
             <div className="mt-0.5 text-xs text-white/70">
-              Buy or bridge USDT into your embedded wallet on the selected network.
-            </div>
-            <div className="mt-2">
-              <label className="sr-only">USDT network</label>
-              <select
-                value={usdtChain}
-                onChange={(e) => setUsdtChain(e.target.value as UsdtChainKey)}
-                className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white outline-none focus:ring-2 focus:ring-white/20"
-              >
-                <option value="polygon">{USDT_CHAIN_LABELS.polygon}</option>
-                <option value="bsc">{USDT_CHAIN_LABELS.bsc}</option>
-                <option value="mainnet">{USDT_CHAIN_LABELS.mainnet}</option>
-                <option value="arbitrum">{USDT_CHAIN_LABELS.arbitrum}</option>
-              </select>
+              Use Privy&apos;s on-ramp to choose network and fund USDT.
             </div>
           </div>
         </div>
