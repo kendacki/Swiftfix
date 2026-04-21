@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { PrivyProvider } from "@privy-io/react-auth";
+import { SmartWalletsProvider } from "@privy-io/react-auth/smart-wallets";
 import type { ReactNode } from "react";
 import { AuthRedirect } from "./AuthRedirect";
 import { arbitrum, bsc, mainnet, polygon } from "viem/chains";
@@ -42,8 +43,10 @@ export function Providers({ children }: ProvidersProps) {
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ""}
       config={privyConfig}
     >
-      <AuthRedirect />
-      {children}
+      <SmartWalletsProvider>
+        <AuthRedirect />
+        {children}
+      </SmartWalletsProvider>
     </PrivyProvider>
   );
 }
