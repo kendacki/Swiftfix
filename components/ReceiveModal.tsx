@@ -11,7 +11,7 @@ type ReceiveModalProps = {
 };
 
 export function ReceiveModal({ open, onClose }: ReceiveModalProps) {
-  const address = useSmartWalletAddress();
+  const { address, isLoading } = useSmartWalletAddress();
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export function ReceiveModal({ open, onClose }: ReceiveModalProps) {
               Smart wallet address
             </div>
             <div className="mt-2 break-all font-mono text-xs text-zinc-900">
-              {address ?? "Loading address..."}
+              {address ?? (isLoading ? "Loading address..." : "No address found.")}
             </div>
             <button
               type="button"
@@ -94,7 +94,13 @@ export function ReceiveModal({ open, onClose }: ReceiveModalProps) {
 
           <div className="flex items-center justify-center rounded-2xl border border-zinc-200 bg-white p-4">
             <div className="rounded-xl bg-white p-3">
-              <QRCode value={qrValue} size={180} />
+              {address ? (
+                <QRCode value={qrValue} size={180} />
+              ) : (
+                <div className="flex h-[180px] w-[180px] items-center justify-center text-xs text-zinc-500">
+                  {isLoading ? "Loading..." : "No address"}
+                </div>
+              )}
             </div>
           </div>
 
