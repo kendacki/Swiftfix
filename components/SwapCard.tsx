@@ -18,7 +18,6 @@ import {
 } from "viem";
 import { MINIMAL_ERC20_ABI } from "@/lib/constants/abi";
 import {
-  NATIVE_GAS_LABELS,
   TREASURY_WALLET_ADDRESS,
   USDT_CHAIN_LABELS,
   USDT_CHAINS,
@@ -48,13 +47,15 @@ export function SwapCard() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [isConfirmingOnchain, setIsConfirmingOnchain] = useState(false);
 
-  const embeddedWallet = useMemo(
-    () =>
-      wallets.find(
-        (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
-      ),
-    [wallets],
-  );
+  const preferredWallet = useMemo(() => {
+    const smart = wallets.find(
+      (w) => (w as unknown as { walletType?: string }).walletType === "smart_wallet",
+    );
+    if (smart) return smart;
+    return wallets.find(
+      (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
+    );
+  }, [wallets]);
 
   const numericPayAmount = useMemo(() => {
     const n = Number(payAmount);
@@ -131,9 +132,9 @@ export function SwapCard() {
     startTransition(async () => {
       try {
         if (direction === "USDT_TO_NGN") {
-          if (!embeddedWallet) {
+          if (!preferredWallet) {
             throw new Error(
-              "Embedded wallet not available. Please reconnect and try again.",
+              "Wallet not available. Please reconnect and try again.",
             );
           }
 
@@ -151,15 +152,15 @@ export function SwapCard() {
             args: [TREASURY_WALLET_ADDRESS, amount],
           });
 
-          await embeddedWallet.switchChain(chain.id);
-          const provider = await embeddedWallet.getEthereumProvider();
+          await preferredWallet.switchChain(chain.id);
+          const provider = await preferredWallet.getEthereumProvider();
           const walletClient = createWalletClient({
             chain,
             transport: custom(provider),
           });
 
           const hash = await walletClient.sendTransaction({
-            account: embeddedWallet.address as `0x${string}`,
+            account: preferredWallet.address as `0x${string}`,
             to: usdtContract,
             data,
             value: BigInt(0),
@@ -187,17 +188,7 @@ export function SwapCard() {
       } catch (e) {
         const message =
           e instanceof Error ? e.message : "Swap failed. Please try again.";
-        const normalized = message.toLowerCase();
-        if (
-          normalized.includes("insufficient funds") ||
-          normalized.includes("gas")
-        ) {
-          setError(
-            `Insufficient Gas (${NATIVE_GAS_LABELS[usdtChain]}). You need a small amount of ${NATIVE_GAS_LABELS[usdtChain]} on ${USDT_CHAIN_LABELS[usdtChain]} to pay the network fee.`,
-          );
-        } else {
-          setError(message);
-        }
+        setError(message);
       } finally {
         setIsConfirmingOnchain(false);
       }
@@ -380,6 +371,10 @@ export function SwapCard() {
               ? "Confirming swap..."
               : "Confirm Swap"}
         </button>
+
+        <div className="mt-2 text-center text-[11px] font-medium text-zinc-600">
+          ⛽ Gas Fees: Abstracted
+        </div>
       </div>
     </section>
   );

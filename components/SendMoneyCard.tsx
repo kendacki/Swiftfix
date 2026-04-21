@@ -46,13 +46,15 @@ export function SendMoneyCard() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
 
-  const embeddedWallet = useMemo(
-    () =>
-      wallets.find(
-        (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
-      ),
-    [wallets],
-  );
+  const preferredWallet = useMemo(() => {
+    const smart = wallets.find(
+      (w) => (w as unknown as { walletType?: string }).walletType === "smart_wallet",
+    );
+    if (smart) return smart;
+    return wallets.find(
+      (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
+    );
+  }, [wallets]);
 
   const handleSend = () => {
     setError(null);
@@ -99,15 +101,15 @@ export function SendMoneyCard() {
             return;
           }
 
-          if (!embeddedWallet) {
+          if (!preferredWallet) {
             setError(
-              "Embedded wallet not available. Please reconnect and try again.",
+              "Wallet not available. Please reconnect and try again.",
             );
             return;
           }
 
-          await embeddedWallet.switchChain(POLYGON_CHAIN_ID);
-          const provider = await embeddedWallet.getEthereumProvider();
+          await preferredWallet.switchChain(POLYGON_CHAIN_ID);
+          const provider = await preferredWallet.getEthereumProvider();
           const walletClient = createWalletClient({
             chain: polygon,
             transport: custom(provider),
@@ -123,7 +125,7 @@ export function SendMoneyCard() {
 
           try {
             const hash = await walletClient.sendTransaction({
-              account: embeddedWallet.address as `0x${string}`,
+              account: preferredWallet.address as `0x${string}`,
               to: POLYGON_USDT_ADDRESS,
               data,
               value: BigInt(0),
@@ -142,18 +144,7 @@ export function SendMoneyCard() {
               e instanceof Error
                 ? e.message
                 : "USDT transfer failed. Please try again.";
-            const normalized = message.toLowerCase();
-            if (
-              normalized.includes("insufficient funds") ||
-              normalized.includes("insufficient") ||
-              normalized.includes("gas")
-            ) {
-              setError(
-                "Insufficient Gas (MATIC). You need a small amount of MATIC on Polygon to pay the network fee.",
-              );
-            } else {
-              setError(message);
-            }
+            setError(message);
           } finally {
             setIsConfirming(false);
           }

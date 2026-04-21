@@ -23,17 +23,24 @@ export function Providers({ children }: ProvidersProps) {
     return <>{children}</>;
   }
 
+  const privyConfig = {
+    loginMethods: ["email", "wallet", "sms"],
+    appearance: {
+      showWalletLoginFirst: false,
+    },
+    // NOTE: Some versions of `@privy-io/react-auth` may not yet include this in TS types.
+    smartWallets: {
+      createOnLogin: "all-users",
+      requireUserPasswordOnCreate: false,
+    },
+    supportedChains: [mainnet, bsc, polygon, arbitrum],
+    defaultChain: polygon,
+  } as unknown as Parameters<typeof PrivyProvider>[0]["config"];
+
   return (
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ""}
-      config={{
-        loginMethods: ["email", "wallet", "sms"],
-        appearance: {
-          showWalletLoginFirst: false,
-        },
-        supportedChains: [mainnet, bsc, polygon, arbitrum],
-        defaultChain: polygon,
-      }}
+      config={privyConfig}
     >
       <AuthRedirect />
       {children}
