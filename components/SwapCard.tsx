@@ -2,8 +2,27 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { ArrowDownUp, RefreshCw, Wallet } from "lucide-react";
-import { executeSwap, getLiveSwapRate } from "@/actions/swapActions";
-import { usePrivy } from "@privy-io/react-auth";
+import {
+  debitNgnForUsdtSwapMock,
+  getLiveSwapRate,
+  verifyAndCreditNgnSwap,
+} from "@/actions/swapActions";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
+import {
+  createWalletClient,
+  custom,
+  encodeFunctionData,
+  parseUnits,
+} from "viem";
+import { polygon } from "viem/chains";
+import { MINIMAL_ERC20_ABI } from "@/lib/constants/abi";
+import {
+  POLYGON_CHAIN_ID,
+  POLYGON_USDT_ADDRESS,
+  POLYGON_USDT_DECIMALS,
+  TREASURY_WALLET_ADDRESS,
+} from "@/lib/constants/polygon";
+import { polygonPublicClient } from "@/lib/viem/polygonClient";
 
 type SwapRateState = {
   rate: number;
@@ -11,13 +30,27 @@ type SwapRateState = {
   expiresAt: number;
 };
 
+type SwapDirection = "USDT_TO_NGN" | "NGN_TO_USDT";
+
 export function SwapCard() {
   const { ready, authenticated, user } = usePrivy();
+  const { wallets } = useWallets();
   const [rateState, setRateState] = useState<SwapRateState | null>(null);
   const [isRefreshingRate, setIsRefreshingRate] = useState(false);
   const [payAmount, setPayAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [direction, setDirection] = useState<SwapDirection>("USDT_TO_NGN");
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [isConfirmingOnchain, setIsConfirmingOnchain] = useState(false);
+
+  const embeddedWallet = useMemo(
+    () =>
+      wallets.find(
+        (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
+      ),
+    [wallets],
+  );
 
   const numericPayAmount = useMemo(() => {
     const n = Number(payAmount);
@@ -26,8 +59,11 @@ export function SwapCard() {
 
   const receiveAmount = useMemo(() => {
     if (!rateState) return 0;
-    return numericPayAmount * rateState.rate;
-  }, [numericPayAmount, rateState]);
+    if (direction === "USDT_TO_NGN") {
+      return numericPayAmount * rateState.rate;
+    }
+    return numericPayAmount / rateState.rate;
+  }, [direction, numericPayAmount, rateState]);
 
   const formattedReceive = useMemo(
     () =>
@@ -77,26 +113,82 @@ export function SwapCard() {
     }
 
     if (!rateState || numericPayAmount <= 0) {
-      setError("Enter a valid USDT amount before swapping.");
+      setError(
+        direction === "USDT_TO_NGN"
+          ? "Enter a valid USDT amount before swapping."
+          : "Enter a valid NGN amount before swapping.",
+      );
       return;
     }
 
     setError(null);
+    setTxHash(null);
 
     startTransition(async () => {
       try {
-        await executeSwap(
-          user.id,
-          "USDT",
-          "NGN",
-          numericPayAmount,
-          rateState.rate
-        );
-        setPayAmount("");
+        if (direction === "USDT_TO_NGN") {
+          if (!embeddedWallet) {
+            throw new Error(
+              "Embedded wallet not available. Please reconnect and try again.",
+            );
+          }
+
+          // Step 1: On-chain ERC20 transfer of USDT -> Treasury wallet.
+          const amount = parseUnits(
+            numericPayAmount.toString(),
+            POLYGON_USDT_DECIMALS,
+          );
+          const data = encodeFunctionData({
+            abi: MINIMAL_ERC20_ABI,
+            functionName: "transfer",
+            args: [TREASURY_WALLET_ADDRESS, amount],
+          });
+
+          await embeddedWallet.switchChain(POLYGON_CHAIN_ID);
+          const provider = await embeddedWallet.getEthereumProvider();
+          const walletClient = createWalletClient({
+            chain: polygon,
+            transport: custom(provider),
+          });
+
+          const hash = await walletClient.sendTransaction({
+            account: embeddedWallet.address as `0x${string}`,
+            to: POLYGON_USDT_ADDRESS,
+            data,
+            value: BigInt(0),
+          });
+          setTxHash(hash);
+
+          setIsConfirmingOnchain(true);
+          await polygonPublicClient.waitForTransactionReceipt({
+            hash: hash as `0x${string}`,
+            confirmations: 1,
+          });
+          setIsConfirmingOnchain(false);
+
+          // Step 2: Credit NGN in DB after transfer.
+          await verifyAndCreditNgnSwap(hash, user.id, numericPayAmount);
+          setPayAmount("");
+        } else {
+          await debitNgnForUsdtSwapMock(user.id, numericPayAmount, rateState.rate);
+          setPayAmount("");
+        }
       } catch (e) {
         const message =
           e instanceof Error ? e.message : "Swap failed. Please try again.";
-        setError(message);
+        const normalized = message.toLowerCase();
+        if (
+          normalized.includes("insufficient funds") ||
+          normalized.includes("gas")
+        ) {
+          setError(
+            "Insufficient Gas (MATIC). You need a small amount of MATIC on Polygon to pay the network fee.",
+          );
+        } else {
+          setError(message);
+        }
+      } finally {
+        setIsConfirmingOnchain(false);
       }
     });
   };
@@ -129,12 +221,39 @@ export function SwapCard() {
       </div>
 
       <div className="mt-6 space-y-4">
+        <div className="inline-flex rounded-full border border-zinc-200 bg-zinc-50 p-1 text-xs font-semibold text-zinc-600">
+          <button
+            type="button"
+            onClick={() => setDirection("USDT_TO_NGN")}
+            className={[
+              "rounded-full px-4 py-1.5 transition",
+              direction === "USDT_TO_NGN"
+                ? "bg-white text-zinc-900 shadow-sm"
+                : "hover:text-zinc-900",
+            ].join(" ")}
+          >
+            USDT → NGN
+          </button>
+          <button
+            type="button"
+            onClick={() => setDirection("NGN_TO_USDT")}
+            className={[
+              "rounded-full px-4 py-1.5 transition",
+              direction === "NGN_TO_USDT"
+                ? "bg-white text-zinc-900 shadow-sm"
+                : "hover:text-zinc-900",
+            ].join(" ")}
+          >
+            NGN → USDT
+          </button>
+        </div>
+
         <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
           <div className="mb-2 flex items-center justify-between text-xs text-zinc-500">
             <span>You pay</span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-zinc-800">
               <Wallet className="h-3 w-3" />
-              USDT
+              {direction === "USDT_TO_NGN" ? "USDT" : "NGN"}
             </span>
           </div>
           <div className="flex items-center justify-between gap-3">
@@ -160,11 +279,18 @@ export function SwapCard() {
           <div className="mb-2 flex items-center justify-between text-xs text-zinc-500">
             <span>You receive</span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-zinc-800">
-              NGN
+              {direction === "USDT_TO_NGN" ? "NGN" : "USDT"}
             </span>
           </div>
           <div className="text-2xl font-semibold tracking-tight text-zinc-900">
-            {formattedReceive}
+            {direction === "USDT_TO_NGN"
+              ? formattedReceive
+              : receiveAmount
+                ? `${new Intl.NumberFormat("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 6,
+                  }).format(receiveAmount)} USDT`
+                : "0 USDT"}
           </div>
         </div>
 
@@ -191,18 +317,44 @@ export function SwapCard() {
           </div>
         ) : null}
 
+        {txHash ? (
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700">
+            <div className="font-semibold text-zinc-900">On-chain transfer</div>
+            <div className="mt-1 break-all font-mono text-[11px] text-zinc-600">
+              {txHash}
+            </div>
+            {isConfirmingOnchain ? (
+              <div className="mt-2 text-xs text-zinc-600">
+                Waiting for Polygon confirmation…
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
         <button
           type="button"
           onClick={onConfirmSwap}
-          disabled={isPending || !rateState || numericPayAmount <= 0}
+          disabled={
+            isPending ||
+            isConfirmingOnchain ||
+            !rateState ||
+            numericPayAmount <= 0
+          }
           className={[
             "mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-zinc-200",
-            isPending || !rateState || numericPayAmount <= 0
+            isPending ||
+            isConfirmingOnchain ||
+            !rateState ||
+            numericPayAmount <= 0
               ? "cursor-not-allowed bg-zinc-200 text-zinc-500"
               : "bg-zinc-900 text-white hover:bg-zinc-800",
           ].join(" ")}
         >
-          {isPending ? "Confirming swap..." : "Confirm Swap"}
+          {isConfirmingOnchain
+            ? "Confirming on-chain..."
+            : isPending
+              ? "Confirming swap..."
+              : "Confirm Swap"}
         </button>
       </div>
     </section>

@@ -1,31 +1,64 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { AlertCircle, Banknote, Send, Wallet } from "lucide-react";
-import { sendCrypto, sendFiat } from "@/actions/transferActions";
+import { sendFiat } from "@/actions/transferActions";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
+import {
+  createWalletClient,
+  custom,
+  encodeFunctionData,
+  parseUnits,
+} from "viem";
+import { polygon } from "viem/chains";
+import { MINIMAL_ERC20_ABI } from "@/lib/constants/abi";
+import {
+  POLYGON_CHAIN_ID,
+  POLYGON_USDT_ADDRESS,
+  POLYGON_USDT_DECIMALS,
+} from "@/lib/constants/polygon";
+import { polygonPublicClient } from "@/lib/viem/polygonClient";
 
 type Tab = "FIAT" | "CRYPTO";
 
 export function SendMoneyCard() {
+  const { ready, authenticated, user } = usePrivy();
+  const { wallets } = useWallets();
   const [activeTab, setActiveTab] = useState<Tab>("FIAT");
   const [fiatAmount, setFiatAmount] = useState("");
   const [bankName, setBankName] = useState("GTBank");
   const [accountNumber, setAccountNumber] = useState("");
 
   const [cryptoAmount, setCryptoAmount] = useState("");
-  const [network, setNetwork] = useState("TRC-20");
+  const [network] = useState("Polygon");
   const [walletAddress, setWalletAddress] = useState("");
 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  const embeddedWallet = useMemo(
+    () =>
+      wallets.find(
+        (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
+      ),
+    [wallets],
+  );
 
   const handleSend = () => {
     setError(null);
     setSuccess(null);
+    setTxHash(null);
 
     startTransition(async () => {
       try {
+        if (!ready || !authenticated || !user?.id) {
+          setError("Please log in before sending funds.");
+          return;
+        }
+
         if (activeTab === "FIAT") {
           const amt = Number(fiatAmount);
           if (!Number.isFinite(amt) || amt <= 0) {
@@ -36,7 +69,7 @@ export function SendMoneyCard() {
             setError("Please provide an account number.");
             return;
           }
-          await sendFiat("test-privy-id", amt, bankName, accountNumber.trim());
+          await sendFiat(user.id, amt, bankName, accountNumber.trim());
           setSuccess("NGN transfer simulated successfully.");
           setFiatAmount("");
           setAccountNumber("");
@@ -50,15 +83,65 @@ export function SendMoneyCard() {
             setError("Please provide a destination address.");
             return;
           }
-          await sendCrypto(
-            "test-privy-id",
-            amt,
-            walletAddress.trim(),
-            network
-          );
-          setSuccess("USDT transfer simulated successfully.");
-          setCryptoAmount("");
-          setWalletAddress("");
+
+          if (!embeddedWallet) {
+            setError(
+              "Embedded wallet not available. Please reconnect and try again.",
+            );
+            return;
+          }
+
+          await embeddedWallet.switchChain(POLYGON_CHAIN_ID);
+          const provider = await embeddedWallet.getEthereumProvider();
+          const walletClient = createWalletClient({
+            chain: polygon,
+            transport: custom(provider),
+          });
+
+          // STRICT DECIMAL HANDLING: Polygon USDT has 6 decimals.
+          const amount = parseUnits(amt.toString(), POLYGON_USDT_DECIMALS);
+          const data = encodeFunctionData({
+            abi: MINIMAL_ERC20_ABI,
+            functionName: "transfer",
+            args: [walletAddress.trim() as `0x${string}`, amount],
+          });
+
+          try {
+            const hash = await walletClient.sendTransaction({
+              account: embeddedWallet.address as `0x${string}`,
+              to: POLYGON_USDT_ADDRESS,
+              data,
+              value: BigInt(0),
+            });
+            setTxHash(hash);
+            setIsConfirming(true);
+            await polygonPublicClient.waitForTransactionReceipt({
+              hash: hash as `0x${string}`,
+              confirmations: 1,
+            });
+            setSuccess("USDT transfer submitted on-chain successfully.");
+            setCryptoAmount("");
+            setWalletAddress("");
+          } catch (e) {
+            const message =
+              e instanceof Error
+                ? e.message
+                : "USDT transfer failed. Please try again.";
+            const normalized = message.toLowerCase();
+            if (
+              normalized.includes("insufficient funds") ||
+              normalized.includes("insufficient") ||
+              normalized.includes("gas")
+            ) {
+              setError(
+                "Insufficient Gas (MATIC). You need a small amount of MATIC on Polygon to pay the network fee.",
+              );
+            } else {
+              setError(message);
+            }
+          } finally {
+            setIsConfirming(false);
+          }
         }
       } catch (e) {
         const message =
@@ -180,11 +263,10 @@ export function SendMoneyCard() {
               </label>
               <select
                 value={network}
-                onChange={(e) => setNetwork(e.target.value)}
+                onChange={() => undefined}
                 className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
               >
-                <option value="TRC-20">TRC-20</option>
-                <option value="ERC-20">ERC-20</option>
+                <option value="Polygon">Polygon</option>
               </select>
             </div>
 
@@ -219,19 +301,37 @@ export function SendMoneyCard() {
           </div>
         ) : null}
 
+        {txHash ? (
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700">
+            <div className="font-semibold text-zinc-900">Transaction hash</div>
+            <div className="mt-1 break-all font-mono text-[11px] text-zinc-600">
+              {txHash}
+            </div>
+            {isConfirming ? (
+              <div className="mt-2 text-xs text-zinc-600">
+                Confirming on-chain…
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
         <button
           type="button"
           onClick={handleSend}
-          disabled={isPending}
+          disabled={isPending || isConfirming}
           className={[
             "mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-zinc-200",
-            isPending
+            isPending || isConfirming
               ? "cursor-not-allowed bg-zinc-200 text-zinc-500"
               : "bg-zinc-900 text-white hover:bg-zinc-800",
           ].join(" ")}
         >
           <Send className="h-4 w-4" />
-          {isPending ? "Sending funds..." : "Send Funds"}
+          {isConfirming
+            ? "Confirming on-chain..."
+            : isPending
+              ? "Sending funds..."
+              : "Send Funds"}
         </button>
       </div>
     </section>

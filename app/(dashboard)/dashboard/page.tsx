@@ -8,6 +8,8 @@ import { BalanceCard } from "@/components/BalanceCard";
 import KYCGate from "@/components/KYCGate";
 import { getUserWallet } from "@/actions/walletActions";
 import { getUserTransactions } from "@/actions/transactionActions";
+import { getLiveSwapRate } from "@/actions/swapActions";
+import { useOnchainUsdtBalance } from "@/hooks/useOnchainUsdtBalance";
 import {
   ArrowDownLeft,
   Lock,
@@ -18,7 +20,6 @@ import type { Transaction } from "@prisma/client";
 
 type WalletSummary = {
   ngnBalance: number;
-  usdtBalance: number;
 } | null;
 
 function formatTxDate(date: Date | string) {
@@ -50,6 +51,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const [wallet, setWallet] = useState<WalletSummary>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { isLoading: isUsdtLoading, balanceFormatted } = useOnchainUsdtBalance();
+  const [usdtNgnEquivalent, setUsdtNgnEquivalent] = useState<number | null>(null);
 
   useEffect(() => {
     if (!ready || !authenticated || !user?.id) return;
@@ -63,7 +66,6 @@ export default function DashboardPage() {
 
         setWallet({
           ngnBalance: Number(w.ngnBalance),
-          usdtBalance: Number(w.usdtBalance),
         });
         setTransactions(tx.slice(0, 4));
       } catch (error) {
@@ -73,7 +75,23 @@ export default function DashboardPage() {
   }, [ready, authenticated, user]);
 
   const totalNgn = wallet?.ngnBalance ?? 0;
-  const totalUsdt = wallet?.usdtBalance ?? 0;
+  const totalUsdt = Number(balanceFormatted || 0);
+
+  useEffect(() => {
+    if (!ready || !authenticated) return;
+    void (async () => {
+      try {
+        if (!Number.isFinite(totalUsdt) || totalUsdt <= 0) {
+          setUsdtNgnEquivalent(0);
+          return;
+        }
+        const quote = await getLiveSwapRate();
+        setUsdtNgnEquivalent(totalUsdt * quote.rate);
+      } catch {
+        setUsdtNgnEquivalent(null);
+      }
+    })();
+  }, [authenticated, ready, totalUsdt]);
 
   if (!ready || !authenticated) {
     return (
@@ -115,6 +133,8 @@ export default function DashboardPage() {
           <BalanceCard
             ngnBalance={totalNgn}
             usdtBalance={totalUsdt}
+            usdtNgnEquivalent={usdtNgnEquivalent ?? undefined}
+            isUsdtLive={!isUsdtLoading}
             defaultCurrency="NGN"
           />
         </div>

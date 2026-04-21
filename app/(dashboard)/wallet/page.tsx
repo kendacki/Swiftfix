@@ -9,15 +9,18 @@ import SwapCard from "@/components/SwapCard";
 import SendMoneyCard from "@/components/SendMoneyCard";
 import { Landmark, ShieldCheck } from "lucide-react";
 import { getUserWallet } from "@/actions/walletActions";
+import { getLiveSwapRate } from "@/actions/swapActions";
+import { useOnchainUsdtBalance } from "@/hooks/useOnchainUsdtBalance";
 
 type WalletState = {
   ngnBalance: number;
-  usdtBalance: number;
 } | null;
 
 export default function WalletPage() {
   const { ready, authenticated, user } = usePrivy();
   const [wallet, setWallet] = useState<WalletState>(null);
+  const { isLoading: isUsdtLoading, balanceFormatted } = useOnchainUsdtBalance();
+  const [usdtNgnEquivalent, setUsdtNgnEquivalent] = useState<number | null>(null);
 
   useEffect(() => {
     if (!ready || !authenticated || !user?.id) return;
@@ -27,7 +30,6 @@ export default function WalletPage() {
         const data = await getUserWallet(user.id);
         setWallet({
           ngnBalance: Number(data.ngnBalance),
-          usdtBalance: Number(data.usdtBalance),
         });
       } catch (error) {
         console.error("Failed to load wallet:", error);
@@ -36,13 +38,31 @@ export default function WalletPage() {
   }, [ready, authenticated, user]);
 
   const ngnBalance = wallet?.ngnBalance ?? 0;
-  const usdtBalance = wallet?.usdtBalance ?? 0;
+  const onchainUsdt = Number(balanceFormatted || 0);
+
+  useEffect(() => {
+    if (!ready || !authenticated) return;
+    void (async () => {
+      try {
+        if (!Number.isFinite(onchainUsdt) || onchainUsdt <= 0) {
+          setUsdtNgnEquivalent(0);
+          return;
+        }
+        const quote = await getLiveSwapRate();
+        setUsdtNgnEquivalent(onchainUsdt * quote.rate);
+      } catch {
+        setUsdtNgnEquivalent(null);
+      }
+    })();
+  }, [authenticated, onchainUsdt, ready]);
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <BalanceCard
         ngnBalance={ngnBalance}
-        usdtBalance={usdtBalance}
+        usdtBalance={onchainUsdt}
+        usdtNgnEquivalent={usdtNgnEquivalent ?? undefined}
+        isUsdtLive={!isUsdtLoading}
         defaultCurrency="NGN"
       />
 

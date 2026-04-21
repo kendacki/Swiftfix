@@ -139,3 +139,155 @@ export async function executeSwap(
   return updatedWallet;
 }
 
+export async function verifyAndCreditNgnSwap(
+  transactionHash: string,
+  privyId: string,
+  amount: number
+) {
+  if (!transactionHash || !transactionHash.startsWith("0x")) {
+    throw new Error("Invalid transaction hash.");
+  }
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error("Invalid swap amount.");
+  }
+
+  const quote = await getLiveSwapRate();
+  const ngnDelta = amount * quote.rate;
+
+  // TODO: CRITICAL SECURITY
+  // Relying strictly on a client-provided transaction hash is unsafe for production. Implement a backend listener (e.g., Alchemy Webhooks or a cron-job reading RPC blocks) to independently verify the transfer to the Treasury Wallet before finalizing the NGN credit.
+  const updatedWallet = await withDbRetry(
+    () =>
+      prisma.$transaction(
+        async (tx) => {
+          const user = await tx.user.findUnique({
+            where: { privyId },
+          });
+
+          if (!user) {
+            throw new Error("User not found for provided Privy ID.");
+          }
+
+          let wallet = await tx.wallet.findUnique({
+            where: { userId: user.id },
+          });
+
+          if (!wallet) {
+            wallet = await tx.wallet.create({
+              data: {
+                userId: user.id,
+              },
+            });
+          }
+
+          const newWallet = await tx.wallet.update({
+            where: { id: wallet.id },
+            data: {
+              ngnBalance: {
+                increment: ngnDelta,
+              },
+            },
+          });
+
+          await tx.transaction.create({
+            data: {
+              userId: user.id,
+              type: "SWAP",
+              amount,
+              currency: "USDT",
+              status: "COMPLETED",
+              reference: transactionHash,
+              description: `On-chain USDT->NGN swap credit for ${amount} USDT (hash ${transactionHash})`,
+            },
+          });
+
+          return newWallet;
+        },
+        {
+          maxWait: 10000,
+          timeout: 20000,
+        }
+      )
+  );
+
+  revalidatePath("/wallet");
+  revalidatePath("/transactions");
+
+  return updatedWallet;
+}
+
+export async function debitNgnForUsdtSwapMock(
+  privyId: string,
+  amountNgn: number,
+  quotedRate: number
+) {
+  if (!Number.isFinite(amountNgn) || amountNgn <= 0 || quotedRate <= 0) {
+    throw new Error("Invalid swap parameters.");
+  }
+
+  const expectedUsdt = amountNgn / quotedRate;
+
+  const updatedWallet = await withDbRetry(
+    () =>
+      prisma.$transaction(
+        async (tx) => {
+          const user = await tx.user.findUnique({
+            where: { privyId },
+          });
+
+          if (!user) {
+            throw new Error("User not found for provided Privy ID.");
+          }
+
+          const wallet = await tx.wallet.findUnique({
+            where: { userId: user.id },
+          });
+
+          if (!wallet) {
+            throw new Error("Wallet not found for user.");
+          }
+
+          const currentNgn = Number(wallet.ngnBalance);
+          if (currentNgn < amountNgn) {
+            throw new Error("Insufficient NGN balance");
+          }
+
+          const newWallet = await tx.wallet.update({
+            where: { id: wallet.id },
+            data: {
+              ngnBalance: {
+                decrement: amountNgn,
+              },
+            },
+          });
+
+          await tx.transaction.create({
+            data: {
+              userId: user.id,
+              type: "SWAP",
+              amount: amountNgn,
+              currency: "NGN",
+              status: "PENDING",
+              description: `NGN->USDT swap requested (mock). Expect ~${expectedUsdt.toFixed(
+                2
+              )} USDT. Backend will later send USDT on-chain.`,
+            },
+          });
+
+          return newWallet;
+        },
+        {
+          maxWait: 10000,
+          timeout: 20000,
+        }
+      )
+  );
+
+  // NOTE: Backend will need a private key/server wallet integration to push USDT on-chain to the user.
+  revalidatePath("/wallet");
+  revalidatePath("/transactions");
+
+  return updatedWallet;
+}
+

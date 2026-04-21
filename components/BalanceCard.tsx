@@ -8,6 +8,8 @@ type Currency = "NGN" | "USDT";
 type BalanceCardProps = {
   ngnBalance: number;
   usdtBalance: number;
+  usdtNgnEquivalent?: number;
+  isUsdtLive?: boolean;
   defaultCurrency?: Currency;
 };
 
@@ -30,6 +32,8 @@ function formatMoney(currency: Currency, value: number) {
 export function BalanceCard({
   ngnBalance,
   usdtBalance,
+  usdtNgnEquivalent,
+  isUsdtLive = false,
   defaultCurrency = "NGN",
 }: BalanceCardProps) {
   const [currency, setCurrency] = useState<Currency>(defaultCurrency);
@@ -115,12 +119,23 @@ export function BalanceCard({
             </div>
           </div>
           <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              USDT balance
+            <div className="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              <span>USDT balance</span>
+              {isUsdtLive ? (
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold tracking-normal text-emerald-800">
+                  On-chain
+                </span>
+              ) : null}
             </div>
             <div className="mt-2 text-sm font-semibold text-zinc-900">
               {visible ? `${formatMoney("USDT", usdtBalance)} USDT` : "••••••••"}
             </div>
+            {typeof usdtNgnEquivalent === "number" ? (
+              <div className="mt-1 text-xs text-zinc-600">
+                ≈{" "}
+                {visible ? formatMoney("NGN", usdtNgnEquivalent) : "••••••••"} NGN
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
