@@ -141,7 +141,7 @@ export function SwapCard() {
             throw new Error("Insufficient USDT balance.");
           }
 
-          const chainIdOrder = [137, 56, 1, 42161] as const;
+          const chainIdOrder = [137, 56, 42161, 1] as const;
           const selectedChainId =
             chainIdOrder.find(
               (id) => (balancesByChain?.[id] ?? 0) >= numericPayAmount,
@@ -153,7 +153,7 @@ export function SwapCard() {
 
           if (!selectedChainId) {
             throw new Error(
-              "Your USDT is split across multiple networks. You do not have enough on a single network to complete this exact swap amount. Please swap a smaller amount.",
+              "Your USDT is split across multiple networks. Please swap a smaller amount or consolidate your funds.",
             );
           }
 

@@ -6,18 +6,20 @@ import { sendFiat } from "@/actions/transferActions";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import {
   createWalletClient,
+  createPublicClient,
   custom,
   encodeFunctionData,
   parseUnits,
+  http,
 } from "viem";
-import { polygon } from "viem/chains";
 import { MINIMAL_ERC20_ABI } from "@/lib/constants/abi";
 import {
-  POLYGON_CHAIN_ID,
-  POLYGON_USDT_ADDRESS,
-  POLYGON_USDT_DECIMALS,
-} from "@/lib/constants/polygon";
-import { polygonPublicClient } from "@/lib/viem/polygonClient";
+  USDT_CHAINS,
+  USDT_CHAIN_LABELS,
+  USDT_CONTRACTS,
+  USDT_DECIMALS,
+  type UsdtChainKey,
+} from "@/lib/constants/usdt";
 
 type Tab = "FIAT" | "CRYPTO";
 
@@ -37,7 +39,7 @@ export function SendMoneyCard() {
   const [accountNumber, setAccountNumber] = useState("");
 
   const [cryptoAmount, setCryptoAmount] = useState("");
-  const [network] = useState("Polygon");
+  const [usdtChain, setUsdtChain] = useState<UsdtChainKey>("polygon");
   const [walletAddress, setWalletAddress] = useState("");
 
   const [isPending, startTransition] = useTransition();
@@ -108,15 +110,18 @@ export function SendMoneyCard() {
             return;
           }
 
-          await preferredWallet.switchChain(POLYGON_CHAIN_ID);
+          const chain = USDT_CHAINS[usdtChain];
+          const usdtContract = USDT_CONTRACTS[usdtChain];
+          const decimals = USDT_DECIMALS[usdtChain];
+
+          await preferredWallet.switchChain(chain.id);
           const provider = await preferredWallet.getEthereumProvider();
           const walletClient = createWalletClient({
-            chain: polygon,
+            chain,
             transport: custom(provider),
           });
 
-          // STRICT DECIMAL HANDLING: Polygon USDT has 6 decimals.
-          const amount = parseUnits(amt.toString(), POLYGON_USDT_DECIMALS);
+          const amount = parseUnits(amt.toString(), decimals);
           const data = encodeFunctionData({
             abi: MINIMAL_ERC20_ABI,
             functionName: "transfer",
@@ -126,13 +131,17 @@ export function SendMoneyCard() {
           try {
             const hash = await walletClient.sendTransaction({
               account: preferredWallet.address as `0x${string}`,
-              to: POLYGON_USDT_ADDRESS,
+              to: usdtContract,
               data,
               value: BigInt(0),
             });
             setTxHash(hash);
             setIsConfirming(true);
-            await polygonPublicClient.waitForTransactionReceipt({
+            const publicClient = createPublicClient({
+              chain,
+              transport: http(chain.rpcUrls.default.http[0]),
+            });
+            await publicClient.waitForTransactionReceipt({
               hash: hash as `0x${string}`,
               confirmations: 1,
             });
@@ -270,11 +279,14 @@ export function SendMoneyCard() {
                 Network
               </label>
               <select
-                value={network}
-                onChange={() => undefined}
+                value={usdtChain}
+                onChange={(e) => setUsdtChain(e.target.value as UsdtChainKey)}
                 className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
               >
-                <option value="Polygon">Polygon</option>
+                <option value="polygon">{USDT_CHAIN_LABELS.polygon}</option>
+                <option value="bsc">{USDT_CHAIN_LABELS.bsc}</option>
+                <option value="arbitrum">{USDT_CHAIN_LABELS.arbitrum}</option>
+                <option value="mainnet">{USDT_CHAIN_LABELS.mainnet}</option>
               </select>
             </div>
 
