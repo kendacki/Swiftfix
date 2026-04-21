@@ -19,7 +19,7 @@ type WalletState = {
 export default function WalletPage() {
   const { ready, authenticated, user } = usePrivy();
   const [wallet, setWallet] = useState<WalletState>(null);
-  const { isLoading: isUsdtLoading, totalFormatted } = useMultiChainBalance();
+  const { isLoading: isUsdtLoading, totalUSDT } = useMultiChainBalance();
   const [usdtNgnEquivalent, setUsdtNgnEquivalent] = useState<number | null>(null);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function WalletPage() {
   }, [ready, authenticated, user]);
 
   const ngnBalance = wallet?.ngnBalance ?? 0;
-  const onchainUsdt = Number(totalFormatted || 0);
+  const onchainUsdt = totalUSDT;
 
   useEffect(() => {
     if (!ready || !authenticated) return;

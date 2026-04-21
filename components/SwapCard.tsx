@@ -8,6 +8,7 @@ import {
   verifyAndCreditNgnSwap,
 } from "@/actions/swapActions";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { useMultiChainBalance } from "@/hooks/useMultiChainBalance";
 import {
   createWalletClient,
   createPublicClient,
@@ -19,11 +20,9 @@ import {
 import { MINIMAL_ERC20_ABI } from "@/lib/constants/abi";
 import {
   TREASURY_WALLET_ADDRESS,
-  USDT_CHAIN_LABELS,
   USDT_CHAINS,
   USDT_CONTRACTS,
   USDT_DECIMALS,
-  type UsdtChainKey,
 } from "@/lib/constants/usdt";
 
 type SwapRateState = {
@@ -37,13 +36,13 @@ type SwapDirection = "USDT_TO_NGN" | "NGN_TO_USDT";
 export function SwapCard() {
   const { ready, authenticated, user } = usePrivy();
   const { wallets } = useWallets();
+  const { balancesByChain, totalUSDT } = useMultiChainBalance();
   const [rateState, setRateState] = useState<SwapRateState | null>(null);
   const [isRefreshingRate, setIsRefreshingRate] = useState(false);
   const [payAmount, setPayAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [direction, setDirection] = useState<SwapDirection>("USDT_TO_NGN");
-  const [usdtChain, setUsdtChain] = useState<UsdtChainKey>("polygon");
   const [txHash, setTxHash] = useState<string | null>(null);
   const [isConfirmingOnchain, setIsConfirmingOnchain] = useState(false);
 
@@ -138,10 +137,38 @@ export function SwapCard() {
             );
           }
 
+          if (!Number.isFinite(totalUSDT) || totalUSDT < numericPayAmount) {
+            throw new Error("Insufficient USDT balance.");
+          }
+
+          const chainIdOrder = [137, 56, 1, 42161] as const;
+          const selectedChainId =
+            chainIdOrder.find(
+              (id) => (balancesByChain?.[id] ?? 0) >= numericPayAmount,
+            ) ??
+            Object.entries(balancesByChain ?? {})
+              .map(([k, v]) => ({ id: Number(k), v }))
+              .find((x) => x.v >= numericPayAmount)?.id ??
+            null;
+
+          if (!selectedChainId) {
+            throw new Error(
+              "Your USDT is split across multiple networks. You do not have enough on a single network to complete this exact swap amount. Please swap a smaller amount.",
+            );
+          }
+
+          const chainKey = (Object.keys(USDT_CHAINS) as Array<
+            keyof typeof USDT_CHAINS
+          >).find((k) => USDT_CHAINS[k].id === selectedChainId);
+
+          if (!chainKey) {
+            throw new Error("Unable to route swap across supported networks.");
+          }
+
           // Step 1: On-chain ERC20 transfer of USDT -> Treasury wallet.
-          const chain = USDT_CHAINS[usdtChain];
-          const decimals = USDT_DECIMALS[usdtChain];
-          const usdtContract = USDT_CONTRACTS[usdtChain];
+          const chain = USDT_CHAINS[chainKey];
+          const decimals = USDT_DECIMALS[chainKey];
+          const usdtContract = USDT_CONTRACTS[chainKey];
           const amount = parseUnits(
             numericPayAmount.toString(),
             decimals,
@@ -250,27 +277,6 @@ export function SwapCard() {
           </button>
         </div>
 
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              USDT source chain
-            </div>
-            <div className="mt-1 text-xs text-zinc-600">
-              Select the network you are swapping USDT from.
-            </div>
-          </div>
-          <select
-            value={usdtChain}
-            onChange={(e) => setUsdtChain(e.target.value as UsdtChainKey)}
-            className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-900 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
-          >
-            <option value="polygon">{USDT_CHAIN_LABELS.polygon}</option>
-            <option value="bsc">{USDT_CHAIN_LABELS.bsc}</option>
-            <option value="mainnet">{USDT_CHAIN_LABELS.mainnet}</option>
-            <option value="arbitrum">{USDT_CHAIN_LABELS.arbitrum}</option>
-          </select>
-        </div>
-
         <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
           <div className="mb-2 flex items-center justify-between text-xs text-zinc-500">
             <span>You pay</span>
@@ -340,7 +346,7 @@ export function SwapCard() {
             </div>
             {isConfirmingOnchain ? (
               <div className="mt-2 text-xs text-zinc-600">
-                Waiting for Polygon confirmation…
+                Waiting for confirmation…
               </div>
             ) : null}
           </div>

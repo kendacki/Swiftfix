@@ -51,7 +51,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [wallet, setWallet] = useState<WalletSummary>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const { isLoading: isUsdtLoading, totalFormatted } = useMultiChainBalance();
+  const { isLoading: isUsdtLoading, totalUSDT } = useMultiChainBalance();
   const [usdtNgnEquivalent, setUsdtNgnEquivalent] = useState<number | null>(null);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function DashboardPage() {
   }, [ready, authenticated, user]);
 
   const totalNgn = wallet?.ngnBalance ?? 0;
-  const totalUsdt = Number(totalFormatted || 0);
+  const totalUsdt = totalUSDT;
 
   useEffect(() => {
     if (!ready || !authenticated) return;

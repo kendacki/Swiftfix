@@ -29,10 +29,19 @@ type MultiChainBalanceState = {
   perChain: PerChainBalance[];
   totalRaw6: bigint;
   totalFormatted: string;
+  totalUSDT: number;
+  balancesByChain: Record<number, number>;
   error: string | null;
 };
 
 function pickEmbeddedEvmWallet(wallets: unknown[]) {
+  const smart = wallets.find((w) => {
+    const wallet = w as { walletType?: string; address?: string };
+    return wallet?.address && wallet.walletType === "smart_wallet";
+  }) as { address: string } | undefined;
+
+  if (smart) return smart;
+
   return wallets.find((w) => {
     const wallet = w as {
       walletClientType?: string;
@@ -71,6 +80,8 @@ export function useMultiChainBalance() {
     perChain: [],
     totalRaw6: BigInt(0),
     totalFormatted: "0",
+    totalUSDT: 0,
+    balancesByChain: {},
     error: null,
   });
 
@@ -83,6 +94,8 @@ export function useMultiChainBalance() {
         perChain: [],
         totalRaw6: BigInt(0),
         totalFormatted: "0",
+        totalUSDT: 0,
+        balancesByChain: {},
         error: null,
       });
       return;
@@ -93,6 +106,7 @@ export function useMultiChainBalance() {
     const keys = Object.keys(USDT_CHAINS) as UsdtChainKey[];
     const results: PerChainBalance[] = [];
     let total6 = BigInt(0);
+    const byChainId: Record<number, number> = {};
 
     await Promise.all(
       keys.map(async (key) => {
@@ -115,6 +129,7 @@ export function useMultiChainBalance() {
 
           const formatted = formatUnits(raw, decimals);
           total6 += normalizeTo6Decimals(raw, decimals);
+          byChainId[chain.id] = Number(formatted || 0);
 
           results.push({
             chain: key,
@@ -130,6 +145,7 @@ export function useMultiChainBalance() {
             e instanceof Error
               ? e.message
               : `Failed to read ${chainLabel} USDT balance.`;
+          byChainId[chain.id] = 0;
           results.push({
             chain: key,
             chainLabel,
@@ -153,6 +169,8 @@ export function useMultiChainBalance() {
       perChain: results,
       totalRaw6: total6,
       totalFormatted: formatUnits(total6, 6),
+      totalUSDT: Number(formatUnits(total6, 6) || 0),
+      balancesByChain: byChainId,
       error: null,
     });
   }, [embeddedWallet?.address]);
