@@ -11,10 +11,8 @@ import {
   BadgeCheck,
   Banknote,
   ChevronDown,
-  Gem,
   LockKeyhole,
   ShieldCheck,
-  Sparkles,
   Users,
   Wallet,
 } from "lucide-react";
@@ -54,43 +52,6 @@ function Glow() {
 
       {/* Footer flare */}
       <div className="absolute left-1/2 bottom-[-420px] h-[900px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.16),transparent_65%)] blur-[140px]" />
-    </div>
-  );
-}
-
-function PillRow() {
-  const items = [
-    "Swap USDT ↔ NGN",
-    "Pay artisans",
-    "Withdraw to bank",
-    "Fast settlement",
-    "Transparent rates",
-    "Always compliant",
-  ];
-
-  type AnimatedPillProps = {
-    initial?: unknown;
-    animate?: unknown;
-    transition?: unknown;
-    className?: string;
-    children?: React.ReactNode;
-  };
-
-  const AnimatedPill = motion.div as unknown as React.ComponentType<AnimatedPillProps>;
-
-  return (
-    <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-      {items.map((t) => (
-        <AnimatedPill
-          key={t}
-          className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-[#A1A1A1] backdrop-blur"
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: easeInOut }}
-        >
-          {t}
-        </AnimatedPill>
-      ))}
     </div>
   );
 }
@@ -297,71 +258,27 @@ export default function Page() {
           <div className="absolute inset-0 bg-black/35" />
         </div>
 
-        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
+        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center justify-end px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
           <motion.div
-            className="mx-auto max-w-3xl text-center"
+            className="w-full max-w-xl text-right sm:max-w-2xl"
             variants={stagger}
             initial="hidden"
             animate="show"
           >
             <motion.h1
-              className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl"
+              className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
               variants={fadeUp}
             >
-              Control Your Capital.
-              <span className="block">The Smart Way.</span>
+              <span className="block text-white">Control Your Capital.</span>
+              <span className="mt-1 block text-pink-400 sm:mt-0">The Smart Way.</span>
             </motion.h1>
             <motion.p
-              className="mx-auto mt-5 max-w-3xl text-balance text-sm leading-6 text-white/60 sm:text-base"
+              className="mt-5 max-w-xl text-balance text-sm leading-6 text-white/70 sm:text-base sm:leading-7"
               variants={fadeUp}
             >
-              Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to
-              your local bank.
+              Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
+              local bank.
             </motion.p>
-
-            <motion.div
-              className="mt-7 flex items-center justify-center"
-              variants={fadeUp}
-            >
-              <motion.button
-                type="button"
-                onClick={() => login()}
-                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.12)] transition hover:bg-white/90"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2, ease: easeInOut }}
-              >
-                Get Started
-              </motion.button>
-            </motion.div>
-
-            <motion.div variants={fadeUp}>
-              <PillRow />
-            </motion.div>
-
-            {/* trust row (icons) */}
-            <motion.div
-              id="trust"
-              className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-white/60"
-              variants={fadeUp}
-            >
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-white/80" />
-                Compliance-led
-              </div>
-              <div className="flex items-center gap-2">
-                <LockKeyhole className="h-4 w-4 text-white/80" />
-                Secure by design
-              </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-white/80" />
-                Fast & simple
-              </div>
-              <div className="flex items-center gap-2">
-                <Gem className="h-4 w-4 text-white/80" />
-                Premium experience
-              </div>
-            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -430,7 +347,7 @@ export default function Page() {
       </section>
 
       {/* Secondary features / bento */}
-      <section className="relative z-10 min-h-[100svh]">
+      <section id="trust" className="relative z-10 min-h-[100svh]">
         <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 pb-16 pt-2 sm:px-6 sm:pb-24">
           <div className="w-full">
           <SectionHeading
