@@ -5,15 +5,16 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
-import { LandingHero } from "@/components/LandingHero";
 import PartnersSection from "@/components/PartnersSection";
 import {
   ArrowLeftRight,
   BadgeCheck,
   Banknote,
   ChevronDown,
+  Gem,
   LockKeyhole,
   ShieldCheck,
+  Sparkles,
   Users,
   Wallet,
 } from "lucide-react";
@@ -53,6 +54,43 @@ function Glow() {
 
       {/* Footer flare */}
       <div className="absolute left-1/2 bottom-[-420px] h-[900px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.16),transparent_65%)] blur-[140px]" />
+    </div>
+  );
+}
+
+function PillRow() {
+  const items = [
+    "Swap USDT ↔ NGN",
+    "Pay artisans",
+    "Withdraw to bank",
+    "Fast settlement",
+    "Transparent rates",
+    "Always compliant",
+  ];
+
+  type AnimatedPillProps = {
+    initial?: unknown;
+    animate?: unknown;
+    transition?: unknown;
+    className?: string;
+    children?: React.ReactNode;
+  };
+
+  const AnimatedPill = motion.div as unknown as React.ComponentType<AnimatedPillProps>;
+
+  return (
+    <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+      {items.map((t) => (
+        <AnimatedPill
+          key={t}
+          className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-[#A1A1A1] backdrop-blur"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: easeInOut }}
+        >
+          {t}
+        </AnimatedPill>
+      ))}
     </div>
   );
 }
@@ -197,7 +235,136 @@ export default function Page() {
     <div className="relative min-h-screen bg-black text-white">
       <Glow />
 
-      <LandingHero onLogin={() => login()} />
+      {/* Top nav */}
+      <header className="sticky top-0 z-20">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6">
+          <motion.div
+            className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 backdrop-blur-xl sm:px-5 md:grid-cols-3"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: easeInOut }}
+          >
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo.png"
+                alt="SwiftFix"
+                width={120}
+                height={24}
+                priority
+                className="h-6 w-auto opacity-90"
+              />
+            </div>
+
+            <nav className="hidden items-center justify-center gap-10 text-sm text-white/60 md:flex">
+              <a href="#features" className="transition hover:text-white">
+                Features
+              </a>
+              <a href="#trust" className="transition hover:text-white">
+                Trust
+              </a>
+              <a href="#faq" className="transition hover:text-white">
+                FAQ
+              </a>
+            </nav>
+
+            <div className="flex items-center justify-end gap-3">
+              <motion.button
+                type="button"
+                onClick={() => login()}
+                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition hover:bg-white/90"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2, ease: easeInOut }}
+              >
+                Sign In
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="relative z-10 min-h-[100svh]">
+        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
+          <Image
+            src="/hero-bg.png"
+            alt=""
+            fill
+            priority
+            className="object-cover opacity-80"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.15),rgba(0,0,0,0.75)_60%,rgba(0,0,0,0.95)_100%)]" />
+          <div className="absolute inset-0 bg-black/35" />
+        </div>
+
+        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
+          <motion.div
+            className="mx-auto max-w-3xl text-center"
+            variants={stagger}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.h1
+              className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl"
+              variants={fadeUp}
+            >
+              Control Your Capital.
+              <span className="block">The Smart Way.</span>
+            </motion.h1>
+            <motion.p
+              className="mx-auto mt-5 max-w-3xl text-balance text-sm leading-6 text-white/60 sm:text-base"
+              variants={fadeUp}
+            >
+              Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to
+              your local bank.
+            </motion.p>
+
+            <motion.div
+              className="mt-7 flex items-center justify-center"
+              variants={fadeUp}
+            >
+              <motion.button
+                type="button"
+                onClick={() => login()}
+                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.12)] transition hover:bg-white/90"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2, ease: easeInOut }}
+              >
+                Get Started
+              </motion.button>
+            </motion.div>
+
+            <motion.div variants={fadeUp}>
+              <PillRow />
+            </motion.div>
+
+            {/* trust row (icons) */}
+            <motion.div
+              id="trust"
+              className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-white/60"
+              variants={fadeUp}
+            >
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-white/80" />
+                Compliance-led
+              </div>
+              <div className="flex items-center gap-2">
+                <LockKeyhole className="h-4 w-4 text-white/80" />
+                Secure by design
+              </div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-white/80" />
+                Fast & simple
+              </div>
+              <div className="flex items-center gap-2">
+                <Gem className="h-4 w-4 text-white/80" />
+                Premium experience
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Features grid */}
       <section id="features" className="relative z-10 min-h-[100svh] overflow-hidden">
@@ -263,7 +430,7 @@ export default function Page() {
       </section>
 
       {/* Secondary features / bento */}
-      <section id="trust" className="relative z-10 min-h-[100svh]">
+      <section className="relative z-10 min-h-[100svh]">
         <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 pb-16 pt-2 sm:px-6 sm:pb-24">
           <div className="w-full">
           <SectionHeading
