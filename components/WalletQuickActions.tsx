@@ -6,7 +6,6 @@ import { handleTransactionConfirm } from "@/actions/walletActions";
 import { verifyPaystackDeposit } from "@/actions/paymentActions";
 import { useFundWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { usePaystackPayment } from "react-paystack";
-import { ReceiveModal } from "@/components/ReceiveModal";
 
 export function WalletQuickActions() {
   const { ready, authenticated, user } = usePrivy();
@@ -14,7 +13,6 @@ export function WalletQuickActions() {
   const { wallets } = useWallets();
   const { fundWallet } = useFundWallet();
   const [isVerifyingFiat, setIsVerifyingFiat] = useState(false);
-  const [receiveOpen, setReceiveOpen] = useState(false);
 
   const embeddedWallet = wallets.find(
     (w) => w.walletClientType === "privy" || w.connectorType === "embedded",
@@ -132,7 +130,6 @@ export function WalletQuickActions() {
 
   return (
     <section className="space-y-3">
-      <ReceiveModal open={receiveOpen} onClose={() => setReceiveOpen(false)} />
       {embeddedAddress ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
           <div className="min-w-0">
@@ -199,27 +196,6 @@ export function WalletQuickActions() {
         <ArrowUpRight className="h-5 w-5 text-white/50 transition group-hover:text-white" />
       </button>
       </div>
-
-      <button
-        type="button"
-        onClick={() => setReceiveOpen(true)}
-        className="group flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300"
-      >
-        <div className="flex items-center gap-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 text-white">
-            <ArrowDownToLine className="h-5 w-5" />
-          </div>
-          <div className="text-left">
-            <div className="text-sm font-semibold tracking-tight text-zinc-900">
-              Receive Crypto
-            </div>
-            <div className="mt-0.5 text-xs text-zinc-600">
-              Show your smart wallet address + QR code.
-            </div>
-          </div>
-        </div>
-        <ArrowUpRight className="h-5 w-5 text-zinc-400 transition group-hover:text-zinc-700" />
-      </button>
     </section>
   );
 }
