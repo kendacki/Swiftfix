@@ -11,10 +11,8 @@ import {
   BadgeCheck,
   Banknote,
   ChevronDown,
-  Gem,
   LockKeyhole,
   ShieldCheck,
-  Sparkles,
   Users,
   Wallet,
 } from "lucide-react";
@@ -58,7 +56,7 @@ function Glow() {
   );
 }
 
-function PillRow() {
+function _PillRow() {
   const items = [
     "Swap USDT ↔ NGN",
     "Pay artisans",
@@ -235,27 +233,30 @@ export default function Page() {
     <div className="relative min-h-screen bg-black text-white">
       <Glow />
 
-      {/* Top nav */}
-      <header className="sticky top-0 z-20">
-        <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6">
+      {/* Top nav (reference-aligned) */}
+      <header className="sticky top-0 z-20 bg-white/70 backdrop-blur">
+        <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:px-6">
           <motion.div
-            className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 backdrop-blur-xl sm:px-5 md:grid-cols-3"
+            className="flex items-center justify-between rounded-full bg-black px-4 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.18)] sm:px-6"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: easeInOut }}
           >
             <div className="flex items-center gap-3">
               <Image
-                src="/logo.png"
+                src="/icon.png"
                 alt="SwiftFix"
-                width={120}
-                height={24}
+                width={28}
+                height={28}
                 priority
-                className="h-6 w-auto opacity-90"
+                className="h-7 w-7"
               />
+              <div className="text-sm font-semibold tracking-[0.22em] text-white">
+                SWIFTFIX
+              </div>
             </div>
 
-            <nav className="hidden items-center justify-center gap-10 text-sm text-white/60 md:flex">
+            <nav className="hidden items-center gap-12 text-sm font-medium text-white/85 md:flex">
               <a href="#features" className="transition hover:text-white">
                 Features
               </a>
@@ -267,102 +268,113 @@ export default function Page() {
               </a>
             </nav>
 
-            <div className="flex items-center justify-end gap-3">
-              <motion.button
-                type="button"
-                onClick={() => login()}
-                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition hover:bg-white/90"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2, ease: easeInOut }}
-              >
-                Sign In
-              </motion.button>
-            </div>
+            <motion.button
+              type="button"
+              onClick={() => login()}
+              className="rounded-full border-2 border-fuchsia-500/70 bg-black px-5 py-2 text-sm font-semibold text-white shadow-[0_0_0_4px_rgba(255,0,214,0.10)] transition hover:border-fuchsia-400 hover:bg-black/90"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2, ease: easeInOut }}
+            >
+              Sign In
+            </motion.button>
           </motion.div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative z-10 min-h-[100svh]">
-        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
+      {/* Hero (reference-aligned) */}
+      <section className="relative z-10 overflow-hidden bg-white text-zinc-950">
+        <div aria-hidden className="absolute inset-0 -z-10">
           <Image
             src="/hero-bg.png"
             alt=""
             fill
             priority
-            className="object-cover opacity-80"
+            className="object-cover"
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.15),rgba(0,0,0,0.75)_60%,rgba(0,0,0,0.95)_100%)]" />
-          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/30 to-white/80" />
         </div>
 
-        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
-          <motion.div
-            className="mx-auto max-w-3xl text-center"
-            variants={stagger}
-            initial="hidden"
-            animate="show"
-          >
-            <motion.h1
-              className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl"
-              variants={fadeUp}
-            >
-              Control Your Capital.
-              <span className="block">The Smart Way.</span>
-            </motion.h1>
-            <motion.p
-              className="mx-auto mt-5 max-w-3xl text-balance text-sm leading-6 text-white/60 sm:text-base"
-              variants={fadeUp}
-            >
-              Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to
-              your local bank.
-            </motion.p>
-
-            <motion.div
-              className="mt-7 flex items-center justify-center"
-              variants={fadeUp}
-            >
-              <motion.button
-                type="button"
-                onClick={() => login()}
-                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.12)] transition hover:bg-white/90"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2, ease: easeInOut }}
+        <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-12">
+          <div className="grid items-center gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <motion.div
+                variants={stagger}
+                initial="hidden"
+                animate="show"
+                className="max-w-3xl"
               >
-                Get Started
-              </motion.button>
-            </motion.div>
+                <motion.h1
+                  variants={fadeUp}
+                  className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl"
+                >
+                  Control Your Savings, The{" "}
+                  <span className="text-fuchsia-500">Swift Way</span>.
+                </motion.h1>
+                <motion.p
+                  variants={fadeUp}
+                  className="mt-4 max-w-2xl text-balance text-sm leading-6 text-zinc-700 sm:text-base"
+                >
+                  Seamlessly request trusted artisans, and pay them in Naira or
+                  Usdt
+                </motion.p>
 
-            <motion.div variants={fadeUp}>
-              <PillRow />
-            </motion.div>
+                <motion.div variants={fadeUp} className="mt-7 flex gap-3">
+                  <motion.button
+                    type="button"
+                    onClick={() => login()}
+                    className="rounded-full bg-fuchsia-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_44px_rgba(255,0,214,0.25)] transition hover:bg-fuchsia-400"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: easeInOut }}
+                  >
+                    Get Started
+                  </motion.button>
+                  <button
+                    type="button"
+                    className="rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-black/90"
+                  >
+                    Learn More
+                  </button>
+                </motion.div>
+              </motion.div>
+            </div>
 
-            {/* trust row (icons) */}
-            <motion.div
-              id="trust"
-              className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-white/60"
-              variants={fadeUp}
-            >
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-white/80" />
-                Compliance-led
+            {/* Illustration column */}
+            <div className="relative lg:col-span-5">
+              <div className="relative mx-auto aspect-[4/5] w-full max-w-sm lg:max-w-none">
+                <Image
+                  src="/hero-portrait.png"
+                  alt=""
+                  fill
+                  priority
+                  className="object-contain object-bottom"
+                />
+
+                <Image
+                  src="/hero-sticker-balance.png"
+                  alt=""
+                  width={220}
+                  height={120}
+                  className="absolute left-1/2 top-8 w-[180px] -translate-x-1/2 rotate-[-10deg] drop-shadow-[0_18px_40px_rgba(0,0,0,0.20)] sm:w-[200px]"
+                />
+                <Image
+                  src="/hero-sticker-pay-artisan.png"
+                  alt=""
+                  width={320}
+                  height={220}
+                  className="absolute -left-6 bottom-10 w-[240px] rotate-[-12deg] drop-shadow-[0_18px_40px_rgba(0,0,0,0.20)] sm:w-[270px]"
+                />
+                <Image
+                  src="/hero-sticker-contact.png"
+                  alt=""
+                  width={360}
+                  height={220}
+                  className="absolute -right-4 bottom-24 w-[240px] rotate-[6deg] drop-shadow-[0_18px_40px_rgba(0,0,0,0.18)] sm:w-[270px]"
+                />
               </div>
-              <div className="flex items-center gap-2">
-                <LockKeyhole className="h-4 w-4 text-white/80" />
-                Secure by design
-              </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-white/80" />
-                Fast & simple
-              </div>
-              <div className="flex items-center gap-2">
-                <Gem className="h-4 w-4 text-white/80" />
-                Premium experience
-              </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
 
