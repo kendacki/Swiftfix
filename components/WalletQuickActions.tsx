@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowDownToLine, ArrowUpRight, Copy, Lock } from "lucide-react";
+import { ArrowDownToLine, ArrowUpRight, Copy } from "lucide-react";
 import { verifyPaystackDeposit } from "@/actions/paymentActions";
 import { usePrivy } from "@privy-io/react-auth";
 import { usePaystackPayment } from "react-paystack";
-import KYCGate from "@/components/KYCGate";
 import { ReceiveModal } from "@/components/ReceiveModal";
 import { useSmartWalletAddress } from "@/hooks/useSmartWalletAddress";
 
@@ -30,7 +28,6 @@ function resolvePaystackEmail(
 }
 
 export function WalletQuickActions() {
-  const router = useRouter();
   const { ready, authenticated, user } = usePrivy();
   const [isPending, startTransition] = useTransition();
   const [isVerifyingFiat, setIsVerifyingFiat] = useState(false);
@@ -145,74 +142,47 @@ export function WalletQuickActions() {
       ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <KYCGate
-          fallback={
-            <div className="flex h-full flex-col justify-between gap-3 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/90 p-4 text-left shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-200 text-zinc-700">
-                  <Lock className="h-5 w-5" strokeWidth={2.25} />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold tracking-tight text-zinc-900">
-                    Fund NGN (Paystack)
-                  </div>
-                  <div className="mt-0.5 text-xs text-zinc-600">
-                    Basic verification (email) required to deposit fiat.
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => router.push("/kyc")}
-                className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400"
-              >
-                Verify Account
-              </button>
+      <button
+        type="button"
+        disabled={isPending || isVerifyingFiat}
+        onClick={handleFundNgnPaystack}
+        className="group flex items-center justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 text-white">
+            <ArrowDownToLine className="h-5 w-5" />
+          </div>
+          <div className="text-left">
+            <div className="text-sm font-semibold tracking-tight text-zinc-900">
+              Fund NGN (Paystack)
             </div>
-          }
-        >
-          <button
-            type="button"
-            disabled={isPending || isVerifyingFiat}
-            onClick={handleFundNgnPaystack}
-            className="group flex h-full w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            <div className="flex items-center gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 text-white">
-                <ArrowDownToLine className="h-5 w-5" />
-              </div>
-              <div className="text-left">
-                <div className="text-sm font-semibold tracking-tight text-zinc-900">
-                  Fund NGN (Paystack)
-                </div>
-                <div className="mt-0.5 text-xs text-zinc-600">
-                  Pay with card/bank transfer (sandbox) and verify instantly.
-                </div>
-              </div>
-            </div>
-            <ArrowUpRight className="h-5 w-5 shrink-0 text-zinc-400 transition group-hover:text-zinc-700" />
-          </button>
-        </KYCGate>
-
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() => setReceiveOpen(true)}
-          className="group flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-900 p-5 shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:cursor-not-allowed disabled:opacity-80"
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white">
-              <ArrowDownToLine className="h-5 w-5" />
-            </div>
-            <div className="text-left">
-              <div className="text-sm font-semibold tracking-tight text-white">
-                Receive Crypto
-              </div>
-              <div className="mt-0.5 text-xs text-white/70">Show address + QR code.</div>
+            <div className="mt-0.5 text-xs text-zinc-600">
+              Pay with card/bank transfer (sandbox) and verify instantly.
             </div>
           </div>
-          <ArrowUpRight className="h-5 w-5 text-white/50 transition group-hover:text-white" />
-        </button>
+        </div>
+        <ArrowUpRight className="h-5 w-5 text-zinc-400 transition group-hover:text-zinc-700" />
+      </button>
+
+      <button
+        type="button"
+        disabled={isPending}
+        onClick={() => setReceiveOpen(true)}
+        className="group flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-900 p-5 shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:cursor-not-allowed disabled:opacity-80"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white">
+            <ArrowDownToLine className="h-5 w-5" />
+          </div>
+          <div className="text-left">
+            <div className="text-sm font-semibold tracking-tight text-white">
+              Receive Crypto
+            </div>
+            <div className="mt-0.5 text-xs text-white/70">Show address + QR code.</div>
+          </div>
+        </div>
+        <ArrowUpRight className="h-5 w-5 text-white/50 transition group-hover:text-white" />
+      </button>
       </div>
     </section>
   );
