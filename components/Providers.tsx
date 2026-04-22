@@ -29,8 +29,7 @@ export function Providers({ children }: ProvidersProps) {
     appearance: {
       showWalletLoginFirst: false,
     },
-    // Email and phone (SMS) sign-in: create an Ethereum embedded wallet when the user has
-    // no wallet yet (`users-without-wallets`). External wallets (e.g. MetaMask) are skipped.
+    // Email / SMS users need an Ethereum embedded wallet; SDK default is `off`.
     embeddedWallets: {
       ethereum: {
         createOnLogin: "users-without-wallets",
@@ -38,7 +37,7 @@ export function Providers({ children }: ProvidersProps) {
     },
     // NOTE: Some versions of `@privy-io/react-auth` may not yet include this in TS types.
     smartWallets: {
-      createOnLogin: "users-without-wallets",
+      createOnLogin: "all-users",
       requireUserPasswordOnCreate: false,
     },
     supportedChains: [mainnet, bsc, polygon, arbitrum],
