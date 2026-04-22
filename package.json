@@ -9,7 +9,7 @@
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "build": "npx prisma generate && next build --webpack",
-    "build:vercel": "npx prisma db push && npx prisma generate && next build --webpack",
+    "build:vercel": "npx prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "predeploy": "pnpm run lint && pnpm run build",
@@ -36,6 +36,7 @@
     "viem": "^2.37.5"
   },
   "devDependencies": {
+    "@figma/code-connect": "^1.4.3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
