@@ -40,7 +40,7 @@ export function LandingHero({ onLogin }: LandingHeroProps) {
           alt=""
           fill
           priority
-          className="object-cover"
+          className="object-cover object-center"
           sizes="100vw"
         />
       </div>
