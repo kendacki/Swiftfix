@@ -59,9 +59,8 @@ export default function DashboardPage() {
 
     void (async () => {
       try {
-        const email = user?.email?.address || undefined;
         const [w, tx] = await Promise.all([
-          getUserWallet(user.id, email),
+          getUserWallet(user.id),
           getUserTransactions(user.id),
         ]);
 

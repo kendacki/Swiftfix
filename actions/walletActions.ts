@@ -4,39 +4,30 @@ import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import { withDbRetry } from "@/lib/db-retry";
 
-export async function ensureUserAndWallet(privyId: string, email?: string) {
-  if (!privyId?.trim()) {
-    throw new Error("Missing Privy ID.");
-  }
-
-  const user = await prisma.user.upsert({
+export async function getUserWallet(privyId: string) {
+  const user = await prisma.user.findUnique({
     where: { privyId },
-    create: {
-      privyId,
-      ...(email?.trim() ? { email: email.trim() } : {}),
-    },
-    update: {
-      ...(email?.trim() ? { email: email.trim() } : {}),
-    },
   });
 
-  let wallet = await prisma.wallet.findUnique({
+  if (!user) {
+    throw new Error("User not found for provided Privy ID.");
+  }
+
+  const existingWallet = await prisma.wallet.findUnique({
     where: { userId: user.id },
   });
 
-  if (!wallet) {
-    wallet = await prisma.wallet.create({
-      data: {
-        userId: user.id,
-      },
-    });
+  if (existingWallet) {
+    return existingWallet;
   }
 
-  return { user, wallet };
-}
+  const wallet = await prisma.wallet.create({
+    data: {
+      userId: user.id,
+      // balances default to 0.00 via schema defaults
+    },
+  });
 
-export async function getUserWallet(privyId: string, email?: string) {
-  const { wallet } = await ensureUserAndWallet(privyId, email);
   return wallet;
 }
 
@@ -58,19 +49,25 @@ export async function fundWallet(
     () =>
       prisma.$transaction(
         async (tx) => {
-          const user = await tx.user.upsert({
+          const user = await tx.user.findUnique({
             where: { privyId },
-            create: { privyId },
-            update: {},
           });
 
-          const wallet =
-            (await tx.wallet.findUnique({
-              where: { userId: user.id },
-            })) ??
-            (await tx.wallet.create({
-              data: { userId: user.id },
-            }));
+          if (!user) {
+            throw new Error("User not found for provided Privy ID.");
+          }
+
+          let wallet = await tx.wallet.findUnique({
+            where: { userId: user.id },
+          });
+
+          if (!wallet) {
+            wallet = await tx.wallet.create({
+              data: {
+                userId: user.id,
+              },
+            });
+          }
 
           const updatedWallet = await tx.wallet.update({
             where: { id: wallet.id },
@@ -146,20 +143,25 @@ export async function handleTransactionConfirm(args: {
             throw new Error("Duplicate transaction");
           }
 
-          const user = await tx.user.upsert({
+          const user = await tx.user.findUnique({
             where: { privyId },
-            create: { privyId },
-            update: {},
             select: { id: true },
           });
+          if (!user) {
+            throw new Error("User not found for provided Privy ID.");
+          }
 
-          const wallet =
-            (await tx.wallet.findUnique({
-              where: { userId: user.id },
-            })) ??
-            (await tx.wallet.create({
-              data: { userId: user.id },
-            }));
+          let wallet = await tx.wallet.findUnique({
+            where: { userId: user.id },
+          });
+
+          if (!wallet) {
+            wallet = await tx.wallet.create({
+              data: {
+                userId: user.id,
+              },
+            });
+          }
 
           const updatedWallet = await tx.wallet.update({
             where: { id: wallet.id },
