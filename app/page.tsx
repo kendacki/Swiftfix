@@ -216,9 +216,27 @@ export default function Page() {
 
       {/* Hero */}
       <section className="relative z-10 min-h-[100svh] bg-white">
-        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-start justify-end px-4 pb-10 pt-6 sm:px-6 sm:pb-16 sm:pt-8 md:pt-10">
+        <div className="mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-start gap-8 px-4 pb-10 pt-6 sm:px-6 sm:pb-16 sm:pt-8 md:pt-10 lg:grid-cols-2 lg:gap-10 lg:items-center">
           <motion.div
-            className="max-w-xl text-right sm:max-w-2xl"
+            className="relative flex justify-center lg:justify-start"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: easeInOut }}
+          >
+            <div className="relative aspect-[731/1024] w-full max-w-[280px] bg-transparent sm:max-w-sm md:max-w-md lg:max-w-none lg:translate-y-[-1rem]">
+              <Image
+                src="/hero-vr-portrait.png"
+                alt="Person with VR headset and headphones"
+                fill
+                className="object-contain object-bottom"
+                sizes="(max-width: 1024px) 280px, 45vw"
+                priority
+              />
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="max-w-xl justify-self-end text-right sm:max-w-2xl lg:pt-4"
             variants={stagger}
             initial="hidden"
             animate="show"
