@@ -228,9 +228,9 @@ export default function Page() {
 
         {/* Hero */}
         <section className="relative z-10 min-h-[100svh]">
-          <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-6xl items-start px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:items-center">
+          <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-center gap-8 px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:grid-cols-2 lg:gap-10">
             <motion.div
-              className="w-full max-w-xl -translate-y-20 text-center sm:max-w-2xl sm:-translate-y-28 sm:text-right lg:max-w-3xl lg:-translate-y-36 lg:text-left"
+              className="order-1 w-full max-w-xl -translate-y-20 text-center sm:max-w-2xl sm:-translate-y-28 sm:text-right lg:order-1 lg:max-w-3xl lg:-translate-y-36 lg:text-left"
               variants={stagger}
               initial="hidden"
               animate="show"
@@ -274,6 +274,25 @@ export default function Page() {
                   Learn More
                 </Link>
               </motion.div>
+            </motion.div>
+
+            <motion.div
+              className="relative z-10 order-2 flex justify-center lg:order-2 lg:justify-end"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: easeInOut }}
+            >
+              <div className="relative aspect-square w-full max-w-[260px] bg-transparent !bg-none sm:max-w-sm md:max-w-md lg:max-w-none">
+                <Image
+                  src="/hero-side-vr.png"
+                  alt="Illustration of a person using VR with a handheld controller"
+                  fill
+                  className="bg-transparent !bg-none object-contain object-bottom"
+                  sizes="(max-width: 1024px) 260px, 42vw"
+                  priority
+                  style={{ backgroundColor: "transparent" }}
+                />
+              </div>
             </motion.div>
           </div>
         </section>
