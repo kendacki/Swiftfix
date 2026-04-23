@@ -39,23 +39,6 @@ const stagger = {
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.08 } },
 };
 
-function Glow() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Hero flare */}
-      <div className="absolute left-1/2 top-[-260px] h-[720px] w-[720px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.22),transparent_60%)] blur-[90px]" />
-      <div className="absolute left-1/2 top-[80px] h-[520px] w-[980px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_65%)] blur-[110px]" />
-
-      {/* Mid-page atmospherics */}
-      <div className="absolute left-[-260px] top-[860px] h-[620px] w-[620px] rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10),transparent_65%)] blur-[120px]" />
-      <div className="absolute right-[-280px] top-[1280px] h-[720px] w-[720px] rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_68%)] blur-[130px]" />
-
-      {/* Footer flare */}
-      <div className="absolute left-1/2 bottom-[-420px] h-[900px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.16),transparent_65%)] blur-[140px]" />
-    </div>
-  );
-}
-
 type FeatureCardProps = {
   title: string;
   description: string;
@@ -67,21 +50,17 @@ function FeatureCard({ title, description, icon }: FeatureCardProps) {
     <motion.div
       variants={fadeUp}
       whileHover={{ y: -2, transition: { duration: 0.25, ease: easeInOut } }}
-      className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 backdrop-blur-xl transition hover:bg-white/[0.03]"
+      className="group relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm backdrop-blur-xl transition hover:bg-zinc-50/80"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.08),transparent_40%)] opacity-70"
-      />
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
           {icon}
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold tracking-tight text-white">
+          <div className="text-sm font-semibold tracking-tight text-zinc-900">
             {title}
           </div>
-          <div className="mt-1 text-sm leading-6 text-white/60">
+          <div className="mt-1 text-sm leading-6 text-zinc-600">
             {description}
           </div>
         </div>
@@ -103,30 +82,23 @@ function BentoCard({ title, description, icon, className }: BentoCardProps) {
       variants={fadeUp}
       whileHover={{ y: -2, transition: { duration: 0.25, ease: easeInOut } }}
       className={[
-        "relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 backdrop-blur-xl",
-        "before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.08),transparent_45%)] before:opacity-70",
+        "relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-50 p-6 shadow-sm backdrop-blur-xl",
         className ?? "",
       ].join(" ")}
     >
       <div className="relative flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200/80">
           {icon}
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold tracking-tight text-white">
+          <div className="text-sm font-semibold tracking-tight text-zinc-900">
             {title}
           </div>
-          <div className="mt-1 text-sm leading-6 text-white/60">
+          <div className="mt-1 text-sm leading-6 text-zinc-600">
             {description}
           </div>
         </div>
       </div>
-
-      {/* subtle bottom shine */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-[-40px] h-24 bg-white/10 blur-[70px]"
-      />
     </motion.div>
   );
 }
@@ -149,15 +121,15 @@ function SectionHeading({
       viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
     >
       {kicker ? (
-        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
           {kicker}
         </div>
       ) : null}
-      <h2 className="mt-3 text-balance text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+      <h2 className="mt-3 text-balance text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl">
         {title}
       </h2>
       {subtitle ? (
-        <p className="mt-3 text-balance text-sm leading-6 text-white/60 sm:text-base">
+        <p className="mt-3 text-balance text-sm leading-6 text-zinc-600 sm:text-base">
           {subtitle}
         </p>
       ) : null}
@@ -193,14 +165,12 @@ export default function Page() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   return (
-    <div className="relative min-h-screen bg-black text-white">
-      <Glow />
-
+    <div className="relative min-h-screen bg-white text-zinc-900">
       {/* Top nav */}
       <header className="sticky top-0 z-20">
         <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6">
           <motion.div
-            className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 backdrop-blur-xl sm:px-5 md:grid-cols-3"
+            className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-zinc-200/80 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-5 md:grid-cols-3"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: easeInOut }}
@@ -216,14 +186,14 @@ export default function Page() {
               />
             </div>
 
-            <nav className="hidden items-center justify-center gap-10 text-sm text-white md:flex">
-              <a href="#features" className="transition hover:text-white/90">
+            <nav className="hidden items-center justify-center gap-10 text-sm font-medium text-zinc-900 md:flex">
+              <a href="#features" className="transition hover:text-zinc-600">
                 Features
               </a>
-              <a href="#trust" className="transition hover:text-white/90">
+              <a href="#trust" className="transition hover:text-zinc-600">
                 Trust
               </a>
-              <a href="#faq" className="transition hover:text-white/90">
+              <a href="#faq" className="transition hover:text-zinc-600">
                 FAQ
               </a>
             </nav>
@@ -245,19 +215,7 @@ export default function Page() {
       </header>
 
       {/* Hero */}
-      <section className="relative z-10 min-h-[100svh]">
-        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
-          <Image
-            src="/hero-bg.png"
-            alt=""
-            fill
-            priority
-            className="object-cover opacity-80"
-          />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.15),rgba(0,0,0,0.75)_60%,rgba(0,0,0,0.95)_100%)]" />
-          <div className="absolute inset-0 bg-black/35" />
-        </div>
-
+      <section className="relative z-10 min-h-[100svh] bg-white">
         <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-start justify-end px-4 pb-10 pt-6 sm:px-6 sm:pb-16 sm:pt-8 md:pt-10">
           <motion.div
             className="max-w-xl text-right sm:max-w-2xl"
@@ -273,7 +231,7 @@ export default function Page() {
               <span className="mt-1 block text-pink-400 sm:mt-0">The Smart Way.</span>
             </motion.h1>
             <motion.p
-              className="mt-5 max-w-xl text-balance text-right text-sm leading-6 text-white sm:text-base sm:leading-7"
+              className="mt-5 max-w-xl text-balance text-right text-sm leading-6 text-zinc-800 sm:text-base sm:leading-7"
               variants={fadeUp}
             >
               Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
@@ -284,19 +242,7 @@ export default function Page() {
       </section>
 
       {/* Features grid */}
-      <section id="features" className="relative z-10 min-h-[100svh] overflow-hidden">
-        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
-          <Image
-            src="/features-bg.png"
-            alt=""
-            fill
-            className="object-cover opacity-90"
-            sizes="100vw"
-            priority={false}
-          />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.10),rgba(0,0,0,0.78)_62%,rgba(0,0,0,0.95)_100%)]" />
-          <div className="absolute inset-0 bg-black/35" />
-        </div>
+      <section id="features" className="relative z-10 min-h-[100svh] overflow-hidden bg-zinc-50">
         <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 py-14 sm:px-6 sm:py-20">
           <div className="grid w-full gap-8 lg:grid-cols-2 lg:items-start">
             <motion.div
@@ -306,10 +252,10 @@ export default function Page() {
               viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
               variants={fadeUp}
             >
-              <h2 className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl">
+              <h2 className="text-balance text-4xl font-semibold tracking-tight text-zinc-900 sm:text-6xl">
                 The strategic choice.
               </h2>
-              <p className="mt-4 max-w-xl text-balance text-lg font-medium leading-7 text-white/70 sm:text-xl sm:leading-8">
+              <p className="mt-4 max-w-xl text-balance text-lg font-medium leading-7 text-zinc-600 sm:text-xl sm:leading-8">
                 Built for people that are intentional about Financial Growth
               </p>
             </motion.div>
@@ -347,7 +293,7 @@ export default function Page() {
       </section>
 
       {/* Secondary features / bento */}
-      <section id="trust" className="relative z-10 min-h-[100svh]">
+      <section id="trust" className="relative z-10 min-h-[100svh] bg-white">
         <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 pb-16 pt-2 sm:px-6 sm:pb-24">
           <div className="w-full">
           <SectionHeading
@@ -392,18 +338,7 @@ export default function Page() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="relative z-10 min-h-[100svh] overflow-hidden">
-        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
-          <Image
-            src="/faq-bg.png"
-            alt=""
-            fill
-            className="object-cover opacity-85"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.10),rgba(0,0,0,0.78)_62%,rgba(0,0,0,0.95)_100%)]" />
-          <div className="absolute inset-0 bg-black/35" />
-        </div>
+      <section id="faq" className="relative z-10 min-h-[100svh] overflow-hidden bg-zinc-50">
         <div className="mx-auto flex min-h-[100svh] w-full max-w-3xl items-center px-4 py-16 sm:px-6 sm:py-24">
           <div className="w-full">
           <SectionHeading title="FAQ" subtitle="Quick answers to common questions." />
@@ -420,7 +355,7 @@ export default function Page() {
               return (
                 <motion.div
                   key={item.q}
-                  className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl"
+                  className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm backdrop-blur-xl"
                   variants={fadeUp}
                 >
                   <button
@@ -428,19 +363,19 @@ export default function Page() {
                     onClick={() => setOpenFaqIndex(open ? null : idx)}
                     className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
                   >
-                    <div className="text-sm font-semibold tracking-tight text-white">
+                    <div className="text-sm font-semibold tracking-tight text-zinc-900">
                       {item.q}
                     </div>
                     <ChevronDown
                       className={[
-                        "h-4 w-4 shrink-0 text-white/60 transition-transform",
+                        "h-4 w-4 shrink-0 text-zinc-500 transition-transform",
                         open ? "rotate-180" : "rotate-0",
                       ].join(" ")}
                     />
                   </button>
                   {open ? (
                     <motion.div
-                      className="px-5 pb-5 text-sm leading-6 text-white/60"
+                      className="px-5 pb-5 text-sm leading-6 text-zinc-600"
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       transition={{ duration: 0.35, ease: easeInOut }}
@@ -466,7 +401,7 @@ export default function Page() {
       </motion.div>
 
       {/* Footer */}
-      <footer className="relative z-10">
+      <footer className="relative z-10 bg-white">
         <motion.div
           className="mx-auto w-full max-w-6xl px-4 pb-12 pt-10 sm:px-6"
           initial="hidden"
@@ -474,7 +409,7 @@ export default function Page() {
           viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
           variants={fadeUp}
         >
-          <div className="grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-10 border-t border-zinc-200 pt-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <Image
                 src="/logo.png"
@@ -483,48 +418,48 @@ export default function Page() {
                 height={24}
                 className="h-6 w-auto"
               />
-              <p className="mt-4 text-sm leading-6 text-[#A1A1A1]">
+              <p className="mt-4 text-sm leading-6 text-zinc-600">
                 Control your capital with modern swaps, payments, and compliant
                 withdrawals.
               </p>
             </div>
 
             <div>
-              <div className="text-sm font-semibold text-white">Product</div>
-              <div className="mt-4 space-y-2 text-sm text-[#A1A1A1]">
-                <a href="#features" className="block hover:text-white">
+              <div className="text-sm font-semibold text-zinc-900">Product</div>
+              <div className="mt-4 space-y-2 text-sm text-zinc-600">
+                <a href="#features" className="block hover:text-zinc-900">
                   Features
                 </a>
-                <a href="#trust" className="block hover:text-white">
+                <a href="#trust" className="block hover:text-zinc-900">
                   Trust
                 </a>
-                <a href="#faq" className="block hover:text-white">
+                <a href="#faq" className="block hover:text-zinc-900">
                   FAQ
                 </a>
               </div>
             </div>
 
             <div>
-              <div className="text-sm font-semibold text-white">Company</div>
-              <div className="mt-4 space-y-2 text-sm text-[#A1A1A1]">
+              <div className="text-sm font-semibold text-zinc-900">Company</div>
+              <div className="mt-4 space-y-2 text-sm text-zinc-600">
                 <Link
                   href="/dashboard"
                   prefetch={false}
-                  className="block hover:text-white"
+                  className="block hover:text-zinc-900"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/settings"
                   prefetch={false}
-                  className="block hover:text-white"
+                  className="block hover:text-zinc-900"
                 >
                   Settings
                 </Link>
                 <button
                   type="button"
                   onClick={() => login()}
-                  className="block text-left hover:text-white"
+                  className="block text-left hover:text-zinc-900"
                 >
                   Sign In
                 </button>
@@ -532,31 +467,31 @@ export default function Page() {
             </div>
 
             <div>
-              <div className="text-sm font-semibold text-white">Get started</div>
-              <p className="mt-4 text-sm leading-6 text-[#A1A1A1]">
+              <div className="text-sm font-semibold text-zinc-900">Get started</div>
+              <p className="mt-4 text-sm leading-6 text-zinc-600">
                 Log in to start swapping USDT to NGN and withdrawing to your
                 bank.
               </p>
               <button
                 type="button"
                 onClick={() => login()}
-                className="mt-5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90"
+                className="mt-5 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800"
               >
                 Sign In
               </button>
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-[#A1A1A1] sm:flex-row">
+          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-zinc-200 pt-6 text-xs text-zinc-500 sm:flex-row">
             <div>© {new Date().getFullYear()} SwiftFix. All rights reserved.</div>
             <div className="flex items-center gap-5">
-              <a className="hover:text-white" href="#">
+              <a className="hover:text-zinc-900" href="#">
                 Privacy
               </a>
-              <a className="hover:text-white" href="#">
+              <a className="hover:text-zinc-900" href="#">
                 Terms
               </a>
-              <a className="hover:text-white" href="#">
+              <a className="hover:text-zinc-900" href="#">
                 Support
               </a>
             </div>
