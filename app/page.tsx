@@ -216,14 +216,14 @@ export default function Page() {
               />
             </div>
 
-            <nav className="hidden items-center justify-center gap-10 text-sm text-white/60 md:flex">
-              <a href="#features" className="transition hover:text-white">
+            <nav className="hidden items-center justify-center gap-10 text-sm text-white md:flex">
+              <a href="#features" className="transition hover:text-white/90">
                 Features
               </a>
-              <a href="#trust" className="transition hover:text-white">
+              <a href="#trust" className="transition hover:text-white/90">
                 Trust
               </a>
-              <a href="#faq" className="transition hover:text-white">
+              <a href="#faq" className="transition hover:text-white/90">
                 FAQ
               </a>
             </nav>
@@ -266,14 +266,14 @@ export default function Page() {
             animate="show"
           >
             <motion.h1
-              className="text-balance text-right text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
+              className="text-balance text-right text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl"
               variants={fadeUp}
             >
-              <span className="block text-white">Control Your Capital.</span>
+              <span className="block text-black">Control Your Capital.</span>
               <span className="mt-1 block text-pink-400 sm:mt-0">The Smart Way.</span>
             </motion.h1>
             <motion.p
-              className="mt-5 max-w-xl text-balance text-right text-sm leading-6 text-white/70 sm:text-base sm:leading-7"
+              className="mt-5 max-w-xl text-balance text-right text-sm leading-6 text-white sm:text-base sm:leading-7"
               variants={fadeUp}
             >
               Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
