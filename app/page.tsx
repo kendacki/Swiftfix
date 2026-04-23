@@ -222,7 +222,7 @@ export default function Page() {
             alt=""
             fill
             priority
-            className="object-cover object-[center_top]"
+            className="object-cover object-top"
             sizes="100vw"
           />
         </div>
