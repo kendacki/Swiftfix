@@ -234,13 +234,13 @@ export default function Page() {
             transition={{ duration: 0.6, ease: easeInOut }}
           >
             <div
-              className="relative aspect-[1024/819] w-full max-w-[280px] bg-transparent sm:max-w-sm md:max-w-md lg:max-w-none lg:translate-y-[-1rem] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_52%,transparent_92%)] [mask-image:linear-gradient(to_bottom,black_0%,black_52%,transparent_92%)] [mask-size:100%_100%] [mask-repeat:no-repeat]"
+              className="relative aspect-[1024/819] w-full max-w-[280px] overflow-hidden bg-transparent sm:max-w-sm md:max-w-md lg:max-w-none lg:translate-y-[-1rem] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_52%,transparent_92%)] [mask-image:linear-gradient(to_bottom,black_0%,black_52%,transparent_92%)] [mask-size:100%_100%] [mask-repeat:no-repeat]"
             >
               <Image
                 src="/hero-vr-portrait.png"
                 alt="Person with VR headset and headphones, interacting in virtual space"
                 fill
-                className="object-contain object-bottom"
+                className="object-cover object-center scale-[1.18]"
                 sizes="(max-width: 1024px) 280px, 45vw"
                 priority
               />
