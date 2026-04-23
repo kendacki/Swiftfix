@@ -228,15 +228,17 @@ export default function Page() {
         </div>
         <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-start gap-8 px-4 pb-10 pt-4 sm:px-6 sm:pb-16 sm:pt-6 md:pt-8 lg:grid-cols-2 lg:gap-10 lg:items-center">
           <motion.div
-            className="relative flex justify-center lg:justify-start"
+            className="relative order-1 flex justify-center lg:order-2 lg:justify-end"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: easeInOut }}
           >
-            <div className="relative aspect-[731/1024] w-full max-w-[280px] bg-transparent sm:max-w-sm md:max-w-md lg:max-w-none lg:translate-y-[-1rem]">
+            <div
+              className="relative aspect-[1024/819] w-full max-w-[280px] bg-transparent sm:max-w-sm md:max-w-md lg:max-w-none lg:translate-y-[-1rem] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_52%,transparent_92%)] [mask-image:linear-gradient(to_bottom,black_0%,black_52%,transparent_92%)] [mask-size:100%_100%] [mask-repeat:no-repeat]"
+            >
               <Image
                 src="/hero-vr-portrait.png"
-                alt="Person with VR headset and headphones"
+                alt="Person with VR headset and headphones, interacting in virtual space"
                 fill
                 className="object-contain object-bottom"
                 sizes="(max-width: 1024px) 280px, 45vw"
@@ -246,13 +248,13 @@ export default function Page() {
           </motion.div>
 
           <motion.div
-            className="max-w-xl justify-self-end text-right sm:max-w-2xl lg:-translate-y-8 lg:pt-0"
+            className="order-2 max-w-xl justify-self-center text-center sm:max-w-2xl sm:justify-self-end sm:text-right lg:order-1 lg:-translate-y-8 lg:justify-self-start lg:pt-0 lg:text-left"
             variants={stagger}
             initial="hidden"
             animate="show"
           >
             <motion.h1
-              className="text-right font-semibold tracking-tight"
+              className="text-center font-semibold tracking-tight sm:text-right lg:text-left"
               variants={fadeUp}
             >
               <span className="block whitespace-nowrap text-black max-sm:text-[clamp(1.0625rem,4.2vw+0.6rem,1.875rem)] sm:text-5xl md:text-6xl">
@@ -263,7 +265,7 @@ export default function Page() {
               </span>
             </motion.h1>
             <motion.p
-              className="mt-5 max-w-xl text-pretty text-right text-sm leading-6 text-zinc-800 sm:text-base sm:leading-7"
+              className="mt-5 max-w-xl text-pretty text-center text-sm leading-6 text-zinc-800 sm:text-right sm:text-base sm:leading-7 lg:text-left"
               variants={fadeUp}
             >
               Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
