@@ -240,10 +240,10 @@ export default function Page() {
                 variants={fadeUp}
               >
                 <span className="block whitespace-nowrap text-black max-sm:text-[clamp(1.0625rem,4.2vw+0.6rem,1.875rem)] sm:text-5xl md:text-6xl">
-                  Control Your Capital.
+                  Control Your Savings.
                 </span>
                 <span className="mt-1 block text-pretty text-3xl text-pink-400 sm:mt-0 sm:text-5xl md:text-6xl">
-                  The Smart Way.
+                  The Swift Way.
                 </span>
               </motion.h1>
               <motion.p
