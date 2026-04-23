@@ -226,30 +226,9 @@ export default function Page() {
             sizes="100vw"
           />
         </div>
-        <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-start gap-8 px-4 pb-10 pt-4 sm:px-6 sm:pb-16 sm:pt-6 md:pt-8 lg:grid-cols-2 lg:gap-10 lg:items-center">
+        <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-6xl items-start px-4 pb-10 pt-4 sm:px-6 sm:pb-16 sm:pt-6 md:pt-8 lg:items-center">
           <motion.div
-            className="relative order-1 flex justify-center lg:order-2 lg:justify-end"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: easeInOut }}
-          >
-            <div
-              className="relative aspect-[1024/682] w-full max-w-[280px] overflow-hidden bg-transparent sm:max-w-sm md:max-w-md lg:max-w-none lg:translate-y-[-1rem] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_52%,transparent_92%)] [mask-image:linear-gradient(to_bottom,black_0%,black_52%,transparent_92%)] [mask-size:100%_100%] [mask-repeat:no-repeat]"
-            >
-              <Image
-                src="/hero-vr-portrait.png"
-                alt="Person with VR headset and headphones, interacting in virtual space"
-                fill
-                className="bg-transparent !bg-none mix-blend-normal object-cover object-center scale-[1.18]"
-                sizes="(max-width: 1024px) 280px, 45vw"
-                priority
-                style={{ backgroundColor: "transparent" }}
-              />
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="order-2 max-w-xl justify-self-center text-center sm:max-w-2xl sm:justify-self-end sm:text-right lg:order-1 lg:-translate-y-8 lg:justify-self-start lg:pt-0 lg:text-left"
+            className="w-full max-w-xl text-center sm:max-w-2xl sm:text-right lg:max-w-3xl lg:text-left"
             variants={stagger}
             initial="hidden"
             animate="show"
