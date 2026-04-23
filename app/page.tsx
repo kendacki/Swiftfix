@@ -222,13 +222,13 @@ export default function Page() {
             alt=""
             fill
             priority
-            className="object-cover object-center"
+            className="object-cover object-[center_top]"
             sizes="100vw"
           />
         </div>
-        <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-6xl items-start px-4 pb-10 pt-2 sm:px-6 sm:pb-16 sm:pt-4 md:pt-6 lg:items-center">
+        <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-6xl items-start px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:items-center">
           <motion.div
-            className="w-full max-w-xl -translate-y-6 text-center sm:max-w-2xl sm:-translate-y-10 sm:text-right lg:max-w-3xl lg:-translate-y-14 lg:text-left"
+            className="w-full max-w-xl -translate-y-14 text-center sm:max-w-2xl sm:-translate-y-20 sm:text-right lg:max-w-3xl lg:-translate-y-28 lg:text-left"
             variants={stagger}
             initial="hidden"
             animate="show"
