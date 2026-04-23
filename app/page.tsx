@@ -170,7 +170,7 @@ export default function Page() {
       <header className="sticky top-0 z-20">
         <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6">
           <motion.div
-            className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-zinc-200/80 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-5 md:grid-cols-3"
+            className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-white/10 bg-black px-4 py-3 backdrop-blur-xl sm:px-5 md:grid-cols-3"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: easeInOut }}
@@ -182,18 +182,18 @@ export default function Page() {
                 width={120}
                 height={24}
                 priority
-                className="h-6 w-auto opacity-90"
+                className="h-6 w-auto opacity-95 brightness-0 invert"
               />
             </div>
 
-            <nav className="hidden items-center justify-center gap-10 text-sm font-medium text-zinc-900 md:flex">
-              <a href="#features" className="transition hover:text-zinc-600">
+            <nav className="hidden items-center justify-center gap-10 text-sm font-medium text-white md:flex">
+              <a href="#features" className="transition hover:text-white/80">
                 Features
               </a>
-              <a href="#trust" className="transition hover:text-zinc-600">
+              <a href="#trust" className="transition hover:text-white/80">
                 Trust
               </a>
-              <a href="#faq" className="transition hover:text-zinc-600">
+              <a href="#faq" className="transition hover:text-white/80">
                 FAQ
               </a>
             </nav>
@@ -215,8 +215,18 @@ export default function Page() {
       </header>
 
       {/* Hero */}
-      <section className="relative z-10 min-h-[100svh] bg-white">
-        <div className="mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-start gap-8 px-4 pb-10 pt-6 sm:px-6 sm:pb-16 sm:pt-8 md:pt-10 lg:grid-cols-2 lg:gap-10 lg:items-center">
+      <section className="relative z-10 min-h-[100svh] overflow-hidden bg-zinc-100">
+        <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
+          <Image
+            src="/hero-bg.png"
+            alt=""
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </div>
+        <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-start gap-8 px-4 pb-10 pt-6 sm:px-6 sm:pb-16 sm:pt-8 md:pt-10 lg:grid-cols-2 lg:gap-10 lg:items-center">
           <motion.div
             className="relative flex justify-center lg:justify-start"
             initial={{ opacity: 0, y: 12 }}
