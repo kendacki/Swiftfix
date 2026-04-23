@@ -166,56 +166,7 @@ export default function Page() {
 
   return (
     <div className="relative min-h-screen bg-white text-zinc-900">
-      {/* Top nav */}
-      <header className="sticky top-0 z-20">
-        <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6">
-          <motion.div
-            className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-white/10 bg-black px-4 py-3 backdrop-blur-xl sm:px-5 md:grid-cols-3"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: easeInOut }}
-          >
-            <div className="flex items-center gap-3">
-              <Image
-                src="/logo.png"
-                alt="SwiftFix"
-                width={120}
-                height={24}
-                priority
-                className="h-6 w-auto opacity-95 brightness-0 invert"
-              />
-            </div>
-
-            <nav className="hidden items-center justify-center gap-10 text-sm font-medium text-white md:flex">
-              <a href="#features" className="transition hover:text-white/80">
-                Features
-              </a>
-              <a href="#trust" className="transition hover:text-white/80">
-                Trust
-              </a>
-              <a href="#faq" className="transition hover:text-white/80">
-                FAQ
-              </a>
-            </nav>
-
-            <div className="flex items-center justify-end gap-3">
-              <motion.button
-                type="button"
-                onClick={() => login()}
-                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition hover:bg-white/90"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2, ease: easeInOut }}
-              >
-                Sign In
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="relative z-10 min-h-[100svh] overflow-hidden bg-zinc-100">
+      <div className="relative overflow-hidden bg-zinc-100">
         <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
           <Image
             src="/hero-bg.png"
@@ -226,34 +177,86 @@ export default function Page() {
             sizes="100vw"
           />
         </div>
-        <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-6xl items-start px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:items-center">
-          <motion.div
-            className="w-full max-w-xl -translate-y-14 text-center sm:max-w-2xl sm:-translate-y-20 sm:text-right lg:max-w-3xl lg:-translate-y-28 lg:text-left"
-            variants={stagger}
-            initial="hidden"
-            animate="show"
-          >
-            <motion.h1
-              className="text-center font-semibold tracking-tight sm:text-right lg:text-left"
-              variants={fadeUp}
+
+        {/* Top nav */}
+        <header className="sticky top-0 z-20">
+          <div className="mx-auto w-full max-w-6xl px-4 pt-3 sm:px-6 sm:pt-4">
+            <motion.div
+              className="grid grid-cols-2 items-center gap-3 rounded-2xl border border-white/10 bg-black px-4 py-3 backdrop-blur-xl sm:px-5 md:grid-cols-3"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: easeInOut }}
             >
-              <span className="block whitespace-nowrap text-black max-sm:text-[clamp(1.0625rem,4.2vw+0.6rem,1.875rem)] sm:text-5xl md:text-6xl">
-                Control Your Capital.
-              </span>
-              <span className="mt-1 block text-pretty text-3xl text-pink-400 sm:mt-0 sm:text-5xl md:text-6xl">
-                The Smart Way.
-              </span>
-            </motion.h1>
-            <motion.p
-              className="mt-5 max-w-xl text-pretty text-center text-sm leading-6 text-zinc-800 sm:text-right sm:text-base sm:leading-7 lg:text-left"
-              variants={fadeUp}
+              <div className="flex items-center gap-3">
+                <Image
+                  src="/logo.png"
+                  alt="SwiftFix"
+                  width={120}
+                  height={24}
+                  priority
+                  className="h-6 w-auto opacity-95 brightness-0 invert"
+                />
+              </div>
+
+              <nav className="hidden items-center justify-center gap-10 text-sm font-medium text-white md:flex">
+                <a href="#features" className="transition hover:text-white/80">
+                  Features
+                </a>
+                <a href="#trust" className="transition hover:text-white/80">
+                  Trust
+                </a>
+                <a href="#faq" className="transition hover:text-white/80">
+                  FAQ
+                </a>
+              </nav>
+
+              <div className="flex items-center justify-end gap-3">
+                <motion.button
+                  type="button"
+                  onClick={() => login()}
+                  className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition hover:bg-white/90"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2, ease: easeInOut }}
+                >
+                  Sign In
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        </header>
+
+        {/* Hero */}
+        <section className="relative z-10 min-h-[100svh]">
+          <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-6xl items-start px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:items-center">
+            <motion.div
+              className="w-full max-w-xl -translate-y-14 text-center sm:max-w-2xl sm:-translate-y-20 sm:text-right lg:max-w-3xl lg:-translate-y-28 lg:text-left"
+              variants={stagger}
+              initial="hidden"
+              animate="show"
             >
-              Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
-              local bank.
-            </motion.p>
-          </motion.div>
-        </div>
-      </section>
+              <motion.h1
+                className="text-center font-semibold tracking-tight sm:text-right lg:text-left"
+                variants={fadeUp}
+              >
+                <span className="block whitespace-nowrap text-black max-sm:text-[clamp(1.0625rem,4.2vw+0.6rem,1.875rem)] sm:text-5xl md:text-6xl">
+                  Control Your Capital.
+                </span>
+                <span className="mt-1 block text-pretty text-3xl text-pink-400 sm:mt-0 sm:text-5xl md:text-6xl">
+                  The Smart Way.
+                </span>
+              </motion.h1>
+              <motion.p
+                className="mt-5 max-w-xl text-pretty text-center text-sm leading-6 text-zinc-800 sm:text-right sm:text-base sm:leading-7 lg:text-left"
+                variants={fadeUp}
+              >
+                Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
+                local bank.
+              </motion.p>
+            </motion.div>
+          </div>
+        </section>
+      </div>
 
       {/* Features grid */}
       <section id="features" className="relative z-10 min-h-[100svh] overflow-hidden bg-zinc-50">
