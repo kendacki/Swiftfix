@@ -439,13 +439,18 @@ export default function Page() {
         >
           <div className="grid gap-10 border-t border-zinc-200 pt-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <Image
-                src="/logo.png"
-                alt="SwiftFix"
-                width={120}
-                height={24}
-                className="h-6 w-auto"
-              />
+              <div className="flex flex-wrap items-center gap-2">
+                <Image
+                  src="/logo-footer.png"
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 shrink-0 object-contain"
+                />
+                <span className="text-lg font-semibold tracking-tight text-zinc-900">
+                  SwiftFix
+                </span>
+              </div>
               <p className="mt-4 text-sm leading-6 text-zinc-600">
                 Control your capital with modern swaps, payments, and compliant
                 withdrawals.
