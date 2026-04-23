@@ -258,22 +258,22 @@ export default function Page() {
           <div className="absolute inset-0 bg-black/35" />
         </div>
 
-        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center justify-start px-4 pb-10 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
+        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-start justify-end px-4 pb-10 pt-6 sm:px-6 sm:pb-16 sm:pt-8 md:pt-10">
           <motion.div
-            className="w-full max-w-xl text-left sm:max-w-2xl"
+            className="max-w-xl text-right sm:max-w-2xl"
             variants={stagger}
             initial="hidden"
             animate="show"
           >
             <motion.h1
-              className="text-balance text-left text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
+              className="text-balance text-right text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
               variants={fadeUp}
             >
               <span className="block text-white">Control Your Capital.</span>
               <span className="mt-1 block text-pink-400 sm:mt-0">The Smart Way.</span>
             </motion.h1>
             <motion.p
-              className="mt-5 max-w-xl text-balance text-left text-sm leading-6 text-white/70 sm:text-base sm:leading-7"
+              className="mt-5 max-w-xl text-balance text-right text-sm leading-6 text-white/70 sm:text-base sm:leading-7"
               variants={fadeUp}
             >
               Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
