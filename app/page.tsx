@@ -253,6 +253,27 @@ export default function Page() {
                 Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
                 local bank.
               </motion.p>
+              <motion.div
+                className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:justify-end lg:justify-start"
+                variants={fadeUp}
+              >
+                <motion.button
+                  type="button"
+                  onClick={() => login()}
+                  className="rounded-full bg-pink-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-pink-600"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2, ease: easeInOut }}
+                >
+                  Get Started
+                </motion.button>
+                <Link
+                  href="#faq"
+                  className="inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-900"
+                >
+                  Learn More
+                </Link>
+              </motion.div>
             </motion.div>
           </div>
         </section>
