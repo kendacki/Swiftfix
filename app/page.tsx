@@ -226,7 +226,7 @@ export default function Page() {
             sizes="100vw"
           />
         </div>
-        <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-start gap-8 px-4 pb-10 pt-6 sm:px-6 sm:pb-16 sm:pt-8 md:pt-10 lg:grid-cols-2 lg:gap-10 lg:items-center">
+        <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-start gap-8 px-4 pb-10 pt-4 sm:px-6 sm:pb-16 sm:pt-6 md:pt-8 lg:grid-cols-2 lg:gap-10 lg:items-center">
           <motion.div
             className="relative flex justify-center lg:justify-start"
             initial={{ opacity: 0, y: 12 }}
@@ -246,20 +246,24 @@ export default function Page() {
           </motion.div>
 
           <motion.div
-            className="max-w-xl justify-self-end text-right sm:max-w-2xl lg:pt-4"
+            className="max-w-xl justify-self-end text-right sm:max-w-2xl lg:-translate-y-8 lg:pt-0"
             variants={stagger}
             initial="hidden"
             animate="show"
           >
             <motion.h1
-              className="text-balance text-right text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl"
+              className="text-right font-semibold tracking-tight"
               variants={fadeUp}
             >
-              <span className="block text-black">Control Your Capital.</span>
-              <span className="mt-1 block text-pink-400 sm:mt-0">The Smart Way.</span>
+              <span className="block whitespace-nowrap text-black max-sm:text-[clamp(1.0625rem,4.2vw+0.6rem,1.875rem)] sm:text-5xl md:text-6xl">
+                Control Your Capital.
+              </span>
+              <span className="mt-1 block text-pretty text-3xl text-pink-400 sm:mt-0 sm:text-5xl md:text-6xl">
+                The Smart Way.
+              </span>
             </motion.h1>
             <motion.p
-              className="mt-5 max-w-xl text-balance text-right text-sm leading-6 text-zinc-800 sm:text-base sm:leading-7"
+              className="mt-5 max-w-xl text-pretty text-right text-sm leading-6 text-zinc-800 sm:text-base sm:leading-7"
               variants={fadeUp}
             >
               Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
