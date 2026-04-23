@@ -240,9 +240,10 @@ export default function Page() {
                 src="/hero-vr-portrait.png"
                 alt="Person with VR headset and headphones, interacting in virtual space"
                 fill
-                className="object-cover object-center scale-[1.18]"
+                className="bg-transparent !bg-none mix-blend-normal object-contain object-bottom"
                 sizes="(max-width: 1024px) 280px, 45vw"
                 priority
+                style={{ backgroundColor: "transparent" }}
               />
             </div>
           </motion.div>
