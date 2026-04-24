@@ -260,7 +260,7 @@ export default function Page() {
                     </div>
 
                     <motion.div
-                      className="pointer-events-none absolute left-[-2%] top-[-10%] z-10 w-[clamp(112px,22%,142px)]"
+                      className="pointer-events-none absolute left-[-2%] top-[-10%] z-10 w-[clamp(96px,18%,118px)]"
                       style={{ rotate: "-15deg" }}
                       animate={{ y: [0, -6, 0], rotate: [-15, -12, -15] }}
                       transition={{
@@ -270,16 +270,16 @@ export default function Page() {
                         delay: 0.1,
                       }}
                     >
-                      <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-fuchsia-500 via-fuchsia-600 to-purple-600 px-2.5 py-1.5 text-white shadow-[0_8px_28px_rgba(217,70,239,0.32)] ring-1 ring-white/25">
-                        <div className="text-xs font-semibold tracking-tight">
+                      <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-fuchsia-500 via-fuchsia-600 to-purple-600 px-2 py-1 text-white shadow-[0_6px_22px_rgba(217,70,239,0.28)] ring-1 ring-white/25">
+                        <div className="text-[10px] font-semibold tracking-tight">
                           +$356.30
                         </div>
-                        <TrendingUp className="h-3.5 w-3.5 shrink-0 opacity-95" />
+                        <TrendingUp className="h-3 w-3 shrink-0 opacity-95" />
                       </div>
                     </motion.div>
 
                     <motion.div
-                      className="pointer-events-none absolute bottom-[-12%] left-[-10%] z-10 w-[clamp(176px,44%,252px)]"
+                      className="pointer-events-none absolute bottom-[5%] left-[-8%] z-10 w-[clamp(148px,36%,210px)]"
                       style={{ rotate: "10deg" }}
                       animate={{ y: [0, -7, 0], rotate: [10, 7, 10] }}
                       transition={{
@@ -289,46 +289,46 @@ export default function Page() {
                         delay: 0.05,
                       }}
                     >
-                      <div className="rounded-2xl bg-fuchsia-600 p-3 text-white shadow-[0_12px_40px_rgba(217,70,239,0.32)] ring-1 ring-white/20">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex -space-x-2">
+                      <div className="rounded-2xl bg-fuchsia-600 p-2 text-white shadow-[0_10px_32px_rgba(217,70,239,0.28)] ring-1 ring-white/20">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex -space-x-1.5">
                             <Image
                               src="/hero-floater-avatar-1.jpg"
                               alt=""
-                              width={64}
-                              height={64}
-                              className="h-7 w-7 rounded-full border-2 border-white object-cover"
-                              sizes="28px"
+                              width={56}
+                              height={56}
+                              className="h-6 w-6 rounded-full border-2 border-white object-cover"
+                              sizes="24px"
                             />
                             <Image
                               src="/hero-floater-avatar-2.jpg"
                               alt=""
-                              width={64}
-                              height={64}
-                              className="h-7 w-7 rounded-full border-2 border-white object-cover"
-                              sizes="28px"
+                              width={56}
+                              height={56}
+                              className="h-6 w-6 rounded-full border-2 border-white object-cover"
+                              sizes="24px"
                             />
                             <Image
                               src="/hero-floater-avatar-3.jpg"
                               alt=""
-                              width={64}
-                              height={64}
-                              className="h-7 w-7 rounded-full border-2 border-white object-cover"
-                              sizes="28px"
+                              width={56}
+                              height={56}
+                              className="h-6 w-6 rounded-full border-2 border-white object-cover"
+                              sizes="24px"
                             />
                           </div>
-                          <div className="rounded-xl bg-white/15 p-1.5 ring-1 ring-white/25">
-                            <Wallet className="h-4 w-4" />
+                          <div className="rounded-lg bg-white/15 p-1 ring-1 ring-white/25">
+                            <Wallet className="h-3.5 w-3.5" />
                           </div>
                         </div>
-                        <div className="mt-2.5 text-sm font-bold tracking-tight">
+                        <div className="mt-1.5 text-xs font-bold tracking-tight">
                           Pay Artisan
                         </div>
                       </div>
                     </motion.div>
 
                     <motion.div
-                      className="pointer-events-none absolute right-[-16%] top-[30%] z-10 w-[clamp(152px,28%,188px)]"
+                      className="pointer-events-none absolute right-[-16%] top-[30%] z-10 w-[clamp(128px,24%,148px)]"
                       style={{ rotate: "9deg" }}
                       animate={{ y: [0, -6, 0], rotate: [9, 6, 9] }}
                       transition={{
@@ -338,29 +338,29 @@ export default function Page() {
                         delay: 0.2,
                       }}
                     >
-                      <div className="rounded-2xl bg-white p-3 shadow-[0_12px_40px_rgba(17,24,39,0.1)] ring-2 ring-fuchsia-500">
-                        <div className="flex items-start gap-2">
+                      <div className="rounded-2xl bg-white p-2 shadow-[0_10px_32px_rgba(17,24,39,0.08)] ring-2 ring-fuchsia-500">
+                        <div className="flex items-start gap-1.5">
                           <Image
                             src="/hero-floater-avatar-mark.jpg"
                             alt=""
-                            width={72}
-                            height={72}
-                            className="h-8 w-8 shrink-0 rounded-full object-cover ring-2 ring-fuchsia-200"
-                            sizes="32px"
+                            width={64}
+                            height={64}
+                            className="h-7 w-7 shrink-0 rounded-full object-cover ring-2 ring-fuchsia-200"
+                            sizes="28px"
                           />
                           <div className="min-w-0">
-                            <div className="text-xs font-bold leading-tight text-fuchsia-600">
+                            <div className="text-[10px] font-bold leading-tight text-fuchsia-600">
                               Mark Lindsey
                             </div>
-                            <div className="text-[10px] leading-tight text-zinc-500">
+                            <div className="text-[9px] leading-tight text-zinc-500">
                               Personal Account
                             </div>
                           </div>
                         </div>
-                        <div className="my-2 h-px w-full bg-zinc-200" />
-                        <div className="flex items-center justify-between text-xs text-zinc-600">
+                        <div className="my-1.5 h-px w-full bg-zinc-200" />
+                        <div className="flex items-center justify-between text-[10px] text-zinc-600">
                           <span>Transfer</span>
-                          <ArrowUpRight className="h-3.5 w-3.5 text-zinc-500" />
+                          <ArrowUpRight className="h-3 w-3 text-zinc-500" />
                         </div>
                       </div>
                     </motion.div>
