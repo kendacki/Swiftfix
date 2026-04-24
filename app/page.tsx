@@ -8,11 +8,13 @@ import { usePrivy } from "@privy-io/react-auth";
 import PartnersSection from "@/components/PartnersSection";
 import {
   ArrowLeftRight,
+  ArrowUpRight,
   BadgeCheck,
   Banknote,
   ChevronDown,
   LockKeyhole,
   ShieldCheck,
+  TrendingUp,
   Users,
   Wallet,
 } from "lucide-react";
@@ -214,7 +216,7 @@ export default function Page() {
                 <motion.button
                   type="button"
                   onClick={() => login()}
-                  className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition hover:bg-white/90"
+                  className="rounded-full border border-fuchsia-500/80 bg-black px-4 py-2 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(217,70,239,0.25),0_14px_45px_rgba(217,70,239,0.18)] transition hover:border-fuchsia-400/90 hover:bg-zinc-950"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, ease: easeInOut }}
@@ -231,7 +233,7 @@ export default function Page() {
           <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-center gap-8 px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:grid-cols-2 lg:gap-10">
             <motion.div
               aria-hidden
-              className="pointer-events-none absolute bottom-0 left-4 z-[5] hidden w-[min(92vw,520px)] translate-y-[18%] sm:left-6 lg:block"
+              className="pointer-events-none absolute bottom-0 left-4 z-[5] hidden w-[min(92vw,560px)] translate-y-[18%] sm:left-6 md:block"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.7, ease: easeInOut, delay: 0.05 }}
@@ -245,15 +247,95 @@ export default function Page() {
                   ease: easeInOut,
                 }}
               >
-                <div className="relative overflow-hidden rounded-3xl border-2 border-purple-500 bg-transparent shadow-[0_0_0_1px_rgba(168,85,247,0.35),0_18px_60px_rgba(126,34,206,0.22)]">
-                  <div className="relative aspect-[1024/487] w-full">
-                    <Image
-                      src="/hero-laptop-mockup.png"
-                      alt="SwiftFix dashboard shown on a laptop"
-                      fill
-                      className="object-contain object-bottom"
-                      sizes="(max-width: 1024px) 92vw, 520px"
-                    />
+                <div className="relative p-5 sm:p-6">
+                  <div className="relative rounded-3xl border-2 border-fuchsia-500 bg-transparent shadow-[0_0_0_1px_rgba(217,70,239,0.35),0_18px_60px_rgba(192,38,211,0.22)]">
+                    <div className="relative aspect-[1024/487] w-full">
+                      <Image
+                        src="/hero-laptop-mockup.png"
+                        alt="SwiftFix dashboard shown on a laptop"
+                        fill
+                        className="object-contain object-bottom"
+                        sizes="(max-width: 1024px) 92vw, 560px"
+                      />
+                    </div>
+
+                    <motion.div
+                      className="pointer-events-none absolute left-[-2%] top-[-10%] z-10 w-[clamp(148px,30%,190px)]"
+                      style={{ rotate: "-15deg" }}
+                      animate={{ y: [0, -6, 0], rotate: [-15, -12, -15] }}
+                      transition={{
+                        duration: 4.8,
+                        repeat: Infinity,
+                        ease: easeInOut,
+                        delay: 0.1,
+                      }}
+                    >
+                      <div className="flex items-center gap-2 rounded-full bg-gradient-to-r from-fuchsia-500 via-fuchsia-600 to-purple-600 px-3.5 py-2 text-white shadow-[0_12px_40px_rgba(217,70,239,0.35)] ring-1 ring-white/25">
+                        <div className="text-sm font-semibold tracking-tight">
+                          +$356.30
+                        </div>
+                        <TrendingUp className="h-4 w-4 shrink-0 opacity-95" />
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      className="pointer-events-none absolute bottom-[-12%] left-[-10%] z-10 w-[clamp(230px,58%,330px)]"
+                      style={{ rotate: "10deg" }}
+                      animate={{ y: [0, -7, 0], rotate: [10, 7, 10] }}
+                      transition={{
+                        duration: 5.2,
+                        repeat: Infinity,
+                        ease: easeInOut,
+                        delay: 0.05,
+                      }}
+                    >
+                      <div className="rounded-3xl bg-fuchsia-600 p-4 text-white shadow-[0_18px_55px_rgba(217,70,239,0.35)] ring-1 ring-white/20">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex -space-x-2.5">
+                            <div className="h-9 w-9 rounded-full border-2 border-white bg-gradient-to-br from-zinc-200 to-zinc-400" />
+                            <div className="h-9 w-9 rounded-full border-2 border-white bg-gradient-to-br from-emerald-200 to-emerald-500" />
+                            <div className="h-9 w-9 rounded-full border-2 border-white bg-gradient-to-br from-amber-200 to-amber-500" />
+                          </div>
+                          <div className="rounded-2xl bg-white/15 p-2 ring-1 ring-white/25">
+                            <Wallet className="h-5 w-5" />
+                          </div>
+                        </div>
+                        <div className="mt-4 text-lg font-bold tracking-tight">
+                          Pay Artisan
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      className="pointer-events-none absolute right-[-16%] top-[30%] z-10 w-[clamp(200px,38%,250px)]"
+                      style={{ rotate: "9deg" }}
+                      animate={{ y: [0, -6, 0], rotate: [9, 6, 9] }}
+                      transition={{
+                        duration: 5.6,
+                        repeat: Infinity,
+                        ease: easeInOut,
+                        delay: 0.2,
+                      }}
+                    >
+                      <div className="rounded-3xl bg-white p-4 shadow-[0_18px_55px_rgba(17,24,39,0.12)] ring-2 ring-fuchsia-500">
+                        <div className="flex items-start gap-3">
+                          <div className="h-11 w-11 shrink-0 rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 ring-2 ring-fuchsia-200" />
+                          <div className="min-w-0">
+                            <div className="text-sm font-bold text-fuchsia-600">
+                              Mark Lindsey
+                            </div>
+                            <div className="text-xs text-zinc-500">
+                              Personal Account
+                            </div>
+                          </div>
+                        </div>
+                        <div className="my-3 h-px w-full bg-zinc-200" />
+                        <div className="flex items-center justify-between text-sm text-zinc-600">
+                          <span>Transfer</span>
+                          <ArrowUpRight className="h-4 w-4 text-zinc-500" />
+                        </div>
+                      </div>
+                    </motion.div>
                   </div>
                 </div>
               </motion.div>
@@ -280,83 +362,12 @@ export default function Page() {
                 className="mt-5 max-w-xl text-pretty text-center text-sm leading-6 text-zinc-800 sm:text-right sm:text-base sm:leading-7 lg:text-left"
                 variants={fadeUp}
               >
-                Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
-                local bank.
+                Seamlessly request trusted artisans, and pay them in Naira or USDT.
               </motion.p>
-              <motion.div className="relative mt-8" variants={fadeUp}>
-                <motion.div
-                  aria-hidden
-                  className="pointer-events-none absolute -top-24 left-1/2 z-0 w-[177px] -translate-x-[118%] sm:-top-28 sm:w-[200px] sm:-translate-x-[125%] lg:-top-32 lg:left-auto lg:right-[-6.5rem] lg:w-[210px] lg:translate-x-0"
-                  style={{ rotate: "12deg" }}
-                  animate={{ y: [0, -6, 0], rotate: [12, 16, 12] }}
-                  transition={{
-                    duration: 4.8,
-                    repeat: Infinity,
-                    ease: easeInOut,
-                    delay: 0.15,
-                  }}
-                >
-                  <div className="relative overflow-hidden rounded-full border border-purple-500/70 shadow-[0_0_0_1px_rgba(168,85,247,0.25),0_16px_50px_rgba(126,34,206,0.18)]">
-                    <Image
-                      src="/hero-float-wallet-pill.png"
-                      alt=""
-                      width={177}
-                      height={104}
-                      className="h-auto w-full"
-                      sizes="210px"
-                    />
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  aria-hidden
-                  className="pointer-events-none absolute -top-10 left-1/2 z-0 w-[314px] -translate-x-[108%] sm:-top-12 sm:w-[340px] sm:-translate-x-[112%] lg:-top-14 lg:left-auto lg:right-[-9.25rem] lg:w-[360px] lg:translate-x-0"
-                  style={{ rotate: "-9deg" }}
-                  animate={{ y: [0, -7, 0], rotate: [-9, -6, -9] }}
-                  transition={{
-                    duration: 5.2,
-                    repeat: Infinity,
-                    ease: easeInOut,
-                    delay: 0.05,
-                  }}
-                >
-                  <div className="relative overflow-hidden rounded-3xl border-2 border-purple-500 shadow-[0_0_0_1px_rgba(168,85,247,0.35),0_18px_60px_rgba(126,34,206,0.22)]">
-                    <Image
-                      src="/hero-float-pay-artisan.png"
-                      alt=""
-                      width={314}
-                      height={197}
-                      className="h-auto w-full"
-                      sizes="360px"
-                    />
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  aria-hidden
-                  className="pointer-events-none absolute -top-6 left-1/2 z-0 w-[335px] -translate-x-[18%] sm:-top-8 sm:w-[360px] sm:-translate-x-[14%] lg:-top-10 lg:left-auto lg:right-[-12.5rem] lg:w-[380px] lg:translate-x-0"
-                  style={{ rotate: "7deg" }}
-                  animate={{ y: [0, -6, 0], rotate: [7, 4, 7] }}
-                  transition={{
-                    duration: 5.6,
-                    repeat: Infinity,
-                    ease: easeInOut,
-                    delay: 0.25,
-                  }}
-                >
-                  <div className="relative overflow-hidden rounded-3xl border-2 border-purple-500 shadow-[0_0_0_1px_rgba(168,85,247,0.35),0_18px_60px_rgba(126,34,206,0.22)]">
-                    <Image
-                      src="/hero-float-transfer-card.png"
-                      alt=""
-                      width={335}
-                      height={232}
-                      className="h-auto w-full"
-                      sizes="380px"
-                    />
-                  </div>
-                </motion.div>
-
-                <div className="relative z-10 flex flex-wrap items-center justify-center gap-3 sm:justify-end lg:justify-start">
+              <motion.div
+                className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-3 sm:justify-end lg:justify-start"
+                variants={fadeUp}
+              >
                   <motion.button
                     type="button"
                     onClick={() => login()}
@@ -389,7 +400,6 @@ export default function Page() {
                       Learn More
                     </Link>
                   </motion.span>
-                </div>
               </motion.div>
             </motion.div>
 
