@@ -279,7 +279,7 @@ export default function Page() {
                     </motion.div>
 
                     <motion.div
-                      className="pointer-events-none absolute bottom-[5%] left-[-8%] z-10 w-[clamp(148px,36%,210px)]"
+                      className="pointer-events-none absolute bottom-[10%] left-[-8%] z-10 w-[clamp(124px,30%,178px)]"
                       style={{ rotate: "10deg" }}
                       animate={{ y: [0, -7, 0], rotate: [10, 7, 10] }}
                       transition={{
@@ -289,46 +289,46 @@ export default function Page() {
                         delay: 0.05,
                       }}
                     >
-                      <div className="rounded-2xl bg-fuchsia-600 p-2 text-white shadow-[0_10px_32px_rgba(217,70,239,0.28)] ring-1 ring-white/20">
-                        <div className="flex items-center justify-between gap-1.5">
-                          <div className="flex -space-x-1.5">
+                      <div className="rounded-xl bg-fuchsia-600 p-1.5 text-white shadow-[0_8px_26px_rgba(217,70,239,0.26)] ring-1 ring-white/20">
+                        <div className="flex items-center justify-between gap-1">
+                          <div className="flex -space-x-1">
                             <Image
                               src="/hero-floater-avatar-1.jpg"
                               alt=""
-                              width={56}
-                              height={56}
-                              className="h-6 w-6 rounded-full border-2 border-white object-cover"
-                              sizes="24px"
+                              width={48}
+                              height={48}
+                              className="h-5 w-5 rounded-full border border-white object-cover"
+                              sizes="20px"
                             />
                             <Image
                               src="/hero-floater-avatar-2.jpg"
                               alt=""
-                              width={56}
-                              height={56}
-                              className="h-6 w-6 rounded-full border-2 border-white object-cover"
-                              sizes="24px"
+                              width={48}
+                              height={48}
+                              className="h-5 w-5 rounded-full border border-white object-cover"
+                              sizes="20px"
                             />
                             <Image
                               src="/hero-floater-avatar-3.jpg"
                               alt=""
-                              width={56}
-                              height={56}
-                              className="h-6 w-6 rounded-full border-2 border-white object-cover"
-                              sizes="24px"
+                              width={48}
+                              height={48}
+                              className="h-5 w-5 rounded-full border border-white object-cover"
+                              sizes="20px"
                             />
                           </div>
-                          <div className="rounded-lg bg-white/15 p-1 ring-1 ring-white/25">
-                            <Wallet className="h-3.5 w-3.5" />
+                          <div className="rounded-md bg-white/15 p-0.5 ring-1 ring-white/25">
+                            <Wallet className="h-3 w-3" />
                           </div>
                         </div>
-                        <div className="mt-1.5 text-xs font-bold tracking-tight">
+                        <div className="mt-1 text-[10px] font-bold leading-tight tracking-tight">
                           Pay Artisan
                         </div>
                       </div>
                     </motion.div>
 
                     <motion.div
-                      className="pointer-events-none absolute right-[-16%] top-[30%] z-10 w-[clamp(128px,24%,148px)]"
+                      className="pointer-events-none absolute right-[-16%] top-[30%] z-10 w-[clamp(108px,20%,126px)]"
                       style={{ rotate: "9deg" }}
                       animate={{ y: [0, -6, 0], rotate: [9, 6, 9] }}
                       transition={{
@@ -338,29 +338,29 @@ export default function Page() {
                         delay: 0.2,
                       }}
                     >
-                      <div className="rounded-2xl bg-white p-2 shadow-[0_10px_32px_rgba(17,24,39,0.08)] ring-2 ring-fuchsia-500">
-                        <div className="flex items-start gap-1.5">
+                      <div className="rounded-xl bg-white p-1.5 shadow-[0_8px_26px_rgba(17,24,39,0.07)] ring-1 ring-fuchsia-500">
+                        <div className="flex items-start gap-1">
                           <Image
                             src="/hero-floater-avatar-mark.jpg"
                             alt=""
-                            width={64}
-                            height={64}
-                            className="h-7 w-7 shrink-0 rounded-full object-cover ring-2 ring-fuchsia-200"
-                            sizes="28px"
+                            width={48}
+                            height={48}
+                            className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-fuchsia-200"
+                            sizes="24px"
                           />
                           <div className="min-w-0">
-                            <div className="text-[10px] font-bold leading-tight text-fuchsia-600">
+                            <div className="text-[9px] font-bold leading-tight text-fuchsia-600">
                               Mark Lindsey
                             </div>
-                            <div className="text-[9px] leading-tight text-zinc-500">
+                            <div className="text-[8px] leading-tight text-zinc-500">
                               Personal Account
                             </div>
                           </div>
                         </div>
-                        <div className="my-1.5 h-px w-full bg-zinc-200" />
-                        <div className="flex items-center justify-between text-[10px] text-zinc-600">
+                        <div className="my-1 h-px w-full bg-zinc-200" />
+                        <div className="flex items-center justify-between text-[9px] text-zinc-600">
                           <span>Transfer</span>
-                          <ArrowUpRight className="h-3 w-3 text-zinc-500" />
+                          <ArrowUpRight className="h-2.5 w-2.5 text-zinc-500" />
                         </div>
                       </div>
                     </motion.div>
