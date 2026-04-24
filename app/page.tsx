@@ -236,17 +236,27 @@ export default function Page() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.7, ease: easeInOut, delay: 0.05 }}
             >
-              <div className="relative overflow-hidden rounded-3xl border-2 border-purple-500 bg-transparent shadow-[0_0_0_1px_rgba(168,85,247,0.35),0_18px_60px_rgba(126,34,206,0.22)]">
-                <div className="relative aspect-[1024/487] w-full">
-                  <Image
-                    src="/hero-laptop-mockup.png"
-                    alt="SwiftFix dashboard shown on a laptop"
-                    fill
-                    className="object-contain object-bottom"
-                    sizes="(max-width: 1024px) 92vw, 520px"
-                  />
+              <motion.div
+                className="relative"
+                animate={{ y: [0, -8, 0] }}
+                transition={{
+                  duration: 5.5,
+                  repeat: Infinity,
+                  ease: easeInOut,
+                }}
+              >
+                <div className="relative overflow-hidden rounded-3xl border-2 border-purple-500 bg-transparent shadow-[0_0_0_1px_rgba(168,85,247,0.35),0_18px_60px_rgba(126,34,206,0.22)]">
+                  <div className="relative aspect-[1024/487] w-full">
+                    <Image
+                      src="/hero-laptop-mockup.png"
+                      alt="SwiftFix dashboard shown on a laptop"
+                      fill
+                      className="object-contain object-bottom"
+                      sizes="(max-width: 1024px) 92vw, 520px"
+                    />
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
 
             <motion.div
@@ -273,26 +283,113 @@ export default function Page() {
                 Seamlessly swap USDT to NGN, pay trusted artisans, and withdraw to your
                 local bank.
               </motion.p>
-              <motion.div
-                className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:justify-end lg:justify-start"
-                variants={fadeUp}
-              >
-                <motion.button
-                  type="button"
-                  onClick={() => login()}
-                  className="rounded-full bg-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ duration: 0.2, ease: easeInOut }}
+              <motion.div className="relative mt-8" variants={fadeUp}>
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute -top-24 left-1/2 z-0 w-[177px] -translate-x-[118%] sm:-top-28 sm:w-[200px] sm:-translate-x-[125%] lg:-top-32 lg:left-auto lg:right-[-6.5rem] lg:w-[210px] lg:translate-x-0"
+                  style={{ rotate: "12deg" }}
+                  animate={{ y: [0, -6, 0], rotate: [12, 16, 12] }}
+                  transition={{
+                    duration: 4.8,
+                    repeat: Infinity,
+                    ease: easeInOut,
+                    delay: 0.15,
+                  }}
                 >
-                  Get Started
-                </motion.button>
-                <Link
-                  href="#faq"
-                  className="inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-900"
+                  <div className="relative overflow-hidden rounded-full border border-purple-500/70 shadow-[0_0_0_1px_rgba(168,85,247,0.25),0_16px_50px_rgba(126,34,206,0.18)]">
+                    <Image
+                      src="/hero-float-wallet-pill.png"
+                      alt=""
+                      width={177}
+                      height={104}
+                      className="h-auto w-full"
+                      sizes="210px"
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute -top-10 left-1/2 z-0 w-[314px] -translate-x-[108%] sm:-top-12 sm:w-[340px] sm:-translate-x-[112%] lg:-top-14 lg:left-auto lg:right-[-9.25rem] lg:w-[360px] lg:translate-x-0"
+                  style={{ rotate: "-9deg" }}
+                  animate={{ y: [0, -7, 0], rotate: [-9, -6, -9] }}
+                  transition={{
+                    duration: 5.2,
+                    repeat: Infinity,
+                    ease: easeInOut,
+                    delay: 0.05,
+                  }}
                 >
-                  Learn More
-                </Link>
+                  <div className="relative overflow-hidden rounded-3xl border-2 border-purple-500 shadow-[0_0_0_1px_rgba(168,85,247,0.35),0_18px_60px_rgba(126,34,206,0.22)]">
+                    <Image
+                      src="/hero-float-pay-artisan.png"
+                      alt=""
+                      width={314}
+                      height={197}
+                      className="h-auto w-full"
+                      sizes="360px"
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute -top-6 left-1/2 z-0 w-[335px] -translate-x-[18%] sm:-top-8 sm:w-[360px] sm:-translate-x-[14%] lg:-top-10 lg:left-auto lg:right-[-12.5rem] lg:w-[380px] lg:translate-x-0"
+                  style={{ rotate: "7deg" }}
+                  animate={{ y: [0, -6, 0], rotate: [7, 4, 7] }}
+                  transition={{
+                    duration: 5.6,
+                    repeat: Infinity,
+                    ease: easeInOut,
+                    delay: 0.25,
+                  }}
+                >
+                  <div className="relative overflow-hidden rounded-3xl border-2 border-purple-500 shadow-[0_0_0_1px_rgba(168,85,247,0.35),0_18px_60px_rgba(126,34,206,0.22)]">
+                    <Image
+                      src="/hero-float-transfer-card.png"
+                      alt=""
+                      width={335}
+                      height={232}
+                      className="h-auto w-full"
+                      sizes="380px"
+                    />
+                  </div>
+                </motion.div>
+
+                <div className="relative z-10 flex flex-wrap items-center justify-center gap-3 sm:justify-end lg:justify-start">
+                  <motion.button
+                    type="button"
+                    onClick={() => login()}
+                    className="rounded-full bg-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    animate={{ y: [0, -2, 0] }}
+                    transition={{
+                      duration: 3.8,
+                      repeat: Infinity,
+                      ease: easeInOut,
+                    }}
+                  >
+                    Get Started
+                  </motion.button>
+                  <motion.span
+                    className="inline-flex"
+                    animate={{ y: [0, -2, 0] }}
+                    transition={{
+                      duration: 3.8,
+                      repeat: Infinity,
+                      ease: easeInOut,
+                      delay: 0.12,
+                    }}
+                  >
+                    <Link
+                      href="#faq"
+                      className="inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-900"
+                    >
+                      Learn More
+                    </Link>
+                  </motion.span>
+                </div>
               </motion.div>
             </motion.div>
 
@@ -302,7 +399,16 @@ export default function Page() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: easeInOut }}
             >
-              <div className="relative aspect-square w-full max-w-[320px] bg-transparent !bg-none sm:max-w-md lg:max-w-none">
+              <motion.div
+                className="relative aspect-square w-full max-w-[320px] bg-transparent !bg-none sm:max-w-md lg:max-w-none"
+                animate={{ y: [0, -9, 0] }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: easeInOut,
+                  delay: 0.1,
+                }}
+              >
                 <Image
                   src="/hero-right-character.png"
                   alt="Illustration of a character"
@@ -312,7 +418,7 @@ export default function Page() {
                   priority
                   style={{ backgroundColor: "transparent" }}
                 />
-              </div>
+              </motion.div>
             </motion.div>
           </div>
         </section>
