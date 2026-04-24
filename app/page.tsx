@@ -242,7 +242,7 @@ export default function Page() {
                 <span className="block whitespace-nowrap text-black max-sm:text-[clamp(1.0625rem,4.2vw+0.6rem,1.875rem)] sm:text-5xl md:text-6xl">
                   Control Your Savings.
                 </span>
-                <span className="mt-1 block text-pretty text-3xl text-pink-400 sm:mt-0 sm:text-5xl md:text-6xl">
+                <span className="mt-1 block text-pretty text-3xl text-purple-600 sm:mt-0 sm:text-5xl md:text-6xl">
                   The Swift Way.
                 </span>
               </motion.h1>
@@ -260,7 +260,7 @@ export default function Page() {
                 <motion.button
                   type="button"
                   onClick={() => login()}
-                  className="rounded-full bg-pink-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-pink-600"
+                  className="rounded-full bg-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, ease: easeInOut }}
