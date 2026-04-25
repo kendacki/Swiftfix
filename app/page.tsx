@@ -279,7 +279,7 @@ export default function Page() {
                     </motion.div>
 
                     <motion.div
-                      className="pointer-events-none absolute bottom-[10%] left-[-8%] z-10 w-[clamp(124px,30%,178px)]"
+                      className="pointer-events-none absolute bottom-[14%] left-[-8%] z-10 w-[clamp(124px,30%,178px)]"
                       style={{ rotate: "10deg" }}
                       animate={{ y: [0, -7, 0], rotate: [10, 7, 10] }}
                       transition={{
