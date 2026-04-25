@@ -12,9 +12,10 @@ import {
   BadgeCheck,
   Banknote,
   ChevronDown,
+  Landmark,
   LockKeyhole,
+  PiggyBank,
   TrendingUp,
-  Users,
   Wallet,
 } from "lucide-react";
 
@@ -477,20 +478,20 @@ export default function Page() {
 
                 <div className="relative flex min-h-[260px] flex-col justify-end p-6 text-white">
                   <div className="flex items-center gap-2">
-                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white/15 ring-1 ring-white/25">
-                      <ArrowLeftRight className="h-5 w-5" />
+                    <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/15 shadow-[0_16px_50px_rgba(0,0,0,0.22)] ring-1 ring-white/25">
+                      <ArrowLeftRight className="h-6 w-6" />
                     </div>
                   </div>
-                  <div className="mt-5 text-lg font-semibold tracking-tight">
+                  <div className="mt-5 text-xl font-semibold tracking-tight">
                     Swap &amp; Pay
                   </div>
-                  <div className="mt-2 max-w-[36ch] text-sm leading-6 text-white/85">
+                  <div className="mt-2 max-w-[40ch] text-sm leading-6 text-white/85">
                     Instantly move between USDT and NGN, then pay in one step.
                   </div>
                   <button
                     type="button"
                     onClick={() => login()}
-                    className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-fuchsia-400 px-4 py-2 text-xs font-semibold text-black shadow-[0_10px_30px_rgba(217,70,239,0.22)] transition group-hover:bg-fuchsia-300"
+                    className="mt-6 inline-flex w-fit items-center justify-center rounded-full bg-lime-200 px-5 py-2 text-xs font-semibold text-zinc-900 shadow-[0_12px_34px_rgba(163,230,53,0.28)] transition group-hover:bg-lime-100"
                   >
                     Get Started
                   </button>
@@ -501,23 +502,14 @@ export default function Page() {
                 className="relative overflow-hidden rounded-2xl bg-violet-100 shadow-[0_18px_60px_rgba(17,24,39,0.08)] ring-1 ring-zinc-200"
                 variants={fadeUp}
               >
-                <div className="absolute inset-0 opacity-[0.10]">
-                  <Image
-                    src="/features-trusted-artisans.jpg"
-                    alt=""
-                    fill
-                    className="object-cover object-center"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                </div>
                 <div className="relative flex min-h-[260px] flex-col items-center justify-center p-6 text-center">
-                  <div className="grid h-14 w-14 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(124,58,237,0.18)] ring-2 ring-fuchsia-500/35">
-                    <Users className="h-7 w-7 text-fuchsia-600" />
+                  <div className="grid h-16 w-16 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(124,58,237,0.18)] ring-2 ring-violet-400/35">
+                    <PiggyBank className="h-9 w-9 text-violet-700" />
                   </div>
-                  <div className="mt-5 text-lg font-semibold tracking-tight text-zinc-900">
+                  <div className="mt-6 text-xl font-semibold tracking-tight text-zinc-900">
                     Trusted Artisans
                   </div>
-                  <div className="mt-2 max-w-[36ch] text-sm leading-6 text-zinc-700">
+                  <div className="mt-2 max-w-[42ch] text-sm leading-6 text-zinc-700">
                     Send funds only to vetted providers with clear receipts.
                   </div>
                 </div>
@@ -527,23 +519,14 @@ export default function Page() {
                 className="relative overflow-hidden rounded-2xl bg-lime-200 shadow-[0_18px_60px_rgba(17,24,39,0.08)] ring-1 ring-zinc-200"
                 variants={fadeUp}
               >
-                <div className="absolute inset-0 opacity-[0.10]">
-                  <Image
-                    src="/features-zero-fees.jpg"
-                    alt=""
-                    fill
-                    className="object-cover object-center"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                </div>
                 <div className="relative flex min-h-[260px] flex-col items-center justify-center p-6 text-center">
-                  <div className="grid h-14 w-14 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(16,185,129,0.18)] ring-2 ring-fuchsia-500/25">
-                    <BadgeCheck className="h-7 w-7 text-emerald-600" />
+                  <div className="grid h-16 w-16 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(16,185,129,0.18)] ring-2 ring-emerald-400/25">
+                    <Landmark className="h-9 w-9 text-emerald-700" />
                   </div>
-                  <div className="mt-5 text-lg font-semibold tracking-tight text-zinc-900">
+                  <div className="mt-6 text-xl font-semibold tracking-tight text-zinc-900">
                     Zero Hidden Fees
                   </div>
-                  <div className="mt-2 max-w-[36ch] text-sm leading-6 text-zinc-700">
+                  <div className="mt-2 max-w-[42ch] text-sm leading-6 text-zinc-700">
                     Transparent pricing before you confirm any transaction.
                   </div>
                 </div>
