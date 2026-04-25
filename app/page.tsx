@@ -459,54 +459,92 @@ export default function Page() {
             whileInView="show"
             viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
           >
-            <div
-              aria-hidden
-              className="pointer-events-none absolute left-1/2 top-6 hidden h-px w-[min(920px,92%)] -translate-x-1/2 border-t border-dashed border-zinc-200 md:block"
-            />
+            <div className="grid gap-4 md:grid-cols-3 md:gap-6">
+              <motion.div
+                className="group relative overflow-hidden rounded-2xl bg-zinc-900 shadow-[0_18px_60px_rgba(17,24,39,0.18)] ring-1 ring-zinc-200"
+                variants={fadeUp}
+              >
+                <div className="absolute inset-0">
+                  <Image
+                    src="/features-swap-pay.jpg"
+                    alt=""
+                    fill
+                    className="object-cover object-center opacity-90"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+                </div>
 
-            <div className="grid gap-10 md:grid-cols-3 md:gap-8">
-              <motion.div className="text-center" variants={fadeUp}>
-                <div className="relative mx-auto h-12 w-12">
-                  <div className="absolute inset-0 rounded-full bg-violet-500/15 ring-2 ring-violet-400/35" />
-                  <div className="relative grid h-12 w-12 place-items-center rounded-full bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] ring-1 ring-zinc-200">
-                    <ArrowLeftRight className="h-5 w-5 text-violet-600" />
+                <div className="relative flex min-h-[260px] flex-col justify-end p-6 text-white">
+                  <div className="flex items-center gap-2">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white/15 ring-1 ring-white/25">
+                      <ArrowLeftRight className="h-5 w-5" />
+                    </div>
                   </div>
-                </div>
-                <div className="mt-6 text-base font-semibold tracking-tight text-zinc-900">
-                  Swap &amp; Pay
-                </div>
-                <div className="mt-2 text-sm leading-6 text-zinc-600">
-                  Instantly move between USDT and NGN, then pay in one step.
+                  <div className="mt-5 text-lg font-semibold tracking-tight">
+                    Swap &amp; Pay
+                  </div>
+                  <div className="mt-2 max-w-[36ch] text-sm leading-6 text-white/85">
+                    Instantly move between USDT and NGN, then pay in one step.
+                  </div>
+                  <button
+                    type="button"
+                    className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-fuchsia-400 px-4 py-2 text-xs font-semibold text-black shadow-[0_10px_30px_rgba(217,70,239,0.22)] transition group-hover:bg-fuchsia-300"
+                  >
+                    Get Started
+                  </button>
                 </div>
               </motion.div>
 
-              <motion.div className="text-center" variants={fadeUp}>
-                <div className="relative mx-auto h-12 w-12">
-                  <div className="absolute inset-0 rounded-full bg-fuchsia-500/20 blur-[0.5px] ring-2 ring-fuchsia-500/40" />
-                  <div className="relative grid h-12 w-12 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(217,70,239,0.14)] ring-1 ring-fuchsia-200">
-                    <Users className="h-5 w-5 text-fuchsia-600" />
+              <motion.div
+                className="relative overflow-hidden rounded-2xl bg-violet-100 shadow-[0_18px_60px_rgba(17,24,39,0.08)] ring-1 ring-zinc-200"
+                variants={fadeUp}
+              >
+                <div className="absolute inset-0 opacity-[0.10]">
+                  <Image
+                    src="/features-trusted-artisans.jpg"
+                    alt=""
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                </div>
+                <div className="relative flex min-h-[260px] flex-col items-center justify-center p-6 text-center">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(124,58,237,0.18)] ring-2 ring-fuchsia-500/35">
+                    <Users className="h-7 w-7 text-fuchsia-600" />
                   </div>
-                </div>
-                <div className="mt-6 text-base font-semibold tracking-tight text-zinc-900">
-                  Trusted Artisans
-                </div>
-                <div className="mt-2 text-sm leading-6 text-zinc-600">
-                  Send funds only to vetted providers with clear receipts.
+                  <div className="mt-5 text-lg font-semibold tracking-tight text-zinc-900">
+                    Trusted Artisans
+                  </div>
+                  <div className="mt-2 max-w-[36ch] text-sm leading-6 text-zinc-700">
+                    Send funds only to vetted providers with clear receipts.
+                  </div>
                 </div>
               </motion.div>
 
-              <motion.div className="text-center" variants={fadeUp}>
-                <div className="relative mx-auto h-12 w-12">
-                  <div className="absolute inset-0 rounded-full bg-purple-500/15 ring-2 ring-purple-400/35" />
-                  <div className="relative grid h-12 w-12 place-items-center rounded-full bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] ring-1 ring-zinc-200">
-                    <BadgeCheck className="h-5 w-5 text-purple-600" />
+              <motion.div
+                className="relative overflow-hidden rounded-2xl bg-lime-200 shadow-[0_18px_60px_rgba(17,24,39,0.08)] ring-1 ring-zinc-200"
+                variants={fadeUp}
+              >
+                <div className="absolute inset-0 opacity-[0.10]">
+                  <Image
+                    src="/features-zero-fees.jpg"
+                    alt=""
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                </div>
+                <div className="relative flex min-h-[260px] flex-col items-center justify-center p-6 text-center">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(16,185,129,0.18)] ring-2 ring-fuchsia-500/25">
+                    <BadgeCheck className="h-7 w-7 text-emerald-600" />
                   </div>
-                </div>
-                <div className="mt-6 text-base font-semibold tracking-tight text-zinc-900">
-                  Zero Hidden Fees
-                </div>
-                <div className="mt-2 text-sm leading-6 text-zinc-600">
-                  Transparent pricing before you confirm any transaction.
+                  <div className="mt-5 text-lg font-semibold tracking-tight text-zinc-900">
+                    Zero Hidden Fees
+                  </div>
+                  <div className="mt-2 max-w-[36ch] text-sm leading-6 text-zinc-700">
+                    Transparent pricing before you confirm any transaction.
+                  </div>
                 </div>
               </motion.div>
             </div>
