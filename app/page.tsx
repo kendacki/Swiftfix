@@ -13,7 +13,6 @@ import {
   Banknote,
   ChevronDown,
   LockKeyhole,
-  ShieldCheck,
   TrendingUp,
   Users,
   Wallet,
@@ -40,36 +39,6 @@ const stagger = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.08 } },
 };
-
-type FeatureCardProps = {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-};
-
-function FeatureCard({ title, description, icon }: FeatureCardProps) {
-  return (
-    <motion.div
-      variants={fadeUp}
-      whileHover={{ y: -2, transition: { duration: 0.25, ease: easeInOut } }}
-      className="group relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm backdrop-blur-xl transition hover:bg-zinc-50/80"
-    >
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <div className="text-sm font-semibold tracking-tight text-zinc-900">
-            {title}
-          </div>
-          <div className="mt-1 text-sm leading-6 text-zinc-600">
-            {description}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 type BentoCardProps = {
   title: string;
