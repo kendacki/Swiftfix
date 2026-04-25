@@ -489,6 +489,7 @@ export default function Page() {
                   </div>
                   <button
                     type="button"
+                    onClick={() => login()}
                     className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-fuchsia-400 px-4 py-2 text-xs font-semibold text-black shadow-[0_10px_30px_rgba(217,70,239,0.22)] transition group-hover:bg-fuchsia-300"
                   >
                     Get Started
