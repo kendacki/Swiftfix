@@ -230,7 +230,7 @@ export default function Page() {
 
         {/* Hero */}
         <section className="relative z-10 min-h-[100svh]">
-          <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-center gap-8 px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:grid-cols-2 lg:gap-10">
+          <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-center gap-8 px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:grid-cols-2 lg:gap-16 xl:gap-24">
             <motion.div
               aria-hidden
               className="pointer-events-none absolute bottom-0 left-4 z-[5] hidden w-[min(92vw,560px)] translate-y-[18%] sm:left-6 md:block"
@@ -432,7 +432,7 @@ export default function Page() {
             </motion.div>
 
             <motion.div
-              className="relative z-10 order-2 flex justify-center lg:order-2 lg:justify-end"
+              className="relative z-10 order-2 flex justify-center lg:order-2 lg:justify-end lg:pl-8 xl:pl-14"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: easeInOut }}
