@@ -463,53 +463,85 @@ export default function Page() {
       </div>
 
       {/* Features grid */}
-      <section id="features" className="relative z-10 min-h-[100svh] overflow-hidden bg-zinc-50">
-        <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 py-14 sm:px-6 sm:py-20">
-          <div className="grid w-full gap-8 lg:grid-cols-2 lg:items-start">
-            <motion.div
-              className="lg:pt-6"
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
-              variants={fadeUp}
-            >
-              <h2 className="text-balance text-4xl font-semibold tracking-tight text-zinc-900 sm:text-6xl">
-                The strategic choice.
-              </h2>
-              <p className="mt-4 max-w-xl text-balance text-lg font-medium leading-7 text-zinc-600 sm:text-xl sm:leading-8">
-                Built for people that are intentional about Financial Growth
-              </p>
-            </motion.div>
+      <section id="features" className="relative z-10 bg-white">
+        <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+          <motion.div
+            className="mx-auto max-w-3xl text-center"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
+            variants={fadeUp}
+          >
+            <h2 className="text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-5xl">
+              The strategic choice for{" "}
+              <span className="rounded-xl bg-fuchsia-500 px-2.5 py-1 text-white shadow-[0_10px_30px_rgba(217,70,239,0.20)]">
+                Financial Growth
+              </span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-balance text-sm font-medium leading-6 text-zinc-600 sm:text-base sm:leading-7">
+              Built for people that are intentional about Financial Growth
+            </p>
+          </motion.div>
 
-            <motion.div
-              className="grid gap-3 sm:grid-cols-2"
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
-            >
-              <FeatureCard
-                title="Swap & Pay"
-                description="Instantly move between USDT and NGN, then pay in one step."
-                icon={<ArrowLeftRight className="h-5 w-5" />}
-              />
-              <FeatureCard
-                title="Trusted Artisans"
-                description="Send funds only to vetted providers with clear receipts."
-                icon={<Users className="h-5 w-5" />}
-              />
-              <FeatureCard
-                title="Zero Hidden Fees"
-                description="Transparent pricing before you confirm any transaction."
-                icon={<BadgeCheck className="h-5 w-5" />}
-              />
-              <FeatureCard
-                title="Airtight Compliance"
-                description="Designed to meet regulatory expectations without friction."
-                icon={<ShieldCheck className="h-5 w-5" />}
-              />
-            </motion.div>
-          </div>
+          <motion.div
+            className="relative mx-auto mt-12 max-w-5xl"
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-6 hidden h-px w-[min(920px,92%)] -translate-x-1/2 border-t border-dashed border-zinc-200 md:block"
+            />
+
+            <div className="grid gap-10 md:grid-cols-3 md:gap-8">
+              <motion.div className="text-center" variants={fadeUp}>
+                <div className="relative mx-auto h-12 w-12">
+                  <div className="absolute inset-0 rounded-full bg-violet-500/15 ring-2 ring-violet-400/35" />
+                  <div className="relative grid h-12 w-12 place-items-center rounded-full bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] ring-1 ring-zinc-200">
+                    <ArrowLeftRight className="h-5 w-5 text-violet-600" />
+                  </div>
+                </div>
+                <div className="mt-6 text-base font-semibold tracking-tight text-zinc-900">
+                  Swap &amp; Pay
+                </div>
+                <div className="mt-2 text-sm leading-6 text-zinc-600">
+                  Instantly move between USDT and NGN, then pay in one step.
+                </div>
+              </motion.div>
+
+              <motion.div className="text-center" variants={fadeUp}>
+                <div className="relative mx-auto h-12 w-12">
+                  <div className="absolute inset-0 rounded-full bg-fuchsia-500/20 blur-[0.5px] ring-2 ring-fuchsia-500/40" />
+                  <div className="relative grid h-12 w-12 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(217,70,239,0.14)] ring-1 ring-fuchsia-200">
+                    <Users className="h-5 w-5 text-fuchsia-600" />
+                  </div>
+                </div>
+                <div className="mt-6 text-base font-semibold tracking-tight text-zinc-900">
+                  Trusted Artisans
+                </div>
+                <div className="mt-2 text-sm leading-6 text-zinc-600">
+                  Send funds only to vetted providers with clear receipts.
+                </div>
+              </motion.div>
+
+              <motion.div className="text-center" variants={fadeUp}>
+                <div className="relative mx-auto h-12 w-12">
+                  <div className="absolute inset-0 rounded-full bg-purple-500/15 ring-2 ring-purple-400/35" />
+                  <div className="relative grid h-12 w-12 place-items-center rounded-full bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] ring-1 ring-zinc-200">
+                    <BadgeCheck className="h-5 w-5 text-purple-600" />
+                  </div>
+                </div>
+                <div className="mt-6 text-base font-semibold tracking-tight text-zinc-900">
+                  Zero Hidden Fees
+                </div>
+                <div className="mt-2 text-sm leading-6 text-zinc-600">
+                  Transparent pricing before you confirm any transaction.
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
