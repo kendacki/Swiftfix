@@ -518,7 +518,10 @@ export default function Page() {
                 variants={fadeUp}
               >
                 <h2 className="text-balance text-4xl font-semibold tracking-tight text-zinc-900 sm:text-6xl">
-                  Future banking you need
+                  Future banking{" "}
+                  <span className="rounded-xl bg-purple-600 px-2.5 py-1 text-white shadow-[0_10px_30px_rgba(147,51,234,0.22)]">
+                    you need
+                  </span>
                 </h2>
                 <p className="max-w-xl text-balance text-sm leading-6 text-zinc-600 sm:text-base sm:leading-7 lg:pt-6">
                   Payment now handled wth ease seamlessly — swaps, payouts, and receipts
@@ -577,7 +580,10 @@ export default function Page() {
                     How it works <span className="text-purple-600">•</span>
                   </div>
                   <h3 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
-                    Empowering people to take control of their finances
+                    <span className="rounded-xl bg-purple-600 px-2.5 py-1 text-white shadow-[0_10px_30px_rgba(147,51,234,0.22)]">
+                      Empowering people
+                    </span>{" "}
+                    to take control of their finances
                   </h3>
                 </div>
                 <p className="max-w-xl text-balance text-sm leading-6 text-zinc-600 sm:text-base sm:leading-7 lg:pt-6">
