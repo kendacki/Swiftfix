@@ -738,7 +738,7 @@ export default function Page() {
           viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
           variants={fadeUp}
         >
-          <div className="grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-2">
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <Image
@@ -756,48 +756,6 @@ export default function Page() {
                 Control your capital with modern swaps, payments, and compliant
                 withdrawals.
               </p>
-            </div>
-
-            <div>
-              <div className="text-sm font-semibold text-white">Product</div>
-              <div className="mt-4 space-y-2 text-sm text-white/70">
-                <a href="#features" className="block hover:text-white">
-                  Features
-                </a>
-                <a href="#trust" className="block hover:text-white">
-                  Trust
-                </a>
-                <a href="#faq" className="block hover:text-white">
-                  FAQ
-                </a>
-              </div>
-            </div>
-
-            <div>
-              <div className="text-sm font-semibold text-white">Company</div>
-              <div className="mt-4 space-y-2 text-sm text-white/70">
-                <Link
-                  href="/dashboard"
-                  prefetch={false}
-                  className="block hover:text-white"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/settings"
-                  prefetch={false}
-                  className="block hover:text-white"
-                >
-                  Settings
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => login()}
-                  className="block text-left hover:text-white"
-                >
-                  Sign In
-                </button>
-              </div>
             </div>
 
             <div>
