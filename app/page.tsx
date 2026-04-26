@@ -340,7 +340,7 @@ export default function Page() {
               transition={{ duration: 0.6, ease: easeInOut }}
             >
               <motion.div
-                className="relative aspect-square w-full max-w-[320px] bg-transparent !bg-none sm:max-w-md lg:max-w-none"
+                className="relative aspect-square w-full max-w-[260px] bg-transparent !bg-none sm:max-w-md lg:max-w-none"
                 animate={{ y: [0, -9, 0] }}
                 transition={{
                   duration: 6,
@@ -408,7 +408,7 @@ export default function Page() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
                 </div>
 
-                <div className="relative flex min-h-[260px] flex-col justify-end p-6 text-white">
+                <div className="relative flex min-h-[220px] flex-col justify-end p-5 text-white sm:min-h-[260px] sm:p-6">
                   <div className="flex items-center gap-2">
                     <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/15 shadow-[0_16px_50px_rgba(0,0,0,0.22)] ring-1 ring-white/25">
                       <ArrowLeftRight className="h-6 w-6" />
@@ -434,7 +434,7 @@ export default function Page() {
                 className="relative overflow-hidden rounded-2xl bg-violet-100 shadow-[0_18px_60px_rgba(17,24,39,0.08)] ring-1 ring-zinc-200"
                 variants={fadeUp}
               >
-                <div className="relative flex min-h-[260px] flex-col items-center justify-center p-6 text-center">
+                <div className="relative flex min-h-[220px] flex-col items-center justify-center p-5 text-center sm:min-h-[260px] sm:p-6">
                   <div className="grid h-16 w-16 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(124,58,237,0.18)] ring-2 ring-violet-400/35">
                     <PiggyBank className="h-9 w-9 text-violet-700" />
                   </div>
@@ -451,7 +451,7 @@ export default function Page() {
                 className="relative overflow-hidden rounded-2xl bg-lime-200 shadow-[0_18px_60px_rgba(17,24,39,0.08)] ring-1 ring-zinc-200"
                 variants={fadeUp}
               >
-                <div className="relative flex min-h-[260px] flex-col items-center justify-center p-6 text-center">
+                <div className="relative flex min-h-[220px] flex-col items-center justify-center p-5 text-center sm:min-h-[260px] sm:p-6">
                   <div className="grid h-16 w-16 place-items-center rounded-full bg-white shadow-[0_14px_40px_rgba(16,185,129,0.18)] ring-2 ring-emerald-400/25">
                     <Landmark className="h-9 w-9 text-emerald-700" />
                   </div>
@@ -578,7 +578,7 @@ export default function Page() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-tr from-black/85 via-black/40 to-transparent" />
                   </div>
-                  <div className="relative flex min-h-[240px] flex-col justify-end p-6 text-white">
+                  <div className="relative flex min-h-[210px] flex-col justify-end p-5 text-white sm:min-h-[240px] sm:p-6">
                     <div className="grid h-10 w-10 place-items-center rounded-full bg-white/15 shadow-[0_14px_40px_rgba(0,0,0,0.25)] ring-1 ring-white/25">
                       <Wallet className="h-5 w-5" />
                     </div>
@@ -689,7 +689,7 @@ export default function Page() {
                   <button
                     type="button"
                     onClick={() => setOpenFaqIndex(open ? null : idx)}
-                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-white"
+                    className="flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left text-white sm:px-5 sm:py-4"
                   >
                     <div className="text-sm font-semibold tracking-tight text-white">
                       {item.q}
@@ -703,7 +703,7 @@ export default function Page() {
                   </button>
                   {open ? (
                     <motion.div
-                      className="px-5 pb-5 text-sm leading-6 text-white/85"
+                      className="px-4 pb-4 text-sm leading-6 text-white/85 sm:px-5 sm:pb-5"
                       initial={{ height: 0, opacity: 0, y: -4 }}
                       animate={{ height: "auto", opacity: 1, y: 0 }}
                       exit={{ height: 0, opacity: 0, y: -4 }}
