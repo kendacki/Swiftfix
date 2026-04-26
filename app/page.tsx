@@ -767,7 +767,7 @@ export default function Page() {
               <button
                 type="button"
                 onClick={() => login()}
-                className="mt-5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90"
+                className="mt-5 rounded-full bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_34px_rgba(147,51,234,0.28)] hover:bg-purple-500"
               >
                 Sign In
               </button>
