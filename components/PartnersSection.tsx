@@ -15,8 +15,11 @@ export default function PartnersSection() {
   return (
     <section className="border-y border-zinc-200 bg-white py-16">
       <div className="mx-auto max-w-7xl px-6">
-        <p className="mb-8 text-center text-sm font-semibold uppercase tracking-widest text-zinc-500">
-          Powered By Industry Leaders
+        <p className="mb-8 text-center text-sm font-semibold uppercase tracking-widest text-black">
+          Powered By{" "}
+          <span className="rounded-xl bg-purple-600 px-2.5 py-1 text-white shadow-[0_10px_30px_rgba(147,51,234,0.22)]">
+            Industry Leaders
+          </span>
         </p>
 
         {/* The Grid: Changes from 2 columns on mobile, to 4 on tablet, to 7 on desktop */}
