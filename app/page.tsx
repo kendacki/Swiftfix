@@ -41,40 +41,6 @@ const stagger = {
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.08 } },
 };
 
-function SectionHeading({
-  kicker,
-  title,
-  subtitle,
-}: {
-  kicker?: string;
-  title: string;
-  subtitle?: string;
-}) {
-  return (
-    <motion.div
-      className="mx-auto max-w-2xl text-center"
-      variants={fadeUp}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
-    >
-      {kicker ? (
-        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          {kicker}
-        </div>
-      ) : null}
-      <h2 className="mt-3 text-balance text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl">
-        {title}
-      </h2>
-      {subtitle ? (
-        <p className="mt-3 text-balance text-sm leading-6 text-zinc-600 sm:text-base">
-          {subtitle}
-        </p>
-      ) : null}
-    </motion.div>
-  );
-}
-
 export default function Page() {
   const { login } = usePrivy();
 
@@ -678,15 +644,29 @@ export default function Page() {
       {/* FAQ */}
       <section
         id="faq"
-        className="relative z-10 min-h-[100svh] overflow-hidden bg-gradient-to-br from-purple-700 via-fuchsia-700 to-purple-900"
+        className="relative z-10 min-h-[100svh] overflow-hidden bg-white"
       >
         <div className="mx-auto flex min-h-[100svh] w-full max-w-3xl items-center px-4 py-16 sm:px-6 sm:py-24">
           <div className="w-full">
-          <SectionHeading
-            title="FAQ"
-            subtitle="Quick answers to common questions."
-            kicker="Support"
-          />
+            <motion.div
+              className="mx-auto max-w-2xl text-center"
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
+            >
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                Support
+              </div>
+              <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-5xl">
+                <span className="rounded-xl bg-purple-600 px-2.5 py-1 text-white shadow-[0_10px_30px_rgba(147,51,234,0.22)]">
+                  FAQ
+                </span>
+              </h2>
+              <p className="mt-4 text-balance text-sm leading-6 text-zinc-600 sm:text-base">
+                Quick answers to common questions.
+              </p>
+            </motion.div>
 
           <motion.div
             className="mt-10 space-y-3"
@@ -701,10 +681,10 @@ export default function Page() {
                 <motion.div
                   key={item.q}
                   className={[
-                    "overflow-hidden rounded-2xl border bg-white/10 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur-xl transition",
+                    "overflow-hidden rounded-2xl border border-purple-800/25 bg-purple-700 shadow-[0_18px_60px_rgba(88,28,135,0.22)] transition",
                     open
-                      ? "border-purple-200/70 ring-2 ring-purple-200/70 shadow-[0_0_0_1px_rgba(233,213,255,0.40),0_22px_80px_rgba(0,0,0,0.28)]"
-                      : "border-white/15 hover:border-white/25",
+                      ? "ring-2 ring-purple-400/60 shadow-[0_0_0_1px_rgba(192,132,252,0.35),0_22px_80px_rgba(88,28,135,0.18)]"
+                      : "hover:bg-purple-600 hover:ring-1 hover:ring-purple-400/25",
                   ].join(" ")}
                   variants={fadeUp}
                   layout
@@ -719,14 +699,14 @@ export default function Page() {
                     </div>
                     <ChevronDown
                       className={[
-                        "h-4 w-4 shrink-0 text-white/70 transition-transform",
+                        "h-4 w-4 shrink-0 text-white/80 transition-transform",
                         open ? "rotate-180" : "rotate-0",
                       ].join(" ")}
                     />
                   </button>
                   {open ? (
                     <motion.div
-                      className="px-5 pb-5 text-sm leading-6 text-white/80"
+                      className="px-5 pb-5 text-sm leading-6 text-white/85"
                       initial={{ height: 0, opacity: 0, y: -4 }}
                       animate={{ height: "auto", opacity: 1, y: 0 }}
                       exit={{ height: 0, opacity: 0, y: -4 }}
