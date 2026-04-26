@@ -655,9 +655,6 @@ export default function Page() {
               whileInView="show"
               viewport={{ once: true, margin: "-15% 0px -10% 0px" }}
             >
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                Support
-              </div>
               <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-5xl">
                 <span className="rounded-xl bg-purple-600 px-2.5 py-1 text-white shadow-[0_10px_30px_rgba(147,51,234,0.22)]">
                   FAQ
