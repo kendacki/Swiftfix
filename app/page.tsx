@@ -738,7 +738,7 @@ export default function Page() {
           viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
           variants={fadeUp}
         >
-          <div className="grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-2">
+          <div className="flex flex-col gap-10 border-t border-white/10 pt-10">
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <Image
