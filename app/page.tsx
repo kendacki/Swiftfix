@@ -13,8 +13,8 @@ import {
   Banknote,
   ChevronDown,
   Landmark,
-  LockKeyhole,
   PiggyBank,
+  ShieldCheck,
   TrendingUp,
   Wallet,
 } from "lucide-react";
@@ -40,40 +40,6 @@ const stagger = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.08 } },
 };
-
-type BentoCardProps = {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  className?: string;
-};
-
-function BentoCard({ title, description, icon, className }: BentoCardProps) {
-  return (
-    <motion.div
-      variants={fadeUp}
-      whileHover={{ y: -2, transition: { duration: 0.25, ease: easeInOut } }}
-      className={[
-        "relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-50 p-6 shadow-sm backdrop-blur-xl",
-        className ?? "",
-      ].join(" ")}
-    >
-      <div className="relative flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200/80">
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <div className="text-sm font-semibold tracking-tight text-zinc-900">
-            {title}
-          </div>
-          <div className="mt-1 text-sm leading-6 text-zinc-600">
-            {description}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 function SectionHeading({
   kicker,
@@ -540,43 +506,165 @@ export default function Page() {
       <section id="trust" className="relative z-10 min-h-[100svh] bg-white">
         <div className="mx-auto flex min-h-[100svh] w-full max-w-6xl items-center px-4 pb-16 pt-2 sm:px-6 sm:pb-24">
           <div className="w-full">
-          <SectionHeading
-            title="Future banking you need"
-            subtitle="Payment now handled wth ease seamlessly"
-          />
+            <motion.div
+              className="grid gap-10"
+              variants={stagger}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
+            >
+              <motion.div
+                className="grid items-start gap-8 lg:grid-cols-[1.35fr_1fr]"
+                variants={fadeUp}
+              >
+                <h2 className="text-balance text-4xl font-semibold tracking-tight text-zinc-900 sm:text-6xl">
+                  Future banking you need
+                </h2>
+                <p className="max-w-xl text-balance text-sm leading-6 text-zinc-600 sm:text-base sm:leading-7 lg:pt-6">
+                  Payment now handled wth ease seamlessly — swaps, payouts, and receipts
+                  designed for real-world usage.
+                </p>
+              </motion.div>
 
-          <motion.div
-            className="mt-10 grid gap-3 lg:grid-cols-12"
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-          >
-            <BentoCard
-              className="lg:col-span-5"
-              title="Unified Wallet"
-              description="Track balances and activity across flows with a clean, focused dashboard."
-              icon={<Wallet className="h-5 w-5" />}
-            />
-            <BentoCard
-              className="lg:col-span-7"
-              title="Bank Withdrawals"
-              description="Withdraw to your local bank with verification-first rails and clear confirmations."
-              icon={<Banknote className="h-5 w-5" />}
-            />
-            <BentoCard
-              className="lg:col-span-7"
-              title="Structured Transactions"
-              description="Every move is recorded with consistent metadata—easy to audit and reconcile."
-              icon={<BadgeCheck className="h-5 w-5" />}
-            />
-            <BentoCard
-              className="lg:col-span-5"
-              title="Security Controls"
-              description="Modern auth, secure sessions, and safeguards designed for financial UX."
-              icon={<LockKeyhole className="h-5 w-5" />}
-            />
-          </motion.div>
+              <motion.div
+                className="grid gap-6 rounded-3xl bg-gradient-to-r from-violet-50 via-white to-lime-50 p-6 ring-1 ring-zinc-200 sm:p-8"
+                variants={fadeUp}
+              >
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    {
+                      value: "99.9%",
+                      label: "Reliable rails",
+                      body: "Built to keep swaps, payments, and withdrawals moving.",
+                    },
+                    {
+                      value: "2s",
+                      label: "Swap speed",
+                      body: "Fast confirmations for USDT ⇄ NGN flows.",
+                    },
+                    {
+                      value: "24/7",
+                      label: "Monitoring",
+                      body: "Real-time signals to protect your activity.",
+                    },
+                    {
+                      value: "0",
+                      label: "Hidden fees",
+                      body: "Transparent pricing before you confirm.",
+                    },
+                  ].map((metric) => (
+                    <div key={metric.label} className="relative">
+                      <div className="text-3xl font-semibold tracking-tight text-purple-600">
+                        {metric.value}
+                      </div>
+                      <div className="mt-2 text-sm font-semibold text-zinc-900">
+                        {metric.label}
+                      </div>
+                      <div className="mt-2 text-sm leading-6 text-zinc-600">
+                        {metric.body}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="grid items-start gap-8 lg:grid-cols-[1.2fr_1fr]"
+                variants={fadeUp}
+              >
+                <div>
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                    How it works <span className="text-purple-600">•</span>
+                  </div>
+                  <h3 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
+                    Empowering people to take control of their finances
+                  </h3>
+                </div>
+                <p className="max-w-xl text-balance text-sm leading-6 text-zinc-600 sm:text-base sm:leading-7 lg:pt-6">
+                  SwiftFix helps you execute swaps, pay trusted artisans, and withdraw
+                  to your bank with consistent transaction records.
+                </p>
+              </motion.div>
+
+              <motion.div
+                className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+                variants={stagger}
+              >
+                <motion.div
+                  className="group relative overflow-hidden rounded-2xl bg-zinc-900 shadow-[0_18px_60px_rgba(17,24,39,0.18)] ring-1 ring-zinc-200"
+                  variants={fadeUp}
+                  whileHover={{ y: -4 }}
+                  transition={{ duration: 0.25, ease: easeInOut }}
+                >
+                  <div className="absolute inset-0">
+                    <Image
+                      src="/trust-feature-card.jpg"
+                      alt=""
+                      fill
+                      className="object-cover object-center opacity-90"
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/35 to-transparent" />
+                  </div>
+                  <div className="relative flex min-h-[240px] flex-col justify-end p-6 text-white">
+                    <div className="grid h-10 w-10 place-items-center rounded-full bg-white/15 ring-1 ring-white/25">
+                      <Wallet className="h-5 w-5" />
+                    </div>
+                    <div className="mt-4 text-base font-semibold tracking-tight">
+                      Unified Wallet
+                    </div>
+                    <div className="mt-2 text-sm leading-6 text-white/85">
+                      Track balances and activity across flows with a clean, focused
+                      dashboard.
+                    </div>
+                  </div>
+                </motion.div>
+
+                {[
+                  {
+                    icon: <Banknote className="h-6 w-6 text-violet-700" />,
+                    title: "Bank Withdrawals",
+                    body: "Withdraw to your local bank with verification-first rails and clear confirmations.",
+                    tint: "bg-violet-50 ring-violet-200/60",
+                  },
+                  {
+                    icon: <BadgeCheck className="h-6 w-6 text-purple-600" />,
+                    title: "Structured Transactions",
+                    body: "Every move is recorded with consistent metadata—easy to audit and reconcile.",
+                    tint: "bg-white ring-zinc-200",
+                  },
+                  {
+                    icon: <ShieldCheck className="h-6 w-6 text-emerald-700" />,
+                    title: "Security Controls",
+                    body: "Modern auth, secure sessions, and safeguards designed for financial UX.",
+                    tint: "bg-lime-50 ring-emerald-200/50",
+                  },
+                ].map((card) => (
+                  <motion.div
+                    key={card.title}
+                    className={[
+                      "relative overflow-hidden rounded-2xl p-6 shadow-[0_18px_60px_rgba(17,24,39,0.06)] ring-1",
+                      card.tint,
+                    ].join(" ")}
+                    variants={fadeUp}
+                    whileHover={{ y: -4 }}
+                    transition={{ duration: 0.25, ease: easeInOut }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="grid h-11 w-11 place-items-center rounded-full bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)] ring-1 ring-zinc-200">
+                        {card.icon}
+                      </div>
+                    </div>
+                    <div className="mt-5 text-base font-semibold tracking-tight text-zinc-900">
+                      {card.title}
+                    </div>
+                    <div className="mt-2 text-sm leading-6 text-zinc-600">
+                      {card.body}
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
