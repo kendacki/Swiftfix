@@ -527,7 +527,7 @@ export default function Page() {
               </motion.div>
 
               <motion.div
-                className="grid gap-6 rounded-3xl bg-gradient-to-r from-violet-50 via-white to-lime-50 p-6 ring-1 ring-zinc-200 sm:p-8"
+                className="grid gap-6 rounded-3xl bg-gradient-to-r from-violet-100 via-white to-lime-100 p-6 shadow-[0_18px_60px_rgba(17,24,39,0.08)] ring-1 ring-zinc-200 sm:p-8"
                 variants={fadeUp}
               >
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -554,7 +554,7 @@ export default function Page() {
                     },
                   ].map((metric) => (
                     <div key={metric.label} className="relative">
-                      <div className="text-3xl font-semibold tracking-tight text-purple-600">
+                      <div className="text-3xl font-semibold tracking-tight text-purple-700">
                         {metric.value}
                       </div>
                       <div className="mt-2 text-sm font-semibold text-zinc-900">
@@ -591,7 +591,7 @@ export default function Page() {
                 variants={stagger}
               >
                 <motion.div
-                  className="group relative overflow-hidden rounded-2xl bg-zinc-900 shadow-[0_18px_60px_rgba(17,24,39,0.18)] ring-1 ring-zinc-200"
+                  className="group relative overflow-hidden rounded-2xl bg-zinc-900 shadow-[0_18px_60px_rgba(17,24,39,0.22)] ring-1 ring-zinc-200"
                   variants={fadeUp}
                   whileHover={{ y: -4 }}
                   transition={{ duration: 0.25, ease: easeInOut }}
@@ -604,10 +604,10 @@ export default function Page() {
                       className="object-cover object-center opacity-90"
                       sizes="(max-width: 768px) 100vw, 25vw"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/35 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black/85 via-black/40 to-transparent" />
                   </div>
                   <div className="relative flex min-h-[240px] flex-col justify-end p-6 text-white">
-                    <div className="grid h-10 w-10 place-items-center rounded-full bg-white/15 ring-1 ring-white/25">
+                    <div className="grid h-10 w-10 place-items-center rounded-full bg-white/15 shadow-[0_14px_40px_rgba(0,0,0,0.25)] ring-1 ring-white/25">
                       <Wallet className="h-5 w-5" />
                     </div>
                     <div className="mt-4 text-base font-semibold tracking-tight">
@@ -622,28 +622,28 @@ export default function Page() {
 
                 {[
                   {
-                    icon: <Banknote className="h-6 w-6 text-violet-700" />,
+                    icon: <Banknote className="h-6 w-6 text-violet-800" />,
                     title: "Bank Withdrawals",
                     body: "Withdraw to your local bank with verification-first rails and clear confirmations.",
-                    tint: "bg-violet-50 ring-violet-200/60",
+                    tint: "bg-violet-200 text-zinc-900 ring-violet-300/70",
                   },
                   {
-                    icon: <BadgeCheck className="h-6 w-6 text-purple-600" />,
+                    icon: <BadgeCheck className="h-6 w-6 text-purple-800" />,
                     title: "Structured Transactions",
                     body: "Every move is recorded with consistent metadata—easy to audit and reconcile.",
-                    tint: "bg-white ring-zinc-200",
+                    tint: "bg-purple-100 text-zinc-900 ring-purple-200/80",
                   },
                   {
-                    icon: <ShieldCheck className="h-6 w-6 text-emerald-700" />,
+                    icon: <ShieldCheck className="h-6 w-6 text-emerald-800" />,
                     title: "Security Controls",
                     body: "Modern auth, secure sessions, and safeguards designed for financial UX.",
-                    tint: "bg-lime-50 ring-emerald-200/50",
+                    tint: "bg-lime-200 text-zinc-900 ring-lime-300/70",
                   },
                 ].map((card) => (
                   <motion.div
                     key={card.title}
                     className={[
-                      "relative overflow-hidden rounded-2xl p-6 shadow-[0_18px_60px_rgba(17,24,39,0.06)] ring-1",
+                      "relative overflow-hidden rounded-2xl p-6 shadow-[0_18px_60px_rgba(17,24,39,0.10)] ring-1",
                       card.tint,
                     ].join(" ")}
                     variants={fadeUp}
@@ -651,14 +651,14 @@ export default function Page() {
                     transition={{ duration: 0.25, ease: easeInOut }}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="grid h-11 w-11 place-items-center rounded-full bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)] ring-1 ring-zinc-200">
+                      <div className="grid h-11 w-11 place-items-center rounded-full bg-white/80 shadow-[0_10px_30px_rgba(15,23,42,0.10)] ring-1 ring-black/5">
                         {card.icon}
                       </div>
                     </div>
                     <div className="mt-5 text-base font-semibold tracking-tight text-zinc-900">
                       {card.title}
                     </div>
-                    <div className="mt-2 text-sm leading-6 text-zinc-600">
+                    <div className="mt-2 text-sm leading-6 text-zinc-700">
                       {card.body}
                     </div>
                   </motion.div>
