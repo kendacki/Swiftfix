@@ -676,10 +676,17 @@ export default function Page() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="relative z-10 min-h-[100svh] overflow-hidden bg-zinc-50">
+      <section
+        id="faq"
+        className="relative z-10 min-h-[100svh] overflow-hidden bg-gradient-to-br from-purple-700 via-fuchsia-700 to-purple-900"
+      >
         <div className="mx-auto flex min-h-[100svh] w-full max-w-3xl items-center px-4 py-16 sm:px-6 sm:py-24">
           <div className="w-full">
-          <SectionHeading title="FAQ" subtitle="Quick answers to common questions." />
+          <SectionHeading
+            title="FAQ"
+            subtitle="Quick answers to common questions."
+            kicker="Support"
+          />
 
           <motion.div
             className="mt-10 space-y-3"
@@ -693,29 +700,36 @@ export default function Page() {
               return (
                 <motion.div
                   key={item.q}
-                  className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm backdrop-blur-xl"
+                  className={[
+                    "overflow-hidden rounded-2xl border bg-white/10 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur-xl transition",
+                    open
+                      ? "border-purple-200/70 ring-2 ring-purple-200/70 shadow-[0_0_0_1px_rgba(233,213,255,0.40),0_22px_80px_rgba(0,0,0,0.28)]"
+                      : "border-white/15 hover:border-white/25",
+                  ].join(" ")}
                   variants={fadeUp}
+                  layout
                 >
                   <button
                     type="button"
                     onClick={() => setOpenFaqIndex(open ? null : idx)}
-                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-white"
                   >
-                    <div className="text-sm font-semibold tracking-tight text-zinc-900">
+                    <div className="text-sm font-semibold tracking-tight text-white">
                       {item.q}
                     </div>
                     <ChevronDown
                       className={[
-                        "h-4 w-4 shrink-0 text-zinc-500 transition-transform",
+                        "h-4 w-4 shrink-0 text-white/70 transition-transform",
                         open ? "rotate-180" : "rotate-0",
                       ].join(" ")}
                     />
                   </button>
                   {open ? (
                     <motion.div
-                      className="px-5 pb-5 text-sm leading-6 text-zinc-600"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
+                      className="px-5 pb-5 text-sm leading-6 text-white/80"
+                      initial={{ height: 0, opacity: 0, y: -4 }}
+                      animate={{ height: "auto", opacity: 1, y: 0 }}
+                      exit={{ height: 0, opacity: 0, y: -4 }}
                       transition={{ duration: 0.35, ease: easeInOut }}
                     >
                       {item.a}
