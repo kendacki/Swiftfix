@@ -3,13 +3,13 @@ import Image from "next/image";
 export default function PartnersSection() {
   // We repeat the 3 logos to perfectly fill your 7 slots
   const partners = [
-    { name: "TinyFish", src: "/tinyfish.png" },
-    { name: "Yellow Card", src: "/yellowcard.png" },
-    { name: "Jobberman", src: "/jobberman.png" },
-    { name: "TinyFish", src: "/tinyfish.png" },
-    { name: "Yellow Card", src: "/yellowcard.png" },
-    { name: "Jobberman", src: "/jobberman.png" },
-    { name: "TinyFish", src: "/tinyfish.png" }, // Ends on TinyFish to make 7
+    { name: "Paystack", src: "/partner-paystack.png", needsInvert: true },
+    { name: "Privy", src: "/partner-privy.png", needsInvert: false },
+    { name: "TinyFish", src: "/partner-tinyfish.png", needsInvert: true },
+    { name: "Paystack", src: "/partner-paystack.png", needsInvert: true },
+    { name: "Privy", src: "/partner-privy.png", needsInvert: false },
+    { name: "TinyFish", src: "/partner-tinyfish.png", needsInvert: true },
+    { name: "Paystack", src: "/partner-paystack.png", needsInvert: true }, // Ends on Paystack to make 7
   ];
 
   return (
@@ -23,17 +23,20 @@ export default function PartnersSection() {
         </p>
 
         {/* The Grid: Changes from 2 columns on mobile, to 4 on tablet, to 7 on desktop */}
-        <div className="grid grid-cols-2 items-center justify-items-center gap-8 opacity-90 md:grid-cols-4 lg:grid-cols-7">
+        <div className="grid grid-cols-2 items-center justify-items-center gap-8 opacity-95 md:grid-cols-4 lg:grid-cols-7">
           {partners.map((partner, index) => (
             <div
               key={index}
-              className="relative h-12 w-28 grayscale opacity-80 transition-all duration-300 hover:grayscale-0 hover:opacity-100"
+              className="relative h-14 w-36 grayscale opacity-85 transition-all duration-300 hover:grayscale-0 hover:opacity-100 sm:h-16 sm:w-44"
             >
               <Image
                 src={partner.src}
                 alt={`${partner.name} Logo`}
                 fill
-                className="object-contain brightness-0 invert"
+                className={[
+                  "object-contain",
+                  partner.needsInvert ? "brightness-0 invert" : "",
+                ].join(" ")}
               />
             </div>
           ))}
