@@ -730,7 +730,7 @@ export default function Page() {
       </motion.div>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-white">
+      <footer className="relative z-10 bg-black">
         <motion.div
           className="mx-auto w-full max-w-6xl px-4 pb-12 pt-10 sm:px-6"
           initial="hidden"
@@ -738,7 +738,7 @@ export default function Page() {
           viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
           variants={fadeUp}
         >
-          <div className="grid gap-10 border-t border-zinc-200 pt-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <Image
@@ -746,54 +746,54 @@ export default function Page() {
                   alt=""
                   width={32}
                   height={32}
-                  className="h-8 w-8 shrink-0 object-contain"
+                  className="h-8 w-8 shrink-0 object-contain brightness-0 invert"
                 />
-                <span className="text-lg font-semibold tracking-tight text-zinc-900">
+                <span className="text-lg font-semibold tracking-tight text-white">
                   SwiftFix
                 </span>
               </div>
-              <p className="mt-4 text-sm leading-6 text-zinc-600">
+              <p className="mt-4 text-sm leading-6 text-white/70">
                 Control your capital with modern swaps, payments, and compliant
                 withdrawals.
               </p>
             </div>
 
             <div>
-              <div className="text-sm font-semibold text-zinc-900">Product</div>
-              <div className="mt-4 space-y-2 text-sm text-zinc-600">
-                <a href="#features" className="block hover:text-zinc-900">
+              <div className="text-sm font-semibold text-white">Product</div>
+              <div className="mt-4 space-y-2 text-sm text-white/70">
+                <a href="#features" className="block hover:text-white">
                   Features
                 </a>
-                <a href="#trust" className="block hover:text-zinc-900">
+                <a href="#trust" className="block hover:text-white">
                   Trust
                 </a>
-                <a href="#faq" className="block hover:text-zinc-900">
+                <a href="#faq" className="block hover:text-white">
                   FAQ
                 </a>
               </div>
             </div>
 
             <div>
-              <div className="text-sm font-semibold text-zinc-900">Company</div>
-              <div className="mt-4 space-y-2 text-sm text-zinc-600">
+              <div className="text-sm font-semibold text-white">Company</div>
+              <div className="mt-4 space-y-2 text-sm text-white/70">
                 <Link
                   href="/dashboard"
                   prefetch={false}
-                  className="block hover:text-zinc-900"
+                  className="block hover:text-white"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/settings"
                   prefetch={false}
-                  className="block hover:text-zinc-900"
+                  className="block hover:text-white"
                 >
                   Settings
                 </Link>
                 <button
                   type="button"
                   onClick={() => login()}
-                  className="block text-left hover:text-zinc-900"
+                  className="block text-left hover:text-white"
                 >
                   Sign In
                 </button>
@@ -801,31 +801,33 @@ export default function Page() {
             </div>
 
             <div>
-              <div className="text-sm font-semibold text-zinc-900">Get started</div>
-              <p className="mt-4 text-sm leading-6 text-zinc-600">
+              <div className="text-sm font-semibold text-white">Get started</div>
+              <p className="mt-4 text-sm leading-6 text-white/70">
                 Log in to start swapping USDT to NGN and withdrawing to your
                 bank.
               </p>
               <button
                 type="button"
                 onClick={() => login()}
-                className="mt-5 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800"
+                className="mt-5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90"
               >
                 Sign In
               </button>
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-zinc-200 pt-6 text-xs text-zinc-500 sm:flex-row">
-            <div>© {new Date().getFullYear()} SwiftFix. All rights reserved.</div>
-            <div className="flex items-center gap-5">
-              <a className="hover:text-zinc-900" href="#">
+          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/60 sm:flex-row">
+            <div className="text-purple-400">
+              © {new Date().getFullYear()} SwiftFix. All rights reserved.
+            </div>
+            <div className="flex items-center gap-5 text-white/60">
+              <a className="hover:text-white" href="#">
                 Privacy
               </a>
-              <a className="hover:text-zinc-900" href="#">
+              <a className="hover:text-white" href="#">
                 Terms
               </a>
-              <a className="hover:text-zinc-900" href="#">
+              <a className="hover:text-white" href="#">
                 Support
               </a>
             </div>
