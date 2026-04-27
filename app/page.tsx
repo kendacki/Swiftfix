@@ -131,11 +131,11 @@ export default function Page() {
         </header>
 
         {/* Hero */}
-        <section className="relative z-10 min-h-[100svh] pt-4 sm:pt-0">
+        <section className="relative z-10 min-h-[100svh] overflow-visible pt-4 sm:pt-0">
           <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-start gap-10 px-4 pb-10 pt-4 sm:gap-12 sm:px-6 sm:pb-16 sm:pt-2 md:items-center md:pt-3 lg:grid-cols-2 lg:gap-16 xl:gap-24">
             <motion.div
               aria-hidden
-              className="pointer-events-none order-3 w-full max-w-[min(92vw,420px)] justify-self-center md:absolute md:bottom-0 md:left-4 md:z-[5] md:w-[min(92vw,560px)] md:translate-y-[18%] md:max-w-none lg:order-1"
+              className="pointer-events-none order-3 w-full max-w-[min(94vw,440px)] translate-y-4 justify-self-center sm:translate-y-6 md:absolute md:bottom-0 md:left-4 md:z-[5] md:w-[min(92vw,560px)] md:translate-y-[18%] md:max-w-none lg:order-1"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.7, ease: easeInOut, delay: 0.05 }}
@@ -149,7 +149,7 @@ export default function Page() {
                   ease: easeInOut,
                 }}
               >
-                <div className="relative p-3 sm:p-5 md:p-6">
+                <div className="relative p-2.5 sm:p-5 md:p-6">
                   <div className="relative rounded-3xl border-2 border-fuchsia-500 bg-transparent shadow-[0_0_0_1px_rgba(217,70,239,0.35),0_18px_60px_rgba(192,38,211,0.22)]">
                     <div className="relative aspect-[1024/487] w-full">
                       <Image
