@@ -3,13 +3,13 @@ import Image from "next/image";
 export default function PartnersSection() {
   // We repeat the 3 logos to perfectly fill your 7 slots
   const partners = [
-    { name: "Paystack", src: "/partner-paystack.png", needsInvert: true },
+    { name: "Paystack", src: "/partner-paystack.svg", needsInvert: false },
     { name: "Privy", src: "/partner-privy.png", needsInvert: false },
     { name: "TinyFish", src: "/partner-tinyfish.png", needsInvert: true },
-    { name: "Paystack", src: "/partner-paystack.png", needsInvert: true },
+    { name: "Paystack", src: "/partner-paystack.svg", needsInvert: false },
     { name: "Privy", src: "/partner-privy.png", needsInvert: false },
     { name: "TinyFish", src: "/partner-tinyfish.png", needsInvert: true },
-    { name: "Paystack", src: "/partner-paystack.png", needsInvert: true }, // Ends on Paystack to make 7
+    { name: "Paystack", src: "/partner-paystack.svg", needsInvert: false }, // Ends on Paystack to make 7
   ];
 
   return (
