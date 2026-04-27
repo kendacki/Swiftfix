@@ -135,7 +135,7 @@ export default function Page() {
           <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-center gap-8 px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:grid-cols-2 lg:gap-16 xl:gap-24">
             <motion.div
               aria-hidden
-              className="pointer-events-none absolute bottom-0 left-4 z-[5] hidden w-[min(92vw,560px)] translate-y-[18%] sm:left-6 md:block"
+              className="pointer-events-none order-3 w-full max-w-[min(92vw,420px)] justify-self-center md:absolute md:bottom-0 md:left-4 md:z-[5] md:w-[min(92vw,560px)] md:translate-y-[18%] md:max-w-none"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.7, ease: easeInOut, delay: 0.05 }}
@@ -149,7 +149,7 @@ export default function Page() {
                   ease: easeInOut,
                 }}
               >
-                <div className="relative p-5 sm:p-6">
+                <div className="relative p-3 sm:p-5 md:p-6">
                   <div className="relative rounded-3xl border-2 border-fuchsia-500 bg-transparent shadow-[0_0_0_1px_rgba(217,70,239,0.35),0_18px_60px_rgba(192,38,211,0.22)]">
                     <div className="relative aspect-[1024/487] w-full">
                       <Image
@@ -162,7 +162,7 @@ export default function Page() {
                     </div>
 
                     <motion.div
-                      className="pointer-events-none absolute left-[-2%] top-[-10%] z-10 w-[clamp(96px,18%,118px)]"
+                      className="pointer-events-none absolute left-[-2%] top-[-10%] z-10 w-[clamp(82px,16vw,118px)]"
                       style={{ rotate: "-15deg" }}
                       animate={{ y: [0, -6, 0], rotate: [-15, -12, -15] }}
                       transition={{
@@ -181,7 +181,7 @@ export default function Page() {
                     </motion.div>
 
                     <motion.div
-                      className="pointer-events-none absolute bottom-[14%] left-[-8%] z-10 w-[clamp(124px,30%,178px)]"
+                      className="pointer-events-none absolute bottom-[14%] left-[-8%] z-10 w-[clamp(110px,28vw,178px)]"
                       style={{ rotate: "10deg" }}
                       animate={{ y: [0, -7, 0], rotate: [10, 7, 10] }}
                       transition={{
@@ -230,7 +230,7 @@ export default function Page() {
                     </motion.div>
 
                     <motion.div
-                      className="pointer-events-none absolute right-[-16%] top-[30%] z-10 w-[clamp(108px,20%,126px)]"
+                      className="pointer-events-none absolute right-[-16%] top-[30%] z-10 w-[clamp(92px,20vw,126px)]"
                       style={{ rotate: "9deg" }}
                       animate={{ y: [0, -6, 0], rotate: [9, 6, 9] }}
                       transition={{
@@ -272,7 +272,7 @@ export default function Page() {
             </motion.div>
 
             <motion.div
-              className="order-1 w-full max-w-xl -translate-y-20 text-center sm:max-w-2xl sm:-translate-y-28 sm:text-right lg:order-1 lg:max-w-3xl lg:-translate-y-36 lg:text-left"
+              className="order-1 w-full max-w-xl translate-y-0 text-center sm:max-w-2xl sm:-translate-y-20 sm:text-right lg:order-1 lg:max-w-3xl lg:-translate-y-36 lg:text-left"
               variants={stagger}
               initial="hidden"
               animate="show"
@@ -340,7 +340,7 @@ export default function Page() {
               transition={{ duration: 0.6, ease: easeInOut }}
             >
               <motion.div
-                className="relative aspect-square w-full max-w-[260px] bg-transparent !bg-none sm:max-w-md lg:max-w-none"
+                className="relative aspect-square w-full max-w-[220px] bg-transparent !bg-none sm:max-w-md lg:max-w-none"
                 animate={{ y: [0, -9, 0] }}
                 transition={{
                   duration: 6,

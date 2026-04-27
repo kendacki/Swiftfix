@@ -28,7 +28,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           <AnimatePresence mode="wait" initial={false}>
             <motion.main
               key={pathname}
-              className="flex-1 p-4 sm:p-6"
+              className="flex-1 p-3 sm:p-6"
               initial={{ opacity: 0, y: 10, filter: "blur(6px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -6, filter: "blur(6px)" }}

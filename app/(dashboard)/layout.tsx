@@ -18,10 +18,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <div
         className={[
           poppins.className,
-          "text-[15px] font-normal tracking-wide leading-relaxed",
-          "[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:tracking-tight",
-          "[&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight",
-          "[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:tracking-tight",
+          "text-[14px] font-normal tracking-normal leading-relaxed sm:text-[15px] sm:tracking-wide",
+          "[&_h1]:text-xl [&_h1]:font-bold [&_h1]:tracking-tight sm:[&_h1]:text-2xl",
+          "[&_h2]:text-xl [&_h2]:font-bold [&_h2]:tracking-tight sm:[&_h2]:text-2xl",
+          "[&_h3]:text-lg [&_h3]:font-bold [&_h3]:tracking-tight sm:[&_h3]:text-2xl",
         ].join(" ")}
       >
         <DashboardShell>{children}</DashboardShell>

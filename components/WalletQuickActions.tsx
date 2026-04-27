@@ -131,19 +131,19 @@ export function WalletQuickActions() {
   return (
     <section className="space-y-3">
       {embeddedAddress ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
               Your embedded wallet (EVM)
             </div>
-            <div className="mt-1 truncate font-mono text-xs text-zinc-900">
+            <div className="mt-1 break-all font-mono text-[11px] leading-5 text-zinc-900 sm:text-xs">
               {embeddedAddress}
             </div>
           </div>
           <button
             type="button"
             onClick={() => void handleCopyAddress()}
-            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-semibold text-zinc-900 hover:bg-zinc-100"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-semibold text-zinc-900 hover:bg-zinc-100 sm:w-auto"
           >
             <Copy className="h-3.5 w-3.5" />
             Copy
@@ -152,49 +152,49 @@ export function WalletQuickActions() {
       ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2">
-      <button
-        type="button"
-        disabled={isPending || isVerifyingFiat}
-        onClick={handleFundNgnPaystack}
-        className="group flex items-center justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:cursor-not-allowed disabled:opacity-70"
-      >
-        <div className="flex items-center gap-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 text-white">
-            <ArrowDownToLine className="h-5 w-5" />
-          </div>
-          <div className="text-left">
-            <div className="text-sm font-semibold tracking-tight text-zinc-900">
-              Fund NGN (Paystack)
+        <button
+          type="button"
+          disabled={isPending || isVerifyingFiat}
+          onClick={handleFundNgnPaystack}
+          className="group flex items-center justify-between rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:cursor-not-allowed disabled:opacity-70 sm:p-5"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 text-white sm:h-11 sm:w-11">
+              <ArrowDownToLine className="h-5 w-5" />
             </div>
-            <div className="mt-0.5 text-xs text-zinc-600">
-              Pay with card/bank transfer (sandbox) and verify instantly.
+            <div className="text-left">
+              <div className="text-sm font-semibold tracking-tight text-zinc-900">
+                Fund NGN (Paystack)
+              </div>
+              <div className="mt-0.5 text-xs text-zinc-600">
+                Pay with card/bank transfer (sandbox) and verify instantly.
+              </div>
             </div>
           </div>
-        </div>
-        <ArrowUpRight className="h-5 w-5 text-zinc-400 transition group-hover:text-zinc-700" />
-      </button>
+          <ArrowUpRight className="h-5 w-5 text-zinc-400 transition group-hover:text-zinc-700" />
+        </button>
 
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={handleFundUsdt}
-        className="group flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-900 p-5 shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:cursor-not-allowed disabled:opacity-80"
-      >
-        <div className="flex items-center gap-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white">
-            <ArrowDownToLine className="h-5 w-5" />
-          </div>
-          <div className="text-left">
-            <div className="text-sm font-semibold tracking-tight text-white">
-              Fund USDT
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={handleFundUsdt}
+          className="group flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-900 p-4 text-left shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:cursor-not-allowed disabled:opacity-80 sm:p-5"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white sm:h-11 sm:w-11">
+              <ArrowDownToLine className="h-5 w-5" />
             </div>
-            <div className="mt-0.5 text-xs text-white/70">
-              Use Privy&apos;s on-ramp to choose network and fund USDT.
+            <div className="text-left">
+              <div className="text-sm font-semibold tracking-tight text-white">
+                Fund USDT
+              </div>
+              <div className="mt-0.5 text-xs text-white/70">
+                Use Privy&apos;s on-ramp to choose network and fund USDT.
+              </div>
             </div>
           </div>
-        </div>
-        <ArrowUpRight className="h-5 w-5 text-white/50 transition group-hover:text-white" />
-      </button>
+          <ArrowUpRight className="h-5 w-5 text-white/50 transition group-hover:text-white" />
+        </button>
       </div>
     </section>
   );

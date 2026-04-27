@@ -104,7 +104,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
                 onClick={() => {
                   void logout();
                 }}
-                className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300"
+                  className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-xs font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300 sm:text-sm"
               >
                 <LogOut className="h-4 w-4" />
                 Logout
@@ -116,7 +116,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
               onClick={() => {
                 login();
               }}
-              className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300"
+              className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-xs font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300 sm:text-sm"
             >
               <LogIn className="h-4 w-4" />
               Login
@@ -141,7 +141,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
             </button>
 
             {profileOpen && ready && authenticated ? (
-              <div className="absolute right-0 top-12 z-50 w-[320px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg">
+              <div className="absolute right-0 top-12 z-50 w-[min(320px,calc(100vw-1rem))] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg sm:w-[320px]">
                 <div className="border-b border-zinc-200 px-4 py-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
                     Profile

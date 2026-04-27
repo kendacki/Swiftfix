@@ -89,12 +89,12 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
       <div className={mobileOpen ? "lg:hidden" : "hidden lg:hidden"}>
         <button
           type="button"
-          className="fixed inset-0 z-40 bg-black/40"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px]"
           aria-label="Close navigation menu"
           onClick={onMobileClose}
         />
 
-        <aside className="fixed left-0 top-0 z-50 flex h-full w-72 flex-col bg-slate-950 text-white shadow-xl">
+        <aside className="fixed left-0 top-0 z-50 flex h-full w-[min(18rem,88vw)] flex-col bg-slate-950 text-white shadow-xl">
           <div className="flex h-16 items-center justify-between px-5">
             <button
               type="button"
