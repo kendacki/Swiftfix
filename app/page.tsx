@@ -272,7 +272,7 @@ export default function Page() {
             </motion.div>
 
             <motion.div
-              className="order-1 w-full max-w-xl text-center sm:max-w-2xl sm:text-right lg:absolute lg:left-6 lg:top-[34%] lg:z-[12] lg:w-[min(52vw,640px)] lg:max-w-none lg:text-left xl:left-10"
+              className="order-1 w-full max-w-xl text-center sm:max-w-2xl sm:text-right lg:order-1 lg:max-w-3xl lg:text-left"
               variants={stagger}
               initial="hidden"
               animate="show"
