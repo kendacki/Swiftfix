@@ -118,7 +118,7 @@ export default function Page() {
                 <motion.button
                   type="button"
                   onClick={() => login()}
-                  className="rounded-full border border-fuchsia-500/80 bg-black px-4 py-2 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(217,70,239,0.25),0_14px_45px_rgba(217,70,239,0.18)] transition hover:border-fuchsia-400/90 hover:bg-zinc-950"
+                  className="rounded-full border border-purple-500 bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(147,51,234,0.25),0_14px_45px_rgba(147,51,234,0.18)] transition hover:bg-purple-700"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, ease: easeInOut }}
