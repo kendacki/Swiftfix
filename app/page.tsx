@@ -131,11 +131,11 @@ export default function Page() {
         </header>
 
         {/* Hero */}
-        <section className="relative z-10 min-h-[100svh]">
-          <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-center gap-8 px-4 pb-10 pt-0 sm:px-6 sm:pb-16 sm:pt-2 md:pt-3 lg:grid-cols-2 lg:gap-16 xl:gap-24">
+        <section className="relative z-10 min-h-[100svh] pt-4 sm:pt-0">
+          <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-6xl grid-cols-1 items-start gap-8 px-4 pb-10 pt-4 sm:px-6 sm:pb-16 sm:pt-2 md:items-center md:pt-3 lg:grid-cols-2 lg:gap-16 xl:gap-24">
             <motion.div
               aria-hidden
-              className="pointer-events-none order-3 w-full max-w-[min(92vw,420px)] justify-self-center md:absolute md:bottom-0 md:left-4 md:z-[5] md:w-[min(92vw,560px)] md:translate-y-[18%] md:max-w-none"
+              className="pointer-events-none order-2 w-full max-w-[min(92vw,420px)] justify-self-center md:absolute md:bottom-0 md:left-4 md:z-[5] md:w-[min(92vw,560px)] md:translate-y-[18%] md:max-w-none lg:order-1"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.7, ease: easeInOut, delay: 0.05 }}
@@ -272,7 +272,7 @@ export default function Page() {
             </motion.div>
 
             <motion.div
-              className="order-1 w-full max-w-xl translate-y-0 text-center sm:max-w-2xl sm:-translate-y-20 sm:text-right lg:order-1 lg:max-w-3xl lg:-translate-y-36 lg:text-left"
+              className="order-1 w-full max-w-xl text-center sm:max-w-2xl sm:text-right md:pt-6 lg:order-1 lg:max-w-3xl lg:text-left lg:pt-0"
               variants={stagger}
               initial="hidden"
               animate="show"
@@ -334,13 +334,13 @@ export default function Page() {
             </motion.div>
 
             <motion.div
-              className="relative z-10 order-2 flex justify-center lg:order-2 lg:justify-end lg:pl-8 xl:pl-14"
+              className="relative z-10 order-3 flex justify-center md:order-2 lg:justify-end lg:pl-8 xl:pl-14"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: easeInOut }}
             >
               <motion.div
-                className="relative aspect-square w-full max-w-[220px] bg-transparent !bg-none sm:max-w-md lg:max-w-none"
+                className="relative aspect-square w-full max-w-[200px] bg-transparent !bg-none sm:max-w-md lg:max-w-none"
                 animate={{ y: [0, -9, 0] }}
                 transition={{
                   duration: 6,
