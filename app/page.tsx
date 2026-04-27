@@ -578,7 +578,7 @@ export default function Page() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-tr from-black/85 via-black/40 to-transparent" />
                   </div>
-                  <div className="relative flex min-h-[210px] flex-col justify-end p-5 text-white sm:min-h-[240px] sm:p-6">
+                  <div className="relative flex min-h-[210px] -translate-y-4 flex-col justify-end p-5 text-white sm:min-h-[240px] sm:p-6">
                     <div className="grid h-10 w-10 place-items-center rounded-full bg-white/15 shadow-[0_14px_40px_rgba(0,0,0,0.25)] ring-1 ring-white/25">
                       <Wallet className="h-5 w-5" />
                     </div>
