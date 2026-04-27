@@ -1,15 +1,10 @@
 import Image from "next/image";
 
 export default function PartnersSection() {
-  // We repeat the 3 logos to perfectly fill your 7 slots
   const partners = [
     { name: "Paystack", src: "/partner-paystack.svg", needsInvert: false },
     { name: "Privy", src: "/partner-privy.png", needsInvert: false },
     { name: "TinyFish", src: "/partner-tinyfish.png", needsInvert: true },
-    { name: "Paystack", src: "/partner-paystack.svg", needsInvert: false },
-    { name: "Privy", src: "/partner-privy.png", needsInvert: false },
-    { name: "TinyFish", src: "/partner-tinyfish.png", needsInvert: true },
-    { name: "Paystack", src: "/partner-paystack.svg", needsInvert: false }, // Ends on Paystack to make 7
   ];
 
   return (
@@ -22,26 +17,42 @@ export default function PartnersSection() {
           </span>
         </p>
 
-        {/* The Grid: Changes from 2 columns on mobile, to 4 on tablet, to 7 on desktop */}
-        <div className="grid grid-cols-2 items-center justify-items-center gap-8 opacity-95 md:grid-cols-4 lg:grid-cols-7">
-          {partners.map((partner, index) => (
-            <div
-              key={index}
-              className="relative h-14 w-36 grayscale opacity-85 transition-all duration-300 hover:grayscale-0 hover:opacity-100 sm:h-16 sm:w-44"
-            >
-              <Image
-                src={partner.src}
-                alt={`${partner.name} Logo`}
-                fill
-                className={[
-                  "object-contain",
-                  partner.needsInvert ? "brightness-0 invert" : "",
-                ].join(" ")}
-              />
-            </div>
-          ))}
+        <div className="relative overflow-hidden">
+          <div className="partners-marquee flex w-max items-center gap-10 opacity-95 sm:gap-14">
+            {[...partners, ...partners].map((partner, index) => (
+              <div
+                key={`${partner.name}-${index}`}
+                className="relative h-14 w-36 shrink-0 grayscale opacity-85 transition-all duration-300 hover:grayscale-0 hover:opacity-100 sm:h-16 sm:w-44"
+              >
+                <Image
+                  src={partner.src}
+                  alt={`${partner.name} Logo`}
+                  fill
+                  className={[
+                    "object-contain",
+                    partner.needsInvert ? "brightness-0 invert" : "",
+                  ].join(" ")}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .partners-marquee {
+          animation: partners-marquee-scroll 16s linear infinite;
+        }
+
+        @keyframes partners-marquee-scroll {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
     </section>
   );
 }
