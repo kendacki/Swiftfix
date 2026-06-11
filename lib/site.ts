@@ -1,7 +1,15 @@
 const PRODUCTION_SITE_URL = "https://swiftfixs.app";
 
-export function getSiteUrl(): string {
+function siteUrlFromEnv(): string | undefined {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  if (!fromEnv) return undefined;
+  // Only trust env when it points at the SwiftFix domain.
+  if (fromEnv.includes("swiftfixs.app")) return fromEnv;
+  return undefined;
+}
+
+export function getSiteUrl(): string {
+  const fromEnv = siteUrlFromEnv();
   if (fromEnv) return fromEnv;
 
   if (process.env.NODE_ENV === "development") {
