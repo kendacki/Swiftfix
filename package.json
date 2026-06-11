@@ -12,6 +12,7 @@
     "build:vercel": "npx prisma db push && npx prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "generate-favicons": "node scripts/generate-favicons.mjs",
     "predeploy": "pnpm run lint && pnpm run build",
     "safe-push": "pnpm run predeploy && git push",
     "clean-install": "node -e \"const {rmSync}=require('fs'); rmSync('node_modules',{recursive:true,force:true});\" && pnpm install",
@@ -44,7 +45,9 @@
     "eslint-config-next": "16.2.1",
     "husky": "^9.1.7",
     "prisma": "6.5.0",
+    "sharp": "^0.35.1",
     "tailwindcss": "^4",
+    "to-ico": "^1.1.5",
     "typescript": "^5"
   },
   "overrides": {
