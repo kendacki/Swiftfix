@@ -13,6 +13,7 @@
     "start": "next start",
     "lint": "eslint .",
     "generate-favicons": "node scripts/generate-favicons.mjs",
+    "generate-og-image": "node scripts/generate-og-image.mjs",
     "predeploy": "pnpm run lint && pnpm run build",
     "safe-push": "pnpm run predeploy && git push",
     "clean-install": "node -e \"const {rmSync}=require('fs'); rmSync('node_modules',{recursive:true,force:true});\" && pnpm install",

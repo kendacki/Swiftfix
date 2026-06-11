@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import { Providers } from "../components/Providers";
-import { getMetadataBase } from "@/lib/site";
-
-const siteDescription =
-  "Seamlessly request trusted artisans, and pay them in Naira or USDT. Control your savings the Swift way.";
+import { siteMetadata } from "@/lib/metadata";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -19,12 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: getMetadataBase(),
-  title: {
-    default: "SwiftFix",
-    template: "%s | SwiftFix",
-  },
-  description: siteDescription,
+  ...siteMetadata,
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -35,18 +27,6 @@ export const metadata: Metadata = {
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
-  },
-  openGraph: {
-    type: "website",
-    siteName: "SwiftFix",
-    title: "SwiftFix",
-    description: siteDescription,
-    locale: "en_US",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "SwiftFix",
-    description: siteDescription,
   },
 };
 
